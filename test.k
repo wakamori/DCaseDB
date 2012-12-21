@@ -1,4 +1,4 @@
-load("MiniDcaseDB.k");
+load("db.k");
 
 void main() {
 	DCaseRepository repo = new DCaseRepository();
