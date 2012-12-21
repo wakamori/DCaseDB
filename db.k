@@ -2,7 +2,7 @@ import("konoha.const");
 import("konoha.global");
 import("konoha.json");
 import("openssl");
-import("konoha.foreach");
+import("cstyle");
 import("konoha.class");
 import("konoha.array");
 import("konoha.new");
@@ -19,19 +19,57 @@ const ARGUMENT = 5;
 	String  description;
 	boolean is_evidence;
 	boolean is_consensus;
+	Node() {
+
+	}
+	Json toJson() {
+		Json json = new Json();
+		json.setString("NodeName",this.name);
+		return json;
+	}
 }
 
 @Public class Link {
 	Node parent;
 	Node child;
+	Link() {
+	}
+
+	//TODO create node id.
+	Json toJson() {
+		Json json = new Json();
+		json.setString("parent",this.parent.name);
+		json.setString("child",this.child.name);
+
+		return json;
+	}
 }
 
 @Public class Context extends Node {
 	Json condition;
+	Context() {
+	}
 }
 
 @Public class Goal extends Node {
 	Context context;
+	Goal() {
+
+	}
+}
+
+@Public class Strategy extends Node {
+	Context context;
+	Strategy() {
+
+	}
+}
+
+@Public class Evidence extends Node {
+	Context context;
+	Evidence() {
+
+	}
 }
 
 @Public class Commit {
@@ -78,13 +116,31 @@ const ARGUMENT = 5;
 		System.p(json);
 	}
 
-	Json toJson() {
-		Json j = new Json();
-		for(Node it in this.nodes) {
-			j.setString("text",it.name);
+	@Private Json NodesToJson() {
+		Json json = Json.parse("[]");
+		for(int i = 0; i < this.nodes.getSize();i++) {
+			json.add(this.nodes[i].toJson());
 		}
-		j.setString("root",this.root.name);
-		return j;
+		return json;
+	}
+
+	@Private Json LinksToJson() {
+		Json json = Json.parse("[]");
+		System.p(this.links.getSize());
+		for(int i = 0;i < this.links.getSize();i++) {
+			json.add(this.links[i].toJson());
+			System.p(json);
+		}
+		return json;
+	}
+
+	Json toJson() {
+		Json json = new Json();
+		json.setString("root",this.root.name);
+
+		json.set("childlen",this.NodesToJson());
+		json.set("links",this.LinksToJson());
+		return json;
 	}
 }
 
@@ -115,13 +171,21 @@ const ARGUMENT = 5;
 
 	Node Create(int NodeType, Json content) {
 		if(NodeType == GOAL) {
-			return new Goal(content);
-		} else if (NodeType == STARTEGY) {
-			return new Strategy();
+			Goal node = new Goal();
+			this.tree.nodes.add(node);
+			return node;
+		} else if (NodeType == STRATEGY) {
+			Strategy node = new Strategy();
+			this.tree.nodes.add(node);
+			return node;
 		} else if (NodeType == CONTEXT) {
-			return new Context();
+			Context node = new Context();
+			this.tree.nodes.add(node);
+			return node;
 		} else if (NodeType == EVIDENCE) {
-			return new Evidence();
+			Evidence node = new Evidence();
+			this.tree.nodes.add(node);
+			return node;
 		}
 		return new Node();
 	}
