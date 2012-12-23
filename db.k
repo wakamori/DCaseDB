@@ -4,7 +4,7 @@ import("konoha.json");
 import("openssl");
 import("cstyle");
 import("konoha.class");
-import("konoha.array");
+import("js4.array");
 import("konoha.new");
 
 const NODE = 0;
