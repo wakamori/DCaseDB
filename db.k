@@ -24,10 +24,15 @@ class Node {
 		if(content.hasKey("name")) {
 			this.name = content.getString("name");
 		}
+		if(content.hasKey("description")) {
+			this.name = content.getString("description");
+		}
 	}
 	Json toJson() {
 		Json json = new Json();
-		json.setString("NodeName",this.name);
+		json.setString("name",this.name);
+		json.setString("description",this.description);
+		json.setBoolean("is_evidence",this.is_evidence);
 		return json;
 	}
 }
@@ -38,7 +43,6 @@ class Link {
 	Link() {
 	}
 
-	//TODO create node id.
 	Json toJson() {
 		Json json = new Json();
 		json.setString("parent",this.parent);
@@ -141,13 +145,13 @@ class Tree {
 		this.commit_log = new CommitLog();
 	}
 
-	void dumpTree() {
+	Json jsonTree() {
 		Json json = this.toJson();
-		System.p(json);
+		return json;
 	}
 
-	void dumpCommitLog() {
-		System.p(this.commit_log.toJson());
+	Json jsonCommitLog() {
+		return this.commit_log.toJson();
 	}
 
 	void Commit(String method, Json argument) {
