@@ -27,6 +27,9 @@ class Node {
 		if(content.hasKey("description")) {
 			this.name = content.getString("description");
 		}
+		if(content.hasKey("is_evidence")) {
+			this.name = content.getString("is_evidence");
+		}
 	}
 	Json toJson() {
 		Json json = new Json();
