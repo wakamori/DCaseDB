@@ -15,13 +15,15 @@ const CONTEXT = 3;
 const EVIDENCE = 4;
 const ARGUMENT = 5;
 
-@Public class Node {
+class Node {
 	String  name;
 	String  description;
 	boolean is_evidence;
 	boolean is_consensus;
-	Node() {
-
+	Node(Json content) {
+		if(content.hasKey("name")) {
+			this.name = content.getString("name");
+		}
 	}
 	Json toJson() {
 		Json json = new Json();
@@ -30,7 +32,7 @@ const ARGUMENT = 5;
 	}
 }
 
-@Public class Link {
+class Link {
 	String parent;
 	String child;
 	Link() {
@@ -46,9 +48,9 @@ const ARGUMENT = 5;
 	}
 }
 
-@Public class Context extends Node {
+class Context extends Node {
 	Json condition;
-	Context(Json Content) {
+	Context() {
 	}
 	String searchValue(String key) {
 		if(this.condition.hasKey(key)) {
@@ -58,39 +60,34 @@ const ARGUMENT = 5;
 	}
 }
 
-@Public class Goal extends Node {
+class Goal extends Node {
 	Context context;
-	Goal(Json Content) {
+	Goal() {
 
 	}
 }
 
-@Public class Strategy extends Node {
+class Strategy extends Node {
 	Context context;
-	Strategy(Json content) {
-		if(content.hasKey("name")) {
-			this.name = content.getString("name");
-		}
+	Strategy() {
 	}
 }
 
-@Public class Evidence extends Node {
-	Evidence(Json Content) {
+class Evidence extends Node {
+	Evidence() {
 
 	}
 }
 
-@Public class Commit {
+class Commit {
 	String method;
 	Json argument;
 	String revision;
 
-	Commit(String method, Json argument) {
+	Commit(String method, Json argument, String revision) {
 		this.method   = method;
 		this.argument = argument;
-		MD5 m = new MD5();
-		m.update(new Date().toString());
-		this.revision = m.final();
+		this.revision = revision;
 	}
 
 	Json toJson() {
@@ -103,16 +100,21 @@ const ARGUMENT = 5;
 	}
 }
 
-@Public class CommitLog {
+class CommitLog {
 	Commit[] commits;
+	String head;
+	MD5 md5;
 
 	CommitLog() {
 		this.commits = new Commit[0];
+		this.md5 = new MD5();
+		md5.update(new Date().toString());
 	}
 
 	String addCommit(String method, Json argument) {
-		Commit commit = new Commit(method, argument);
+		Commit commit = new Commit(method, argument, this.md5.final());
 		this.commits.add(commit);
+		this.head = commit.revision;
 		return commit.revision;
 	}
 
@@ -122,7 +124,9 @@ const ARGUMENT = 5;
 		for(int i = 0;i < this.commits.getSize(); i++) {
 			json.add(this.commits[i].toJson());
 		}
-		return json;
+		Json wrap = new Json();
+		wrap.set("CommitLog",json);
+		return wrap;
 	}
 }
 
