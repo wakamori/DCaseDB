@@ -15,7 +15,7 @@ const EVIDENCE = 4;
 const ARGUMENT = 5;
 
 @Public class Node {
-	String  name;
+	String  name; //UNIQUE
 	String  description;
 	boolean is_evidence;
 	boolean is_consensus;
@@ -30,16 +30,16 @@ const ARGUMENT = 5;
 }
 
 @Public class Link {
-	Node parent;
-	Node child;
+	String parent;
+	String child;
 	Link() {
 	}
 
 	//TODO create node id.
 	Json toJson() {
 		Json json = new Json();
-		json.setString("parent",this.parent.name);
-		json.setString("child",this.child.name);
+		json.setString("parent",this.parent);
+		json.setString("child",this.child);
 
 		return json;
 	}
@@ -100,7 +100,7 @@ const ARGUMENT = 5;
 	}
 }
 
-@Public class Tree {
+class Tree {
 	CommitLog commit_log;
 	Node     root;
 	Node[]   nodes;
@@ -117,7 +117,8 @@ const ARGUMENT = 5;
 	}
 
 	@Private Json NodesToJson() {
-		Json json = Json.parse("[]");
+		String str = "[]";
+		Json json = Json.parse(str);
 		for(int i = 0; i < this.nodes.getSize();i++) {
 			json.add(this.nodes[i].toJson());
 		}
@@ -125,11 +126,10 @@ const ARGUMENT = 5;
 	}
 
 	@Private Json LinksToJson() {
-		Json json = Json.parse("[]");
-		System.p(this.links.getSize());
+		String str = "[]";
+		Json json = Json.parse(str);
 		for(int i = 0;i < this.links.getSize();i++) {
 			json.add(this.links[i].toJson());
-			System.p(json);
 		}
 		return json;
 	}
@@ -137,8 +137,7 @@ const ARGUMENT = 5;
 	Json toJson() {
 		Json json = new Json();
 		json.setString("root",this.root.name);
-
-		json.set("childlen",this.NodesToJson());
+		json.set("nodes",this.NodesToJson());
 		json.set("links",this.LinksToJson());
 		return json;
 	}
@@ -152,7 +151,7 @@ const ARGUMENT = 5;
 
 	void init() {
 		Goal g = new Goal();
-		g.name = "it is root.";
+		g.name = "Root";
 		this.tree = new Tree(g);
 	}
 
@@ -190,7 +189,7 @@ const ARGUMENT = 5;
 		return new Node();
 	}
 
-	void Insert(Node parent, Node child) {
+	void Insert(String parent, String child) {
 		Link l = new Link();
 		l.parent = parent;
 		l.child = child;
