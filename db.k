@@ -6,6 +6,7 @@ import("cstyle");
 import("konoha.class");
 import("js4.array");
 import("konoha.new");
+import("konoha.date");
 
 const NODE = 0;
 const GOAL = 1;
@@ -47,7 +48,7 @@ const ARGUMENT = 5;
 
 @Public class Context extends Node {
 	Json condition;
-	Context() {
+	Context(Json Content) {
 	}
 	String searchValue(String key) {
 		if(this.condition.hasKey(key)) {
@@ -59,20 +60,22 @@ const ARGUMENT = 5;
 
 @Public class Goal extends Node {
 	Context context;
-	Goal() {
+	Goal(Json Content) {
 
 	}
 }
 
 @Public class Strategy extends Node {
 	Context context;
-	Strategy() {
-
+	Strategy(Json content) {
+		if(content.hasKey("name")) {
+			this.name = content.getString("name");
+		}
 	}
 }
 
 @Public class Evidence extends Node {
-	Evidence() {
+	Evidence(Json Content) {
 
 	}
 }
@@ -89,6 +92,15 @@ const ARGUMENT = 5;
 		m.update(new Date().toString());
 		this.revision = m.final();
 	}
+
+	Json toJson() {
+		Json json = new Json();
+		json.setString("method",this.method);
+		json.set("argument",this.argument); //FIXME
+		json.setString("revision",this.revision);
+
+		return json;
+	}
 }
 
 @Public class CommitLog {
@@ -102,6 +114,15 @@ const ARGUMENT = 5;
 		Commit commit = new Commit(method, argument);
 		this.commits.add(commit);
 		return commit.revision;
+	}
+
+	Json toJson() {
+		String str = "[]";
+		Json json = Json.parse(str);
+		for(int i = 0;i < this.commits.getSize(); i++) {
+			json.add(this.commits[i].toJson());
+		}
+		return json;
 	}
 }
 
@@ -119,6 +140,14 @@ class Tree {
 	void dumpTree() {
 		Json json = this.toJson();
 		System.p(json);
+	}
+
+	void dumpCommitLog() {
+		System.p(this.commit_log.toJson());
+	}
+
+	void Commit(String method, Json argument) {
+		this.commit_log.addCommit(method,argument);
 	}
 
 	@Private Json NodesToJson() {
@@ -185,19 +214,31 @@ class Tree {
 
 	Node Create(int NodeType, Json content) {
 		if(NodeType == GOAL) {
-			Goal node = new Goal();
+			content.setString("NodeType","GOAL");
+			this.tree.Commit("Create",content);
+
+			Goal node = new Goal(content);
 			this.tree.nodes.add(node);
 			return node;
 		} else if (NodeType == STRATEGY) {
-			Strategy node = new Strategy();
+			content.setString("NodeType","STRATEGY");
+			this.tree.Commit("Create",content);
+
+			Strategy node = new Strategy(content);
 			this.tree.nodes.add(node);
 			return node;
 		} else if (NodeType == CONTEXT) {
-			Context node = new Context();
+			content.setString("NodeType","CONTEXT");
+			this.tree.Commit("Create",content);
+
+			Context node = new Context(content);
 			this.tree.nodes.add(node);
 			return node;
 		} else if (NodeType == EVIDENCE) {
-			Evidence node = new Evidence();
+			content.setString("NodeType","EVIDENCE");
+			this.tree.Commit("Create",content);
+
+			Evidence node = new Evidence(content);
 			this.tree.nodes.add(node);
 			return node;
 		}
@@ -209,14 +250,18 @@ class Tree {
 		l.parent = parent;
 		l.child = child;
 		this.tree.links.add(l);
+		this.tree.Commit("Insert",l.toJson());
 	}
 
 	void Update(Node node, Json contents) {
-		node.update(Json);
+		this.tree.Commit("Update",contents.toJson());
+		node.update(contents);
 	}
 
+	//TODO
 	void Delete(Node parent, Node child) {
-		this.tree.deleteLink(parent,child);
+		//this.tree.Commit("Delete",);
+		//this.tree.deleteLink(parent,child);
 	}
 
 }
