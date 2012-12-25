@@ -15,7 +15,7 @@ const EVIDENCE = 4;
 const ARGUMENT = 5;
 
 @Public class Node {
-	String  name; //UNIQUE
+	String  name;
 	String  description;
 	boolean is_evidence;
 	boolean is_consensus;
@@ -49,6 +49,12 @@ const ARGUMENT = 5;
 	Json condition;
 	Context() {
 	}
+	String searchValue(String key) {
+		if(this.condition.hasKey(key)) {
+			return this.condition.getString(key);
+		}
+		return NULL;
+	}
 }
 
 @Public class Goal extends Node {
@@ -66,7 +72,6 @@ const ARGUMENT = 5;
 }
 
 @Public class Evidence extends Node {
-	Context context;
 	Evidence() {
 
 	}
@@ -141,6 +146,15 @@ class Tree {
 		json.set("links",this.LinksToJson());
 		return json;
 	}
+
+	@Private Node searchTree(String search) {
+		for(int i = 0; i < this.nodes.getSize(); i++) {
+			if(this.nodes[i].name == search) {
+				return this.nodes[i];
+			}
+		}
+		return NULL;
+	}
 }
 
 @Public class DCaseRepository {
@@ -149,14 +163,14 @@ class Tree {
 	DCaseRepository() {
 	}
 
-	void init() {
+	void Initialize() {
 		Goal g = new Goal();
 		g.name = "Root";
 		this.tree = new Tree(g);
 	}
 
 	void connectRepository() {
-		this.init(); //FIXME
+		this.Initialize(); //FIXME
 	}
 
 	//TODO Search Argument
@@ -164,8 +178,9 @@ class Tree {
 		return this.tree;
 	}
 
-	//TODO many tree
-	Node[] Select(Node root, String searchText) {
+	//TODO many tree & return Node[]
+	Node Select(Node root, String searchText) {
+		return this.tree.searchTree(searchText);
 	}
 
 	Node Create(int NodeType, Json content) {
