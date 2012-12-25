@@ -133,6 +133,7 @@ class CommitLog {
 		}
 		Json wrap = new Json();
 		wrap.set("CommitLog",json);
+		wrap.setString("HEAD", this.head);
 		return wrap;
 	}
 }
