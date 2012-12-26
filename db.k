@@ -15,12 +15,12 @@ const CONTEXT = 3;
 const EVIDENCE = 4;
 const ARGUMENT = 5;
 
-class Node {
+class DBNode {
 	String  name;
 	String  description;
 	boolean is_evidence;
 	boolean is_consensus;
-	Node(Json content) {
+	DBNode(Json content) {
 		if(content.hasKey("name")) {
 			this.name = content.getString("name");
 		}
@@ -55,7 +55,7 @@ class Link {
 	}
 }
 
-class Context extends Node {
+class Context extends DBNode {
 	Json condition;
 	Context() {
 	}
@@ -67,20 +67,20 @@ class Context extends Node {
 	}
 }
 
-class Goal extends Node {
+class Goal extends DBNode {
 	Context context;
 	Goal() {
 
 	}
 }
 
-class Strategy extends Node {
+class Strategy extends DBNode {
 	Context context;
 	Strategy() {
 	}
 }
 
-class Evidence extends Node {
+class Evidence extends DBNode {
 	Evidence() {
 
 	}
@@ -140,8 +140,8 @@ class CommitLog {
 
 class Tree {
 	CommitLog commit_log;
-	Node     root;
-	Node[]   nodes;
+	DBNode     root;
+	DBNode[]   nodes;
 	Link[]   links;
 
 	Tree(Goal root) {
@@ -162,7 +162,7 @@ class Tree {
 		this.commit_log.addCommit(method,argument);
 	}
 
-	@Private Json NodesToJson() {
+	@Private Json DBNodesToJson() {
 		String str = "[]";
 		Json json = Json.parse(str);
 		for(int i = 0; i < this.nodes.getSize();i++) {
@@ -183,12 +183,12 @@ class Tree {
 	Json toJson() {
 		Json json = new Json();
 		json.setString("root",this.root.name);
-		json.set("nodes",this.NodesToJson());
+		json.set("nodes",this.DBNodesToJson());
 		json.set("links",this.LinksToJson());
 		return json;
 	}
 
-	@Private Node searchTree(String search) {
+	@Private DBNode searchTree(String search) {
 		for(int i = 0; i < this.nodes.getSize(); i++) {
 			if(this.nodes[i].name == search) {
 				return this.nodes[i];
@@ -210,7 +210,7 @@ class Tree {
 		this.tree = new Tree(g);
 	}
 
-	void connectRepository() {
+	void connect() {
 		this.Initialize(); //FIXME
 	}
 
@@ -219,42 +219,42 @@ class Tree {
 		return this.tree;
 	}
 
-	//TODO many tree & return Node[]
-	Node Select(Node root, String searchText) {
+	//TODO many tree & return DBNode[]
+	DBNode Select(DBNode root, String searchText) {
 		return this.tree.searchTree(searchText);
 	}
 
-	Node Create(int NodeType, Json content) {
-		if(NodeType == GOAL) {
-			content.setString("NodeType","GOAL");
+	DBNode Create(int DBNodeType, Json content) {
+		if(DBNodeType == GOAL) {
+			content.setString("DBNodeType","GOAL");
 			this.tree.Commit("Create",content);
 
 			Goal node = new Goal(content);
 			this.tree.nodes.add(node);
 			return node;
-		} else if (NodeType == STRATEGY) {
-			content.setString("NodeType","STRATEGY");
+		} else if (DBNodeType == STRATEGY) {
+			content.setString("DBNodeType","STRATEGY");
 			this.tree.Commit("Create",content);
 
 			Strategy node = new Strategy(content);
 			this.tree.nodes.add(node);
 			return node;
-		} else if (NodeType == CONTEXT) {
-			content.setString("NodeType","CONTEXT");
+		} else if (DBNodeType == CONTEXT) {
+			content.setString("DBNodeType","CONTEXT");
 			this.tree.Commit("Create",content);
 
 			Context node = new Context(content);
 			this.tree.nodes.add(node);
 			return node;
-		} else if (NodeType == EVIDENCE) {
-			content.setString("NodeType","EVIDENCE");
+		} else if (DBNodeType == EVIDENCE) {
+			content.setString("DBNodeType","EVIDENCE");
 			this.tree.Commit("Create",content);
 
 			Evidence node = new Evidence(content);
 			this.tree.nodes.add(node);
 			return node;
 		}
-		return new Node();
+		return new DBNode();
 	}
 
 	void Insert(String parent, String child) {
@@ -265,13 +265,13 @@ class Tree {
 		this.tree.Commit("Insert",l.toJson());
 	}
 
-	void Update(Node node, Json contents) {
+	void Update(DBNode node, Json contents) {
 		this.tree.Commit("Update",contents.toJson());
 		node.update(contents);
 	}
 
 	//TODO
-	void Delete(Node parent, Node child) {
+	void Delete(DBNode parent, DBNode child) {
 		//this.tree.Commit("Delete",);
 		//this.tree.deleteLink(parent,child);
 	}
