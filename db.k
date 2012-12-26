@@ -152,7 +152,7 @@ class Tree {
 	@Private Json jsonTree() {
 		Json json = new Json();
 		json.setString("root",this.root.name);
-		json.set("nodes",this.NodesToJson());
+		json.set("nodes",this.DBNodesToJson());
 		json.set("links",this.LinksToJson());
 		return json;
 	}
