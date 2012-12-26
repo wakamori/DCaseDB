@@ -20,6 +20,7 @@ class DBNode {
 	String  description;
 	boolean is_evidence;
 	boolean is_consensus;
+
 	DBNode(Json content) {
 		if(content.hasKey("name")) {
 			this.name = content.getString("name");
@@ -130,8 +131,7 @@ class CommitLog {
 	}
 
 	Json toJson() {
-		String str = "[]";
-		Json json = Json.parse(str);
+		Json json = Json.parse("[]");
 		for(int i = 0;i < this.commits.getSize(); i++) {
 			json.add(this.commits[i].toJson());
 		}
@@ -171,8 +171,7 @@ class Tree {
 	}
 
 	@Private Json DBNodesToJson() {
-		String str = "[]";
-		Json json = Json.parse(str);
+		Json json = Json.parse("[]");
 		for(int i = 0; i < this.nodes.getSize();i++) {
 			json.add(this.nodes[i].toJson());
 		}
@@ -180,8 +179,7 @@ class Tree {
 	}
 
 	@Private Json LinksToJson() {
-		String str = "[]";
-		Json json = Json.parse(str);
+		Json json = Json.parse("[]");
 		for(int i = 0;i < this.links.getSize();i++) {
 			json.add(this.links[i].toJson());
 		}
