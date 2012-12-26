@@ -90,11 +90,13 @@ class Commit {
 	String method;
 	Json argument;
 	String revision;
+	String time;
 
 	Commit(String method, Json argument, String revision) {
 		this.method   = method;
 		this.argument = argument;
 		this.revision = revision;
+		this.time     = new Date().toString();
 	}
 
 	Json toJson() {
@@ -102,6 +104,7 @@ class Commit {
 		json.setString("method",this.method);
 		json.set("argument",this.argument); //FIXME
 		json.setString("revision",this.revision);
+		json.setString("time",this.time);
 
 		return json;
 	}
@@ -131,10 +134,7 @@ class CommitLog {
 		for(int i = 0;i < this.commits.getSize(); i++) {
 			json.add(this.commits[i].toJson());
 		}
-		Json wrap = new Json();
-		wrap.set("CommitLog",json);
-		wrap.setString("HEAD", this.head);
-		return wrap;
+		return json;
 	}
 }
 
@@ -149,13 +149,20 @@ class Tree {
 		this.commit_log = new CommitLog();
 	}
 
-	Json jsonTree() {
-		Json json = this.toJson();
+	@Private Json jsonTree() {
+		Json json = new Json();
+		json.setString("root",this.root.name);
+		json.set("nodes",this.NodesToJson());
+		json.set("links",this.LinksToJson());
 		return json;
 	}
 
-	Json jsonCommitLog() {
+	@Private Json jsonCommitLog() {
 		return this.commit_log.toJson();
+	}
+
+	@Private String CommitHead() {
+		return this.commit_log.head;
 	}
 
 	void Commit(String method, Json argument) {
@@ -181,10 +188,9 @@ class Tree {
 	}
 
 	Json toJson() {
-		Json json = new Json();
-		json.setString("root",this.root.name);
-		json.set("nodes",this.NodesToJson());
-		json.set("links",this.LinksToJson());
+		Json json = this.jsonTree();
+		json.set("CommitLog",this.jsonCommitLog());
+		json.setString("HEAD", this.CommitHead());
 		return json;
 	}
 
