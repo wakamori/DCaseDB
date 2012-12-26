@@ -31,6 +31,7 @@ class DBNode {
 			this.name = content.getString("is_evidence");
 		}
 	}
+
 	Json toJson() {
 		Json json = new Json();
 		json.setString("name",this.name);
@@ -216,7 +217,7 @@ class Tree {
 		this.tree = new Tree(g);
 	}
 
-	void connect() {
+	void Connect() {
 		this.Initialize(); //FIXME
 	}
 
