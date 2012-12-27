@@ -19,7 +19,7 @@ class DBNode {
 	String  name;
 	String  description;
 	boolean is_evidence;
-	boolean is_consensus;
+	//boolean is_consensus;
 
 	DBNode(Json content) {
 		this.updateContent(content);
@@ -41,7 +41,7 @@ class DBNode {
 			this.description = content.getString("description");
 		}
 		if(content.hasKey("is_evidence")) {
-			this.is_evidence = content.getString("is_evidence");
+			this.is_evidence = content.getBoolean("is_evidence");
 		}
 	}
 
@@ -82,6 +82,7 @@ class Context extends DBNode {
 	}
 }
 
+//TODO
 class Goal extends DBNode {
 	Context context;
 	Goal() {}
@@ -100,13 +101,13 @@ class Commit {
 	String method;
 	Json argument;
 	String revision;
-	String time;
+	int time;
 
 	Commit(String method, Json argument, String revision) {
 		this.method   = method;
 		this.argument = argument;
 		this.revision = revision;
-		this.time     = new Date().toString();
+		this.time     = new Date().getTime();
 	}
 
 	Json toJson() {
@@ -114,7 +115,7 @@ class Commit {
 		json.setString("method",this.method);
 		json.set("argument",this.argument); //FIXME
 		json.setString("revision",this.revision);
-		json.setString("time",this.time);
+		json.setInt("time",this.time);
 
 		return json;
 	}
