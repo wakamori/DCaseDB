@@ -45,14 +45,15 @@ class DBNode {
 class Link {
 	String parent;
 	String child;
-	Link() {
+	Link(String parent, String child) {
+		this.parent = parent;
+		this.child  = child;
 	}
 
 	Json toJson() {
 		Json json = new Json();
 		json.setString("parent",this.parent);
 		json.setString("child",this.child);
-
 		return json;
 	}
 }
@@ -203,33 +204,30 @@ class Tree {
 	}
 }
 
-@Public class DCaseRepository {
+class DCaseRepository {
 	Tree tree;
 
-	DCaseRepository() {
-	}
-
-	void Initialize() {
+	void CreateTree() {
 		Goal g = new Goal();
 		g.name = "Root";
 		this.tree = new Tree(g);
 	}
 
 	void Connect() {
-		this.Initialize(); //FIXME
+		this.CreateTree(); //FIXME
 	}
 
 	//TODO Search Argument
-	Tree getTree() {
+	Tree SearchTree() {
 		return this.tree;
 	}
 
 	//TODO many tree & return DBNode[]
-	DBNode Select(DBNode root, String searchText) {
+	DBNode SearchDBNode(DBNode root, String searchText) {
 		return this.tree.searchTree(searchText);
 	}
 
-	DBNode Create(int DBNodeType, Json content) {
+	DBNode CreateDBNode(int DBNodeType, Json content) {
 		if(DBNodeType == GOAL) {
 			content.setString("DBNodeType","GOAL");
 			this.tree.Commit("Create",content);
@@ -262,21 +260,20 @@ class Tree {
 		return new DBNode();
 	}
 
-	void Insert(String parent, String child) {
-		Link l = new Link();
-		l.parent = parent;
-		l.child = child;
+	void InsertDBNode(String parent, String child) {
+		Link l = new Link(parent, child);
 		this.tree.links.add(l);
 		this.tree.Commit("Insert",l.toJson());
 	}
 
-	void Update(DBNode node, Json contents) {
+	//TODO
+	void UpdateDBNode(DBNode node, Json contents) {
 		this.tree.Commit("Update",contents.toJson());
 		node.update(contents);
 	}
 
 	//TODO
-	void Delete(DBNode parent, DBNode child) {
+	void DeleteDBNode(DBNode parent, DBNode child) {
 		//this.tree.Commit("Delete",);
 		//this.tree.deleteLink(parent,child);
 	}
