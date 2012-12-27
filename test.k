@@ -20,6 +20,9 @@ void main() {
 	stdout.println(repo.getTree().toJson());
 
 	Strategy s = repo.SearchDBNode(NULL,"strategy") as Strategy;
+	Json s_args = new Json();
+	s_args.setString("description","updated.");
+	repo.UpdateDBNode(s,s_args);
 
 	stdout.println(repo.getTree().toJson());
 }

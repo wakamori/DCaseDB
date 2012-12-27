@@ -22,15 +22,7 @@ class DBNode {
 	boolean is_consensus;
 
 	DBNode(Json content) {
-		if(content.hasKey("name")) {
-			this.name = content.getString("name");
-		}
-		if(content.hasKey("description")) {
-			this.name = content.getString("description");
-		}
-		if(content.hasKey("is_evidence")) {
-			this.name = content.getString("is_evidence");
-		}
+		this.updateContent(content);
 	}
 
 	Json toJson() {
@@ -38,6 +30,26 @@ class DBNode {
 		json.setString("name",this.name);
 		json.setString("description",this.description);
 		json.setBoolean("is_evidence",this.is_evidence);
+		return json;
+	}
+
+	@Private void updateContent(Json content) {
+		if(content.hasKey("name")) {
+			this.name = content.getString("name");
+		}
+		if(content.hasKey("description")) {
+			this.description = content.getString("description");
+		}
+		if(content.hasKey("is_evidence")) {
+			this.is_evidence = content.getString("is_evidence");
+		}
+	}
+
+	Json update(Json content) {
+		Json json = new Json();
+		json.set("before",this.toJson());
+		this.updateContent(content);
+		json.set("after", this.toJson());
 		return json;
 	}
 }
@@ -72,21 +84,16 @@ class Context extends DBNode {
 
 class Goal extends DBNode {
 	Context context;
-	Goal() {
-
-	}
+	Goal() {}
 }
 
 class Strategy extends DBNode {
 	Context context;
-	Strategy() {
-	}
+	Strategy() {}
 }
 
 class Evidence extends DBNode {
-	Evidence() {
-
-	}
+	Evidence() {}
 }
 
 class Commit {
@@ -266,10 +273,9 @@ class DCaseRepository {
 		this.tree.Commit("Insert",l.toJson());
 	}
 
-	//TODO
 	void UpdateDBNode(DBNode node, Json contents) {
-		this.tree.Commit("Update",contents.toJson());
-		node.update(contents);
+		Json log = node.update(contents);
+		this.tree.Commit("Update",log);
 	}
 
 	//TODO
