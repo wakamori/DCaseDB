@@ -5,7 +5,6 @@ import("openssl");
 import("cstyle");
 import("konoha.class");
 import("js4.array");
-import("konoha.new");
 import("konoha.date");
 
 const NODE = 0;
@@ -127,7 +126,7 @@ class CommitLog {
 	MD5 md5;
 
 	CommitLog() {
-		this.commits = new Commit[0];
+		this.commits = [];
 		this.md5 = new MD5();
 		md5.update(new Date().toString());
 	}
