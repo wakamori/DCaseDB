@@ -6,6 +6,7 @@ import("cstyle");
 import("konoha.class");
 import("js4.array");
 import("konoha.date");
+import("konoha.map");
 
 const NODE = 0;
 const GOAL = 1;
@@ -212,70 +213,70 @@ class Tree {
 }
 
 class DCaseRepository {
-	Tree tree;
+	Map[Tree] tree;
 
-	void CreateTree() {
+	void CreateTree(String name) {
 		Goal g = new Goal();
 		g.name = "Root";
-		this.tree = new Tree(g);
+		this.tree.set(name,new Tree(g));
 	}
 
 	void Connect() {
-		this.CreateTree(); //FIXME
+		//FIXME
 	}
 
 	//TODO Search Argument
-	Tree SearchTree() {
-		return this.tree;
+	Tree SearchTree(String name) {
+		return this.tree.get(name);
 	}
 
 	//TODO many tree & return DBNode[]
-	DBNode SearchDBNode(DBNode root, String searchText) {
-		return this.tree.searchTree(searchText);
+	DBNode SearchDBNode(String root, String searchText) {
+		return this.tree.get(root).searchTree(searchText);
 	}
 
-	DBNode CreateDBNode(int DBNodeType, Json content) {
+	DBNode CreateDBNode(String name, int DBNodeType, Json content) {
 		if(DBNodeType == GOAL) {
 			content.setString("DBNodeType","GOAL");
-			this.tree.Commit("Create",content);
+			this.tree.get(name).Commit("Create",content);
 
 			Goal node = new Goal(content);
-			this.tree.nodes.add(node);
+			this.tree.get(name).nodes.add(node);
 			return node;
 		} else if (DBNodeType == STRATEGY) {
 			content.setString("DBNodeType","STRATEGY");
-			this.tree.Commit("Create",content);
+			this.tree.get(name).Commit("Create",content);
 
 			Strategy node = new Strategy(content);
-			this.tree.nodes.add(node);
+			this.tree.get(name).nodes.add(node);
 			return node;
 		} else if (DBNodeType == CONTEXT) {
 			content.setString("DBNodeType","CONTEXT");
-			this.tree.Commit("Create",content);
+			this.tree.get(name).Commit("Create",content);
 
 			Context node = new Context(content);
-			this.tree.nodes.add(node);
+			this.tree.get(name).nodes.add(node);
 			return node;
 		} else if (DBNodeType == EVIDENCE) {
 			content.setString("DBNodeType","EVIDENCE");
-			this.tree.Commit("Create",content);
+			this.tree.get(name).Commit("Create",content);
 
 			Evidence node = new Evidence(content);
-			this.tree.nodes.add(node);
+			this.tree.get(name).nodes.add(node);
 			return node;
 		}
 		return new DBNode();
 	}
 
-	void InsertDBNode(String parent, String child) {
+	void InsertDBNode(String name, String parent, String child) {
 		Link l = new Link(parent, child);
-		this.tree.links.add(l);
-		this.tree.Commit("Insert",l.toJson());
+		this.tree.get(name).links.add(l);
+		this.tree.get(name).Commit("Insert",l.toJson());
 	}
 
-	void UpdateDBNode(DBNode node, Json contents) {
+	void UpdateDBNode(String name, DBNode node, Json contents) {
 		Json log = node.update(contents);
-		this.tree.Commit("Update",log);
+		this.tree.get(name).Commit("Update",log);
 	}
 
 	//TODO
