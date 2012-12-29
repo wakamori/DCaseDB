@@ -26,6 +26,8 @@ void main() {
 	repo.UpdateDBNode(name, s,s_args);
 
 	System.p(repo.searchTree(name).toJson());
+	repo.DeleteDBNode(name,"strategy");
+	System.p(repo.searchTree(name).toJson());
 }
 
 main();

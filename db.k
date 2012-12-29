@@ -202,13 +202,22 @@ class Tree {
 		return json;
 	}
 
-	@Private DBNode searchTree(String search) {
+	DBNode SearchDBNode(String search) {
 		for(int i = 0; i < this.nodes.getSize(); i++) {
 			if(this.nodes[i].name == search) {
 				return this.nodes[i];
 			}
 		}
 		return NULL;
+	}
+
+	int SearchDBNodeIndex(String search) {
+		for(int i = 0; i < this.nodes.getSize(); i++) {
+			if(this.nodes[i].name == search) {
+				return i;
+			}
+		}
+		return -1;
 	}
 }
 
@@ -232,62 +241,66 @@ class DCaseRepository {
 
 	//TODO many tree & return DBNode[]
 	DBNode SearchDBNode(String root, String searchText) {
-		return this.tree.get(root).searchTree(searchText);
+		return this.SearchTree(root).SearchDBNode(searchText);
 	}
 
-	@Private Link[] SearchLinks(String root, String searchText) {
-		Link[] links = this.tree.get(root).links;
-		Link[] ret = [];
+	int SearchDBNodeIndex(String root, String searchText) {
+		return this.SearchTree(root).SearchDBNodeIndex(searchText);
+	}
+
+	@Private int[] SearchLinkIndexes(String root, String searchText) {
+		Link[] links = this.SearchTree(root).links;
+		int[] ret = [];
 		for(int i = 0; i < links.getSize(); i++) {
 			if(links[i].child == searchText) {
-				ret.add(links[i]);
+				ret.add(i);
 			}
 			if(links[i].parent == searchText) {
-				ret.add(links[i]);
+				ret.add(i);
 			}
 		}
 		return ret;
 	}
 
-	@Private Link SearchLink(String root, String parent, String child) {
-		Link[] links = this.tree.get(root).links;
+	@Private int SearchLinkIndex(String root, String parent, String child) {
+		Link[] links = this.SearchTree(root).links;
 		for(int i = 0; i < links.getSize(); i++) {
 			if(links[i].child == child && links[i].parent == parent) {
-				return links[i];
+				return i;
 			}
 		}
-		return NULL;
+		return -1;
 	}
 
 	DBNode CreateDBNode(String name, int DBNodeType, Json content) {
 		String CommitMethod = "CreateDBNode";
 		if(DBNodeType == GOAL) {
 			content.setString("DBNodeType","GOAL");
-			this.tree.get(name).Commit(CommitMethod,content);
+			this.SearchTree(name).Commit(CommitMethod,content);
 
 			Goal node = new Goal(content);
-			this.tree.get(name).nodes.add(node);
+			this.SearchTree(name).nodes.add(node);
 			return node;
 		} else if (DBNodeType == STRATEGY) {
 			content.setString("DBNodeType","STRATEGY");
-			this.tree.get(name).Commit(CommitMethod,content);
+			this.SearchTree(name).Commit(CommitMethod,content);
 
 			Strategy node = new Strategy(content);
-			this.tree.get(name).nodes.add(node);
+			this.SearchTree(name).nodes.add(node);
 			return node;
 		} else if (DBNodeType == CONTEXT) {
 			content.setString("DBNodeType","CONTEXT");
-			this.tree.get(name).Commit(CommitMethod,content);
+			this.SearchTree(name).Commit(CommitMethod,content);
 
 			Context node = new Context(content);
-			this.tree.get(name).nodes.add(node);
+			this.SearchTree(name).nodes.add(node);
 			return node;
 		} else if (DBNodeType == EVIDENCE) {
 			content.setString("DBNodeType","EVIDENCE");
-			this.tree.get(name).Commit(CommitMethod,content);
+			this.SearchTree(name).Commit(CommitMethod,content);
 
 			Evidence node = new Evidence(content);
-			this.tree.get(name).nodes.add(node);
+			this.SearchTree(name).nodes.add(node);
 			return node;
 		}
 		return new DBNode(); //FIXME
@@ -295,37 +308,54 @@ class DCaseRepository {
 
 	void InsertLink(String name, String parent, String child) {
 		Link l = new Link(parent, child);
-		this.tree.get(name).links.add(l);
-		this.tree.get(name).Commit("InsertLink",l.toJson());
+		this.SearchTree(name).links.add(l);
+		this.SearchTree(name).Commit("InsertLink",l.toJson());
 	}
 
 	void UpdateDBNode(String name, DBNode node, Json contents) {
 		Json log = node.update(contents);
-		this.tree.get(name).Commit("UpdateDBNode",log);
+		this.SearchTree(name).Commit("UpdateDBNode",log);
 	}
 
 	void UpdateParentLink(String name, String parent_old, String parent_new, String child) {
-		Link l = this.SearchLink(name, parent_old,child);
+		int i = this.SearchLinkIndex(name, parent_old,child);
+		Link l = this.SearchTree(name).links[i];
 		Json json = new Json();
 		json.set("before", l.toJson());
 		l.parent = parent_new;
 		json.set("after", l.toJson());
-		this.tree.get(name).Commit("UpdateParentLink",json);
+		this.SearchTree(name).Commit("UpdateParentLink",json);
 	}
 
 	void UpdateChildLink(String name, String parent, String child_old, String child_new) {
-		Link l = this.SearchLink(name, parent,child_old);
+		int i = this.SearchLinkIndex(name, parent_old,child);
+		Link l = this.SearchTree(name).links[i];
 		Json json = new Json();
 		json.set("before", l.toJson());
 		l.child = child_new;
 		json.set("after", l.toJson());
-		this.tree.get(name).Commit("UpdateChildLink",json);
+		this.SearchTree(name).Commit("UpdateChildLink",json);
 	}
 
-	//TODO
-	void DeleteDBNode(DBNode parent, DBNode child) {
-		//this.tree.Commit("Delete",);
-		//this.tree.deleteLink(parent,child);
+	@Private void _DeleteLink(Tree tree, int i) {
+		Link l = tree.links[i];
+		tree.Commit("DeleteLink",l.toJson());
+		tree.links.removeAt(i);
+	}
+
+	void DeleteDBNode(String name, String node) {
+		int[] link_idx = this.SearchLinkIndexes(name, node);
+		int   node_idx = this.SearchDBNodeIndex(name, node);
+		Tree t = this.SearchTree(name);
+		for(int i = 0; i < link_idx.getSize(); i++) {
+			this._DeleteLink(t,link_idx[i]-i);
+		}
+		t.Commit("DeleteNode",t.nodes[node_idx].toJson());
+		t.nodes.removeAt(node_idx);
+	}
+
+	void DeleteLink(String name, String parent, String child) {
+		this._DeleteLink(this.SearchTree(name), this.SearchLinkIndex(name, parent,child));
 	}
 
 }
