@@ -1,4 +1,4 @@
-import("konoha.const");
+import("konoha.ns");
 import("konoha.global");
 import("konoha.json");
 import("openssl");
