@@ -28,34 +28,6 @@ class DCaseRepository {
 		return this.SearchArgument(root).SearchDBNode(searchText);
 	}
 
-	int SearchDBNodeIndex(String root, String searchText) {
-		return this.SearchArgument(root).SearchDBNodeIndex(searchText);
-	}
-
-	@Private int[] SearchLinkIndexes(String root, String searchText) {
-		Link[] links = this.SearchArgument(root).links;
-		int[] ret = [];
-		for(int i = 0; i < links.getSize(); i++) {
-			if(links[i].child == searchText) {
-				ret.add(i);
-			}
-			if(links[i].parent == searchText) {
-				ret.add(i);
-			}
-		}
-		return ret;
-	}
-
-	@Private int SearchLinkIndex(String root, String parent, String child) {
-		Link[] links = this.SearchArgument(root).links;
-		for(int i = 0; i < links.getSize(); i++) {
-			if(links[i].child == child && links[i].parent == parent) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
 	DBNode CreateDBNode(String name, int DBNodeType, Json content) {
 		String CommitMethod = "CreateDBNode";
 		if(DBNodeType == GOAL) {
@@ -91,55 +63,38 @@ class DCaseRepository {
 	}
 
 	void InsertLink(String name, String parent, String child) {
+		Argument argument = this.SearchArgument(name);
 		Link l = new Link(parent, child);
-		this.SearchArgument(name).links.add(l);
-		this.SearchArgument(name).Commit("InsertLink",l.toJson());
+		argument.links.add(l);
+		argument.Commit("InsertLink",l.toJson());
 	}
 
 	void UpdateDBNode(String name, DBNode node, Json contents) {
-		Json log = node.update(contents);
-		this.SearchArgument(name).Commit("UpdateDBNode",log);
+		this.SearchArgument(name).Commit("UpdateDBNode", node.update(contents));
 	}
 
 	void UpdateParentLink(String name, String parent_old, String parent_new, String child) {
-		int i = this.SearchLinkIndex(name, parent_old,child);
-		Link l = this.SearchArgument(name).links[i];
-		Json json = new Json();
-		json.set("before", l.toJson());
-		l.parent = parent_new;
-		json.set("after", l.toJson());
-		this.SearchArgument(name).Commit("UpdateParentLink",json);
+		this.SearchArgument(name).UpdateLink(0,parent_old,parent_new,child);
 	}
 
 	void UpdateChildLink(String name, String parent, String child_old, String child_new) {
-		int i = this.SearchLinkIndex(name, parent_old,child);
-		Link l = this.SearchArgument(name).links[i];
-		Json json = new Json();
-		json.set("before", l.toJson());
-		l.child = child_new;
-		json.set("after", l.toJson());
-		this.SearchArgument(name).Commit("UpdateChildLink",json);
-	}
-
-	@Private void _DeleteLink(Argument tree, int i) {
-		Link l = tree.links[i];
-		tree.Commit("DeleteLink",l.toJson());
-		tree.links.removeAt(i);
+		this.SearchArgument(name).UpdateLink(1,parent,child_new,child_old);
 	}
 
 	void DeleteDBNode(String name, String node) {
-		int[] link_idx = this.SearchLinkIndexes(name, node);
-		int   node_idx = this.SearchDBNodeIndex(name, node);
-		Argument t = this.SearchArgument(name);
+		Argument argument = this.SearchArgument(name);
+		int[] link_idx = argument.SearchLinkIndexes(node);
+		int   node_idx = argument.SearchDBNodeIndex(node);
 		for(int i = 0; i < link_idx.getSize(); i++) {
-			this._DeleteLink(t,link_idx[i]-i);
+			argument.DeleteLink(link_idx[i]-i);
 		}
-		t.Commit("DeleteNode",t.nodes[node_idx].toJson());
-		t.nodes.removeAt(node_idx);
+		argument.Commit("DeleteNode",argument.nodes[node_idx].toJson());
+		argument.nodes.removeAt(node_idx);
 	}
 
 	void DeleteLink(String name, String parent, String child) {
-		this._DeleteLink(this.SearchArgument(name), this.SearchLinkIndex(name, parent,child));
+		Argument argument = this.SearchArgument(name);
+		argument.DeleteLink(argument.SearchLinkIndex(parent,child));
 	}
 
 }
