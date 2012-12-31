@@ -3,7 +3,7 @@ import("cstyle");
 import("java2.class");
 import("js4.array");
 import("konoha.map");
-load("lib.k");
+load("argument.k");
 
 class DCaseRepository {
 	Map[Argument] tree;
