@@ -1,12 +1,7 @@
-import("konoha.ns");
-import("konoha.global");
 import("konoha.json");
-import("openssl");
 import("cstyle");
 import("java2.class");
 import("js4.array");
-import("js4.date");
-import("konoha.map");
 load("dbnode.k");
 
 class Argument {
