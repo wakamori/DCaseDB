@@ -14,6 +14,8 @@ class Argument {
 	Argument(Goal root) {
 		this.root = root;
 		this.commit_log = new CommitLog();
+		this.links = [];
+		this.nodes = [];
 	}
 
 	@Private Json jsonArgument() {

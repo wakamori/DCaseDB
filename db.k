@@ -87,7 +87,7 @@ class DCaseRepository {
 		int[] link_idx = argument.SearchLinkIndexes(node);
 		int   node_idx = argument.SearchDBNodeIndex(node);
 		for(int i = 0; i < link_idx.getSize(); i++) {
-			argument.DeleteLink(link_idx[i]-i);
+			argument.DeleteLink(link_idx[i]-i); //FIXME
 		}
 		argument.Commit("DeleteNode",argument.nodes[node_idx].toJson());
 		argument.nodes.removeAt(node_idx);
