@@ -98,4 +98,9 @@ class DCaseRepository {
 		argument.DeleteLink(argument.SearchLinkIndex(parent,child));
 	}
 
+	//TODO
+	Json ShowRevision(String name, String revision) {
+		Argument argument = this.SearchArgument(name);
+		return argument.toJson();
+	}
 }

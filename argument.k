@@ -16,6 +16,7 @@ class Argument {
 		this.commit_log = new CommitLog();
 		this.links = [];
 		this.nodes = [];
+		this.arguments = [];
 	}
 
 	@Private Json jsonArgument() {
