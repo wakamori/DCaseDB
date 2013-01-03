@@ -10,13 +10,15 @@ void main() {
 
 	Json n_args = new Json();
 	n_args.setString("name","strategy");
-	Strategy n = repo.CreateDBNode(name,STRATEGY,n_args) as Strategy;
+	n_args.setString("DBNodeType","Strategy");
+	Strategy n = repo.CreateDBNode(name,n_args) as Strategy;
 	repo.InsertLink(name, repo.SearchArgument(name).root.name, n.name);
 	System.p(repo.SearchArgument(name).toJson());
 
 	Json subgoal_args = new Json();
 	subgoal_args.setString("name","subgoal");
-	Goal subgoal = repo.CreateDBNode(name, GOAL,subgoal_args) as Goal;
+	subgoal_args.setString("DBNodeType","Goal");
+	Goal subgoal = repo.CreateDBNode(name,subgoal_args) as Goal;
 	repo.InsertLink(name, n.name , subgoal.name);
 	System.p(repo.SearchArgument(name).toJson());
 

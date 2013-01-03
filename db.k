@@ -29,35 +29,33 @@ class DCaseRepository {
 		return this.SearchArgument(root).SearchDBNode(searchText);
 	}
 
-	DBNode CreateDBNode(String name, int DBNodeType, Json content) {
+	DBNode CreateDBNode(String name, Json content) {
 		String CommitMethod = "CreateDBNode";
-		if(DBNodeType == GOAL) {
-			content.setString("DBNodeType","GOAL");
-			this.SearchArgument(name).Commit(CommitMethod,content);
+		Argument argument = this.SearchArgument(name);
+		String NodeType = content.getString("DBNodeType");
+		if(NodeType == "Goal") {
+			argument.Commit(CommitMethod,content);
 
 			Goal node = new Goal(content);
-			this.SearchArgument(name).nodes.add(node);
+			argument.nodes.add(node);
 			return node;
-		} else if (DBNodeType == STRATEGY) {
-			content.setString("DBNodeType","STRATEGY");
-			this.SearchArgument(name).Commit(CommitMethod,content);
+		} else if (NodeType == "Strategy") {
+			argument.Commit(CommitMethod,content);
 
 			Strategy node = new Strategy(content);
-			this.SearchArgument(name).nodes.add(node);
+			argument.nodes.add(node);
 			return node;
-		} else if (DBNodeType == CONTEXT) {
-			content.setString("DBNodeType","CONTEXT");
-			this.SearchArgument(name).Commit(CommitMethod,content);
+		} else if (NodeType == "Context") {
+			argument.Commit(CommitMethod,content);
 
 			Context node = new Context(content);
-			this.SearchArgument(name).nodes.add(node);
+			argument.nodes.add(node);
 			return node;
-		} else if (DBNodeType == EVIDENCE) {
-			content.setString("DBNodeType","EVIDENCE");
-			this.SearchArgument(name).Commit(CommitMethod,content);
+		} else if (NodeType == "Evidence") {
+			argument.Commit(CommitMethod,content);
 
 			Evidence node = new Evidence(content);
-			this.SearchArgument(name).nodes.add(node);
+			argument.nodes.add(node);
 			return node;
 		}
 		return new DBNode(); //FIXME

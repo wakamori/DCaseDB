@@ -5,21 +5,24 @@ Strategy makeStrategy(DCaseRepository repo, String treeName, String name,String 
 	Json json = new Json();
 	json.setString("name",name);
 	json.setString("description",description);
-	return repo.CreateDBNode(treeName,STRATEGY,json) as Strategy;
+	json.setString("DBNodeType","Strategy");
+	return repo.CreateDBNode(treeName,json) as Strategy;
 }
 
 Goal makeGoal(DCaseRepository repo, String treeName, String name,String description) {
 	Json json = new Json();
 	json.setString("name",name);
 	json.setString("description",description);
-	return repo.CreateDBNode(treeName, GOAL, json) as Goal;
+	json.setString("DBNodeType","Goal");
+	return repo.CreateDBNode(treeName, json) as Goal;
 }
 
 Evidence makeEvidence(DCaseRepository repo, String treeName, String name,String description) {
 	Json json = new Json();
 	json.setString("name",name);
 	json.setString("description",description);
-	return repo.CreateDBNode(treeName, EVIDENCE,json) as Evidence;
+	json.setString("DBNodeType","Evidence");
+	return repo.CreateDBNode(treeName, json) as Evidence;
 }
 
 void main() {
