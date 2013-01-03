@@ -24,8 +24,10 @@ Evidence makeEvidence(DCaseRepository repo, String treeName, String name,String 
 
 void main() {
 	String name = "tree";
+	String name2 = "mosh";
 	DCaseRepository repo = new DCaseRepository();
 	repo.CreateArgument(name);
+	repo.CreateArgument(name2);
 
 	Strategy s1 = makeStrategy(repo, name, "S-1", "S-1 test");
 	repo.InsertLink(name, repo.SearchArgument(name).root.name, s1.name);
@@ -44,6 +46,7 @@ void main() {
 	s_args.setString("description","updated.");
 	repo.UpdateDBNode(name, s,s_args);
 
+	System.p(repo.searchArgument(name2).toJson());
 	System.p(repo.searchArgument(name).toJson());
 }
 

@@ -8,6 +8,7 @@ load("argument.k");
 class DCaseRepository {
 	Map[Argument] tree;
 
+
 	void CreateArgument(String name) {
 		Goal g = new Goal();
 		g.name = "Root";

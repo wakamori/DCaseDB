@@ -63,6 +63,15 @@ class Link {
 		this.child  = child;
 	}
 
+	Link(Json content) {
+		if(content.hasKey("parent")) {
+			this.parent = content.getString("parent");
+		}
+		if(content.hasKey("child")) {
+			this.child  = content.getString("child");
+		}
+	}
+
 	//TODO LinktoTreeJson
 	Json toJson() {
 		Json json = new Json();
