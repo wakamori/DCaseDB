@@ -1,16 +1,9 @@
-import("konoha.ns");
 import("konoha.json");
 import("openssl");
 import("cstyle");
 import("java2.class");
 import("js4.array");
 import("js4.date");
-
-const NODE = 0;
-const GOAL = 1;
-const STRATEGY = 2;
-const CONTEXT = 3;
-const EVIDENCE = 4;
 
 class DBNode {
 	String  name;
