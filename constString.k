@@ -9,6 +9,9 @@ const MtdUpdateLink   = "UpdateLink";
 
 const JsonKeyDBNodeType = "DBNodeType";
 const JsonKeyCommitLog  = "CommitLog";
+const JsonKeyRoot       = "root";
+const JsonKeyNodes      = "nodes";
+const JsonKeyLinks      = "links";
 
 const NodeTypeGoal     = "Goal";
 const NodeTypeStrategy = "Strategy";

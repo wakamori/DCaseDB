@@ -21,14 +21,14 @@ class Argument {
 
 	@Private Json jsonArgument() {
 		Json json = new Json();
-		json.setString("root",this.root.name);
-		json.set("nodes",this.DBNodesToJson());
-		json.set("links",this.LinksToJson());
+		json.setString(JsonKeyRoot,this.root.name);
+		json.set(JsonKeyNodes,this.DBNodesToJson());
+		json.set(JsonKeyLinks,this.LinksToJson());
 		return json;
 	}
 
-	void Commit(String method, Json argument) {
-		this.commit_log.addCommit(method,argument);
+	String Commit(String method, Json argument) {
+		return this.commit_log.addCommit(method,argument);
 	}
 
 	@Private Json DBNodesToJson() {

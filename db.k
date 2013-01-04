@@ -57,7 +57,7 @@ class DCaseRepository {
 			argument.nodes.add(node);
 			return node;
 		}
-		return new DBNode(); //FIXME
+		return NULL; //FIXME
 	}
 
 	void InsertLink(String name, String parent, String child) {
