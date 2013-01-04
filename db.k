@@ -4,10 +4,10 @@ import("java2.class");
 import("js4.array");
 import("konoha.map");
 load("argument.k");
+load("constString.k");
 
 class DCaseRepository {
 	Map[Argument] tree;
-
 
 	void CreateArgument(String name) {
 		Goal g = new Goal();
@@ -30,29 +30,28 @@ class DCaseRepository {
 	}
 
 	DBNode CreateDBNode(String name, Json content) {
-		String CommitMethod = "CreateDBNode";
 		Argument argument = this.SearchArgument(name);
-		String NodeType = content.getString("DBNodeType");
-		if(NodeType == "Goal") {
-			argument.Commit(CommitMethod,content);
+		String NodeType = content.getString(JsonKeyDBNodeType);
+		if(NodeType == NodeTypeGoal) {
+			argument.Commit(MtdCreateDBNode,content);
 
 			Goal node = new Goal(content);
 			argument.nodes.add(node);
 			return node;
-		} else if (NodeType == "Strategy") {
-			argument.Commit(CommitMethod,content);
+		} else if (NodeType == NodeTypeStrategy) {
+			argument.Commit(MtdCreateDBNode,content);
 
 			Strategy node = new Strategy(content);
 			argument.nodes.add(node);
 			return node;
-		} else if (NodeType == "Context") {
-			argument.Commit(CommitMethod,content);
+		} else if (NodeType == NodeTypeContext) {
+			argument.Commit(MtdCreateDBNode,content);
 
 			Context node = new Context(content);
 			argument.nodes.add(node);
 			return node;
-		} else if (NodeType == "Evidence") {
-			argument.Commit(CommitMethod,content);
+		} else if (NodeType == NodeTypeEvidence) {
+			argument.Commit(MtdCreateDBNode,content);
 
 			Evidence node = new Evidence(content);
 			argument.nodes.add(node);
@@ -65,11 +64,11 @@ class DCaseRepository {
 		Argument argument = this.SearchArgument(name);
 		Link l = new Link(parent, child);
 		argument.links.add(l);
-		argument.Commit("InsertLink",l.toJson());
+		argument.Commit(MtdInsertLink,l.toJson());
 	}
 
 	void UpdateDBNode(String name, DBNode node, Json contents) {
-		this.SearchArgument(name).Commit("UpdateDBNode", node.update(contents));
+		this.SearchArgument(name).Commit(MtdUpdateDBNode, node.update(contents));
 	}
 
 	void UpdateParentLink(String name, String parent_old, String parent_new, String child) {
@@ -87,7 +86,7 @@ class DCaseRepository {
 		for(int i = 0; i < link_idx.getSize(); i++) {
 			argument.DeleteLink(link_idx[i]-i); //FIXME
 		}
-		argument.Commit("DeleteNode",argument.nodes[node_idx].toJson());
+		argument.Commit(MtdDeleteDBNode,argument.nodes[node_idx].toJson());
 		argument.nodes.removeAt(node_idx);
 	}
 
@@ -99,6 +98,15 @@ class DCaseRepository {
 	//TODO
 	Json ShowRevision(String name, String revision) {
 		Argument argument = this.SearchArgument(name);
-		return argument.toJson();
+		return this.useCommitLog(argument);
+	}
+
+	Json useCommitLog(Argument argument) {
+		Json json = argument.toJson();
+		Json commitlog = json.get("CommitLog");
+		for(int i = 0; i < commitlog.getSize(); i++) {
+			System.p(commitlog.get(i).getString("method"));
+		}
+		return json;
 	}
 }

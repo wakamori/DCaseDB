@@ -30,6 +30,7 @@ void main() {
 	System.p(repo.searchArgument(name).toJson());
 	repo.DeleteDBNode(name,"strategy");
 	System.p(repo.searchArgument(name).toJson());
+	repo.ShowRevision(name,"aaaaa");
 }
 
 main();
