@@ -49,7 +49,7 @@ class Argument {
 
 	Json toJson() {
 		Json json = this.jsonArgument();
-		json.set("CommitLog",this.commit_log.toJson());
+		json.set(JsonKeyCommitLog,this.commit_log.toJson());
 		json.setString("HEAD", this.commit_log.head);
 		return json;
 	}
@@ -87,7 +87,7 @@ class Argument {
 
 	void DeleteLink(int i) {
 		Link l = this.links[i];
-		this.Commit("DeleteLink",l.toJson());
+		this.Commit(MtdDeleteLink, l.toJson());
 		this.links.removeAt(i);
 	}
 
@@ -111,7 +111,7 @@ class Argument {
 			l.child  = newId;
 		}
 		json.set("after", l.toJson());
-		this.Commit("UpdateLink",json);
+		this.Commit(MtdUpdateLink,json);
 	}
 }
 

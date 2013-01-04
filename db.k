@@ -103,7 +103,7 @@ class DCaseRepository {
 
 	Json useCommitLog(Argument argument) {
 		Json json = argument.toJson();
-		Json commitlog = json.get("CommitLog");
+		Json commitlog = json.get(JsonKeyCommitLog);
 		for(int i = 0; i < commitlog.getSize(); i++) {
 			System.p(commitlog.get(i).getString("method"));
 		}
