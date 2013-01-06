@@ -148,16 +148,16 @@ class Commit {
 class CommitLog {
 	Commit[] commits;
 	String head;
-	MD5 md5;
+	SHA1 sha1;
 
 	CommitLog() {
 		this.commits = [];
-		this.md5 = new MD5();
-		this.md5.update(new Date().toString());
+		this.sha1 = new SHA1();
+		this.sha1.update(new Date().toString());
 	}
 
 	String addCommit(String method, Json argument) {
-		Commit commit = new Commit(method, argument, this.md5.final());
+		Commit commit = new Commit(method, argument, this.sha1.final());
 		this.commits.add(commit);
 		this.head = commit.revision;
 		return commit.revision;
