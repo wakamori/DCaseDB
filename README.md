@@ -2,11 +2,15 @@
 
 ##必要なライブラリ
 * openssl
-* sqlite(TODO)
+* MySQL(TODO)
 
 ##Class
 * DBNode
     * Goal,Strategy,Evidence,Contextの親クラス
+* Link
+    * DBNode間のRelation Link
+* Commit
+    * DBの操作履歴
 
 ## API
 ### DCaseDB Class
@@ -79,11 +83,11 @@
         "CommitLog" : [{...}, ...]
     }
 </pre>
-* HEAD      ... 最新リビジョンのSHA-1
-* root      ... ArgumentのTop Goal
-* links     ... DBNode間のLinkを示す(TODO: Tree構造に復元する)
-* nodes     ... DBNodeの情報(Array[Json])
-* CommitLog ... Commitの情報(Array[Json])
+    * HEAD      ... 最新リビジョンのSHA-1
+    * root      ... ArgumentのTop Goal
+    * links     ... DBNode間のLinkを示す(TODO: Tree構造に復元する)
+    * nodes     ... DBNodeの情報(Array[Json])
+    * CommitLog ... Commitの情報(Array[Json])
 
 ## Usage
 test.k,test2.k参照
