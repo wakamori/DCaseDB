@@ -5,6 +5,7 @@
 * MySQL(TODO)
 
 ##Class
+各クラスにはtoJson()メソッドが用意されており、Jsonにdumpできる。
 * DBNode
     * Goal,Strategy,Evidence,Contextの親クラス
 * Link

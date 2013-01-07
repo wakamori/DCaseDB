@@ -9,7 +9,7 @@ class DBNode {
 	String  name;
 	String  description;
 	boolean is_evidence;
-	//boolean is_consensus;
+	//TODO add some fields
 
 	DBNode(Json content) {
 		this.updateContent(content);
@@ -137,7 +137,7 @@ class Commit {
 	Json toJson() {
 		Json json = new Json();
 		json.setString("method",this.method);
-		json.set("argument",this.argument); //FIXME
+		json.set("argument",this.argument);
 		json.setString("revision",this.revision);
 		json.setInt("time",this.time);
 
