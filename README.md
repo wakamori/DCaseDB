@@ -11,10 +11,12 @@
 ## API
 ### DCaseDB Class
 * DCaseDB DCaseDB.new()
+
 DCaseDBを扱うクラスの作成
 各操作はArgumentのTopGoalのnameを渡し、どのArgumentへの操作か決定する。
 
 * DBNode CreateDBNode(String ArgumentName, Json content)
+
 DBNodeを作成する。Json contentに引数を渡す。
 Json 例:
 
