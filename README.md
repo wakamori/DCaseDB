@@ -17,24 +17,24 @@
 * DBNode CreateDBNode(String ArgumentName, Json content)
     * DBNodeを作成する。Json contentに引数を渡す。
     * Json 例:
-<code>
+<pre>
     content = {
         "name" : "ReturnFunction",        //必須
         "DBNodeType" : "Goal",  //必須
         "description" : "", //任意
     }
-</code>
+</pre>
 
     * DBNodeTypeに渡した名前のクラスを生成する。
     * nameは検索に使う。
     * Contextへの渡し方
-<code>
+<pre>
     content = {
         "name" : "hogehoge",
         "DBNodeType" : "Context",
         "condition" : [{"architecture" : "Linux"},{"サーバ台数" : 4},  ...]
     }
-</code>
+</pre>
 * void   InsertLink(String ArgumentName, String parentName, String childName)
     * 各DBNodeを繋げる。DBNodeのparentNameとchildNameを渡す。
 
@@ -70,7 +70,7 @@
 * Json   toJson()
     * Argumentの内部にある情報をすべてdumpする。<br />
     * 例:
-<code>
+<pre>
     {
         "HEAD"      : "asfhdafjs",
         "root"      : {...},
@@ -78,7 +78,7 @@
         "nodes"     : [{...}, ...],
         "CommitLog" : [{...}, ...]
     }
-</code>
+</pre>
 * HEAD      ... 最新リビジョンのSHA-1
 * root      ... ArgumentのTop Goal
 * links     ... DBNode間のLinkを示す(TODO: Tree構造に復元する)
