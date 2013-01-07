@@ -6,7 +6,7 @@ import("konoha.map");
 load("argument.k");
 load("constString.k");
 
-class DCaseRepository {
+class DCaseDB {
 	Map[Argument] tree;
 
 	void CreateArgument(String name) {

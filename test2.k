@@ -1,7 +1,7 @@
 load("db.k");
 import("konoha.object");
 
-Strategy makeStrategy(DCaseRepository repo, String treeName, String name,String description) {
+Strategy makeStrategy(DCaseDB repo, String treeName, String name,String description) {
 	Json json = new Json();
 	json.setString("name",name);
 	json.setString("description",description);
@@ -9,7 +9,7 @@ Strategy makeStrategy(DCaseRepository repo, String treeName, String name,String 
 	return repo.CreateDBNode(treeName,json) as Strategy;
 }
 
-Goal makeGoal(DCaseRepository repo, String treeName, String name,String description) {
+Goal makeGoal(DCaseDB repo, String treeName, String name,String description) {
 	Json json = new Json();
 	json.setString("name",name);
 	json.setString("description",description);
@@ -17,7 +17,7 @@ Goal makeGoal(DCaseRepository repo, String treeName, String name,String descript
 	return repo.CreateDBNode(treeName, json) as Goal;
 }
 
-Evidence makeEvidence(DCaseRepository repo, String treeName, String name,String description) {
+Evidence makeEvidence(DCaseDB repo, String treeName, String name,String description) {
 	Json json = new Json();
 	json.setString("name",name);
 	json.setString("description",description);
@@ -28,7 +28,7 @@ Evidence makeEvidence(DCaseRepository repo, String treeName, String name,String 
 void main() {
 	String name = "tree";
 	String name2 = "mosh";
-	DCaseRepository repo = new DCaseRepository();
+	DCaseDB repo = new DCaseDB();
 	repo.CreateArgument(name);
 	repo.CreateArgument(name2);
 

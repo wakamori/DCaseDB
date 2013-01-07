@@ -4,7 +4,7 @@ import("konoha.object");
 
 void main() {
 	String name = "tree";
-	DCaseRepository repo = new DCaseRepository();
+	DCaseDB repo = new DCaseDB();
 	repo.CreateArgument(name);
 	System.p(repo.SearchArgument(name).toJson());
 
