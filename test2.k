@@ -49,8 +49,8 @@ void main() {
 	s_args.setString("description","updated.");
 	repo.UpdateDBNode(TreeName, s,s_args);
 
-	System.p(repo.searchArgument(TreeName2).toJson());
-	System.p(repo.searchArgument(TreeName).toJson());
+	System.p(repo.SearchArgument(TreeName2).toJson());
+	System.p(repo.SearchArgument(TreeName).toJson());
 }
 
 main();

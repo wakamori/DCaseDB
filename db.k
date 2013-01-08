@@ -11,7 +11,7 @@ class DCaseDB {
 
 	void CreateArgument(String name) {
 		Goal g = new Goal();
-		g.name = "Root";
+		g.name = name;
 		this.tree.set(name,new Argument(g));
 	}
 

@@ -4,6 +4,26 @@ import("java2.class");
 import("js4.array");
 load("dbnode.k");
 
+class LinkTree {
+	String name;
+	LinkTree[] children;
+
+	LinkTree(String name) {
+		this.name = name;
+	}
+
+	Json toJson() {
+		Json json = new Json();
+		json.setString("name",this.name);
+		Json jarr = Json.parse("[]");
+		for(int i = 0; i < this.children.getSize();i++) {
+			jarr.add(this.children[i].toJson());
+		}
+		json.set("children",jarr);
+		return json;
+	}
+}
+
 class Argument {
 	CommitLog commit_log;
 	DBNode     root;
@@ -39,12 +59,35 @@ class Argument {
 		return json;
 	}
 
-	@Private Json LinksToJson() {
-		Json json = Json.parse("[]");
-		for(int i = 0;i < this.links.getSize();i++) {
-			json.add(this.links[i].toJson());
+	@Private void LinkToTreeJson(String name,int index,LinkTree[] tree) {
+		LinkTree[] lts = [];
+		for(int i = 0;i < this.links.getSize(); i++) {
+			if(name == this.links[i].parent) {
+				LinkTree lt = new LinkTree(this.links[i].child);
+				lts.add(lt);
+			}
 		}
-		return json;
+		tree[index].children = lts;
+		for(int i = 0; i < lts.getSize(); i++) {
+			this.LinkToTreeJson(lts[i].name, i,lts);
+		}
+	}
+
+	@Private Json LinksToJson() {
+		String name = this.root.name;
+		LinkTree ltroot = new LinkTree(name);
+		LinkTree[] lts = [];
+		for(int i = 0; i < this.links.getSize(); i++) {
+			if(name == this.links[i].parent) {
+				LinkTree lt = new LinkTree(this.links[i].child);
+				lts.add(lt);
+			}
+		}
+		for(int i = 0; i < lts.getSize(); i++) {
+			this.LinkToTreeJson(lts[i].name, i, lts);
+		}
+		ltroot.children = lts;
+		return ltroot.toJson();
 	}
 
 	Json toJson() {
