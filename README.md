@@ -70,8 +70,8 @@
 
 * void   CreateArgument(String name)
     * Argumentの作成。nameにはTopGoalの名前をいれる。
-####TODO
-* void   AddContext(String ArgumentName, Json condition)
+
+* void   AddContext(String ArgumentName, Json condition) //TODO
     * あるArgumentにcontextの条件を追加する。(既存のkeyは更新されます。)
     * Json 例:
 <pre>
@@ -80,7 +80,7 @@
         "C" : "gcc 4.6.3"
     }
 </pre>
-* Json getContext(String ArgumentName)
+* Json getContext(String ArgumentName) //TODO
     * ArgumentのContextを取得する。
 
 ### Argument Class
