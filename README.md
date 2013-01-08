@@ -1,4 +1,7 @@
 # DCase DB
+##開発環境
+* Ubuntu 12.04(amd64)
+* minikonoha(stableブランチ)
 
 ##必要なライブラリ
 * openssl
