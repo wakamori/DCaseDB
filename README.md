@@ -37,7 +37,7 @@
     content = {
         "name" : "hogehoge",
         "DBNodeType" : "Context",
-        "condition" : [{"architecture" : "Linux"},{"サーバ台数" : 4},  ...]
+        "condition" : {"architecture" : "x86_64", "OS" : "CentOS 6.3",  ...}
     }
 </pre>
 * void   InsertLink(String ArgumentName, String parentName, String childName)
@@ -70,6 +70,18 @@
 
 * void   CreateArgument(String name)
     * Argumentの作成。nameにはTopGoalの名前をいれる。
+####TODO
+* void   AddContext(String ArgumentName, Json condition)
+    * あるArgumentにcontextの条件を追加する。(既存のkeyは更新されます。)
+    * Json 例:
+<pre>
+    condition = {
+        "OS" : "Ubuntu 12.04",
+        "C" : "gcc 4.6.3"
+    }
+</pre>
+* Json getContext(String ArgumentName)
+    * ArgumentのContextを取得する。
 
 ### Argument Class
 * Json   toJson()
