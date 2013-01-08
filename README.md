@@ -1,7 +1,7 @@
 # DCase DB
 ##開発環境
 * Ubuntu 12.04(amd64)
-* minikonoha(stableブランチ)
+* minikonoha(stableブランチ) masterへ移行予定
 
 ##必要なライブラリ
 * openssl
