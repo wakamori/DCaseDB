@@ -23,8 +23,8 @@ class DCaseDB {
 
 	//TODO Search Argument
 	Argument SearchArgument(String name) {
-		return this.db.SearchArgument(name);
-		//return this.tree.get(name);
+		//return this.db.SearchArgument(name);
+		return this.tree.get(name);
 	}
 
 	//TODO many tree & return DBNode[]
