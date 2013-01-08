@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- ホスト: localhost
--- 生成時間: 2013 年 1 月 08 日 19:44
+-- 生成時間: 2013 年 1 月 08 日 20:35
 -- サーバのバージョン: 5.5.28
 -- PHP のバージョン: 5.3.10-1ubuntu3.4
 
@@ -28,9 +28,9 @@ SET time_zone = "+00:00";
 
 CREATE TABLE IF NOT EXISTS `Argument` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `Goal_id` int(11) NOT NULL,
+  `goal_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_Argument_Node1_idx` (`Goal_id`)
+  KEY `fk_Argument_Node1_idx` (`goal_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -43,9 +43,9 @@ CREATE TABLE IF NOT EXISTS `Commit` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `method` text,
   `argument` text,
-  `Argument_id` int(11) NOT NULL,
+  `argument_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_Commit_Argument1` (`Argument_id`)
+  KEY `fk_Commit_Argument1` (`argument_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -58,9 +58,9 @@ CREATE TABLE IF NOT EXISTS `Context` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `key` text,
   `value` text,
-  `Node_id` int(11) NOT NULL,
+  `node_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_Context_Node1_idx` (`Node_id`)
+  KEY `fk_Context_Node1_idx` (`node_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -72,13 +72,13 @@ CREATE TABLE IF NOT EXISTS `Context` (
 CREATE TABLE IF NOT EXISTS `DBNode` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` text,
-  `Description` text,
+  `description` text,
   `evidence_flag` tinyint(1) DEFAULT NULL,
-  `NodeType_id` int(11) NOT NULL,
-  `Argument_id` int(11) NOT NULL,
+  `nodeType_id` int(11) NOT NULL,
+  `argument_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_Node_NodeType1_idx` (`NodeType_id`),
-  KEY `fk_Node_Argument1_idx` (`Argument_id`)
+  KEY `fk_Node_NodeType1_idx` (`nodeType_id`),
+  KEY `fk_Node_Argument1_idx` (`argument_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
