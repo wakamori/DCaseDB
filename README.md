@@ -91,14 +91,14 @@
     {
         "HEAD"      : "asfhdafjs",
         "root"      : {...},
-        "links"     : [{...}, ...],
+        "links"     : {"name":"Goal", "children" : [{...}, ...]},
         "nodes"     : [{...}, ...],
         "CommitLog" : [{...}, ...]
     }
 </pre>
     * HEAD      ... 最新リビジョンのSHA-1
     * root      ... ArgumentのTop Goal
-    * links     ... DBNode間のLinkを示す(TODO: Tree構造に復元する)
+    * links     ... DBNode間のLinkをTree構造に復元する
     * nodes     ... DBNodeの情報(Array[Json])
     * CommitLog ... Commitの情報(Array[Json])
 
