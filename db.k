@@ -3,11 +3,13 @@ import("cstyle");
 import("java2.class");
 import("js4.array");
 import("konoha.map");
+import("konoha.sql");
 load("argument.k");
 load("constString.k");
 
 class DCaseDB {
 	Map[Argument] tree;
+	Connection con;
 
 	void CreateArgument(String name) {
 		Goal g = new Goal();
@@ -15,8 +17,9 @@ class DCaseDB {
 		this.tree.set(name,new Argument(g));
 	}
 
-	void Connect() {
-		//FIXME
+	void Connect(String name, String passwd) {
+		this.con = new Connection("mysql://" + name + ":" + passwd + "@localhost:3306");
+		this.con.query("USE dcasedb");
 	}
 
 	//TODO Search Argument

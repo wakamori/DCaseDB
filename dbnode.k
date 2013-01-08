@@ -98,6 +98,12 @@ class Context extends DBNode {
 	void addKeyValue(Json json) {
 		this.condition.add(json);
 	}
+
+	Json toJson() {
+		Json json = this._toJson();
+		json.setString("DBNodeType","Context");
+		return json;
+	}
 }
 
 //TODO
@@ -107,6 +113,12 @@ class Goal extends DBNode {
 		this.updateContent(content);
 		this.context = context;
 	}
+
+	Json toJson() {
+		Json json = this._toJson();
+		json.setString("DBNodeType","Goal");
+		return json;
+	}
 }
 
 class Strategy extends DBNode {
@@ -115,10 +127,22 @@ class Strategy extends DBNode {
 		this.updateContent(content);
 		this.context = context;
 	}
+
+	Json toJson() {
+		Json json = this._toJson();
+		json.setString("DBNodeType","Strategy");
+		return json;
+	}
 }
 
 class Evidence extends DBNode {
 	Evidence() {}
+
+	Json toJson() {
+		Json json = this._toJson();
+		json.setString("DBNodeType","Evidence");
+		return json;
+	}
 }
 
 class Commit {
