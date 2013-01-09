@@ -39,7 +39,7 @@ void main() {
 	repo.Connect("dcasedb","dcasedb");
 	repo.CreateArgument(TreeName,"Basic Syntax");
 
-	Goal root = repo.SearchArgument(TreeName);
+	Goal root = repo.SearchArgument(TreeName).root as Goal;
 
 	Context c = makeContext(repo, TreeName, "BasicSyntaxContext", "Basic Syntax Context");
 	repo.InsertLink(TreeName, root.name, c.name);
