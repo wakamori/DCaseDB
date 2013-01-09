@@ -39,11 +39,12 @@ class Argument {
 		this.arguments = [];
 	}
 
-	Argument(DBNode[] nodes, Link[] links, CommitLog cl) {
+	Argument(DBNode[] nodes, Link[] links, CommitLog cl,DBNode root) {
 		this.commit_log = cl;
 		this.links = links;
 		this.nodes = nodes;
 		this.arguments = [];
+		this.root = root;
 	}
 
 	@Private Json jsonArgument() {

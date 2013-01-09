@@ -77,7 +77,14 @@ class DBDriver {
 		DBNode[] nodes = this.getDBNodeList(argument_id);
 		Link[]   links = this.getLinksList(argument_id);
 		CommitLog clog = this.getCommitLog(argument_id);
-		return new Argument(nodes,links,clog);
+		//FIXME
+		DBNode n;
+		for(int i = 0; i < nodes.getSize(); i++) {
+			if(nodes[i].name == name) {
+				n = nodes[i];
+			}
+		}
+		return new Argument(nodes,links,clog,n);
 	}
 
 	int CreateArgument(String name) {
