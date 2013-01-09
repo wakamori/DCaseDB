@@ -2,7 +2,7 @@ load("db.k");
 
 
 void main() {
-	String TreeName = "tree";
+	String TreeName = "BasicSyntax";
 
 	DCaseDB repo = new DCaseDB();
 	repo.Connect("dcasedb","dcasedb");

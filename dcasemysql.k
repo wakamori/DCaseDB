@@ -31,10 +31,12 @@ class DBDriver {
 	Json getContext(int id) {
 		Json json = new Json();
 		ResultSet r = this.con.query("SELECT key,value FROM Context WHERE node_id="+id);
-		while(r.next()) {
-			String key = r.getString("key");
-			String value = r.getString("value");
-			json.setString(key,value);
+		if(r.getSize() > 0) {
+			while(r.next()) {
+				String key = r.getString("key");
+				String value = r.getString("value");
+				json.setString(key,value);
+			}
 		}
 		return json;
 	}
