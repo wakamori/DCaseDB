@@ -29,8 +29,9 @@ void main() {
 	String TreeName = "tree";
 	String TreeName2 = "mosh";
 	DCaseDB repo = new DCaseDB();
-	repo.CreateArgument(TreeName);
-	repo.CreateArgument(TreeName2);
+	repo.Connect("dcasedb","dcasedb");
+	repo.CreateArgument(TreeName,"this is a test root1");
+	repo.CreateArgument(TreeName2,"this is a test root 2");
 
 	Strategy s1 = makeStrategy(repo, TreeName, "S-1", "S-1 test");
 	repo.InsertLink(TreeName, repo.SearchArgument(TreeName).root.name, s1.name);

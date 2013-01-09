@@ -151,6 +151,9 @@ class Commit {
 	String revision;
 	int time;
 
+	Commit() {
+	}
+
 	Commit(String method, Json argument, String revision) {
 		this.method   = method;
 		this.argument = argument;
@@ -180,11 +183,11 @@ class CommitLog {
 		this.sha1.update(new Date().toString());
 	}
 
-	String addCommit(String method, Json argument) {
+	Commit addCommit(String method, Json argument) {
 		Commit commit = new Commit(method, argument, this.sha1.final());
 		this.commits.add(commit);
 		this.head = commit.revision;
-		return commit.revision;
+		return commit;
 	}
 
 	Json toJson() {

@@ -31,11 +31,18 @@ class Argument {
 	Link[]   links;
 	Argument[] arguments;
 
-	Argument(Goal root) {
-		this.root = root;
+	Argument() {
+		//this.root = root;
 		this.commit_log = new CommitLog();
 		this.links = [];
 		this.nodes = [];
+		this.arguments = [];
+	}
+
+	Argument(DBNode[] nodes, Link[] links, CommitLog cl) {
+		this.commit_log = cl;
+		this.links = links;
+		this.nodes = nodes;
 		this.arguments = [];
 	}
 
@@ -47,7 +54,7 @@ class Argument {
 		return json;
 	}
 
-	String Commit(String method, Json argument) {
+	Commit Commit(String method, Json argument) {
 		return this.commit_log.addCommit(method,argument);
 	}
 

@@ -3,6 +3,7 @@ import("cstyle");
 import("java2.class");
 import("js4.array");
 import("konoha.map");
+import("konoha.object");
 load("argument.k");
 load("constString.k");
 load("dcasemysql.k");
@@ -11,20 +12,36 @@ class DCaseDB {
 	Map[Argument] tree;
 	DBDriver db;
 
-	void CreateArgument(String name) {
-		Goal g = new Goal();
-		g.name = name;
-		this.tree.set(name,new Argument(g));
+	void CreateArgument(String name,String description) {
+		int id = this.db.CreateArgument(name);
+		Json content = new Json();
+		content.setString("name",name);
+		content.setString("description",description);
+		content.setString("DBNodeType","Goal");
+
+		this.tree.set(name,new Argument());
+		Argument argument = this.tree.get(name);
+		Commit c = argument.Commit("CreateArgument",content);
+		this.db.InsertCommit(name,"CreateArgument",c);
+
+		Goal g = this.CreateDBNode(name,content) as Goal;
+		argument.root = g;
+		this.db.addArgumentRoot(name,id);
 	}
 
 	void Connect(String name, String passwd) {
-		this.db = new DB(name,passwd);
+		this.db = new DBDriver(name,passwd);
 	}
 
 	//TODO Search Argument
 	Argument SearchArgument(String name) {
-		//return this.db.SearchArgument(name);
-		return this.tree.get(name);
+		if(this.tree.has(name)) {
+			return this.tree.get(name);
+		} else {
+			Argument a = this.db.SearchArgument(name);
+			this.tree.set(name,a);
+			return a;
+		}
 	}
 
 	//TODO many tree & return DBNode[]
@@ -36,25 +53,33 @@ class DCaseDB {
 		Argument argument = this.SearchArgument(name);
 		String NodeType = content.getString(JsonKeyDBNodeType);
 		if(NodeType == NodeTypeGoal) {
-			argument.Commit(MtdCreateDBNode,content);
+			Commit c = argument.Commit(MtdCreateDBNode,content);
+			this.db.CreateDBNode(name,NodeType,content);
+			this.db.InsertCommit(name,MtdCreateDBNode,c);
 
 			Goal node = new Goal(content);
 			argument.nodes.add(node);
 			return node;
 		} else if (NodeType == NodeTypeStrategy) {
-			argument.Commit(MtdCreateDBNode,content);
+			Commit c = argument.Commit(MtdCreateDBNode,content);
+			this.db.CreateDBNode(name,NodeType,content);
+			this.db.InsertCommit(name,MtdCreateDBNode,c);
 
 			Strategy node = new Strategy(content);
 			argument.nodes.add(node);
 			return node;
 		} else if (NodeType == NodeTypeContext) {
-			argument.Commit(MtdCreateDBNode,content);
+			Commit c = argument.Commit(MtdCreateDBNode,content);
+			this.db.CreateDBNode(name,NodeType,content);
+			this.db.InsertCommit(name,MtdCreateDBNode,c);
 
 			Context node = new Context(content);
 			argument.nodes.add(node);
 			return node;
 		} else if (NodeType == NodeTypeEvidence) {
-			argument.Commit(MtdCreateDBNode,content);
+			Commit c = argument.Commit(MtdCreateDBNode,content);
+			this.db.CreateDBNode(name,NodeType,content);
+			this.db.InsertCommit(name,MtdCreateDBNode,c);
 
 			Evidence node = new Evidence(content);
 			argument.nodes.add(node);
@@ -65,6 +90,7 @@ class DCaseDB {
 
 	void InsertLink(String name, String parent, String child) {
 		Argument argument = this.SearchArgument(name);
+		this.db.InsertLink(name,parent,child);
 		Link l = new Link(parent, child);
 		argument.links.add(l);
 		argument.Commit(MtdInsertLink,l.toJson());

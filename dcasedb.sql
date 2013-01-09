@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- ホスト: localhost
--- 生成時間: 2013 年 1 月 08 日 20:35
+-- 生成時間: 2013 年 1 月 09 日 18:29
 -- サーバのバージョン: 5.5.28
 -- PHP のバージョン: 5.3.10-1ubuntu3.4
 
@@ -19,6 +19,7 @@ SET time_zone = "+00:00";
 --
 -- データベース: `dcasedb`
 --
+USE `dcasedb`;
 
 -- --------------------------------------------------------
 
@@ -28,10 +29,14 @@ SET time_zone = "+00:00";
 
 CREATE TABLE IF NOT EXISTS `Argument` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `goal_id` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `fk_Argument_Node1_idx` (`goal_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+  `goal_id` int(11) DEFAULT NULL,
+  `name` text NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+--
+-- テーブルのデータをダンプしています `Argument`
+--
 
 -- --------------------------------------------------------
 
@@ -42,11 +47,12 @@ CREATE TABLE IF NOT EXISTS `Argument` (
 CREATE TABLE IF NOT EXISTS `Commit` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `method` text,
-  `argument` text,
+  `args` text,
   `argument_id` int(11) NOT NULL,
+  `revision` text NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_Commit_Argument1` (`argument_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -59,8 +65,8 @@ CREATE TABLE IF NOT EXISTS `Context` (
   `key` text,
   `value` text,
   `node_id` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `fk_Context_Node1_idx` (`node_id`)
+  PRIMARY KEY (`id`)
+--  KEY `fk_Context_Node1_idx` (`node_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -79,7 +85,11 @@ CREATE TABLE IF NOT EXISTS `DBNode` (
   PRIMARY KEY (`id`),
   KEY `fk_Node_NodeType1_idx` (`nodeType_id`),
   KEY `fk_Node_Argument1_idx` (`argument_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+--
+-- テーブルのデータをダンプしています `DBNode`
+--
 
 -- --------------------------------------------------------
 
@@ -91,10 +101,11 @@ CREATE TABLE IF NOT EXISTS `NodeLink` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `parent_Node_id` int(11) NOT NULL,
   `child_Node_id` int(11) NOT NULL,
+  `argument_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_NodeLink_Node1_idx` (`parent_Node_id`),
   KEY `fk_NodeLink_Node2_idx` (`child_Node_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -106,7 +117,7 @@ CREATE TABLE IF NOT EXISTS `NodeType` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `type_name` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 --
 -- テーブルのデータをダンプしています `NodeType`
@@ -123,22 +134,10 @@ INSERT INTO `NodeType` (`id`, `type_name`) VALUES
 --
 
 --
--- テーブルの制約 `Argument`
---
-ALTER TABLE `Argument`
-  ADD CONSTRAINT `fk_Argument_Node1` FOREIGN KEY (`Goal_id`) REFERENCES `DBNode` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
-
---
 -- テーブルの制約 `Commit`
 --
 ALTER TABLE `Commit`
   ADD CONSTRAINT `fk_Commit_Argument1` FOREIGN KEY (`Argument_id`) REFERENCES `Argument` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
-
---
--- テーブルの制約 `Context`
---
-ALTER TABLE `Context`
-  ADD CONSTRAINT `fk_Context_Node1` FOREIGN KEY (`Node_id`) REFERENCES `DBNode` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
 -- テーブルの制約 `DBNode`
