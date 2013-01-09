@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- ホスト: localhost
--- 生成時間: 2013 年 1 月 09 日 18:29
+-- 生成時間: 2013 年 1 月 09 日 22:16
 -- サーバのバージョン: 5.5.28
 -- PHP のバージョン: 5.3.10-1ubuntu3.4
 
@@ -34,10 +34,6 @@ CREATE TABLE IF NOT EXISTS `Argument` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
---
--- テーブルのデータをダンプしています `Argument`
---
-
 -- --------------------------------------------------------
 
 --
@@ -50,6 +46,7 @@ CREATE TABLE IF NOT EXISTS `Commit` (
   `args` text,
   `argument_id` int(11) NOT NULL,
   `revision` text NOT NULL,
+  `time` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_Commit_Argument1` (`argument_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
@@ -66,7 +63,6 @@ CREATE TABLE IF NOT EXISTS `Context` (
   `value` text,
   `node_id` int(11) NOT NULL,
   PRIMARY KEY (`id`)
---  KEY `fk_Context_Node1_idx` (`node_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -86,10 +82,6 @@ CREATE TABLE IF NOT EXISTS `DBNode` (
   KEY `fk_Node_NodeType1_idx` (`nodeType_id`),
   KEY `fk_Node_Argument1_idx` (`argument_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
---
--- テーブルのデータをダンプしています `DBNode`
---
 
 -- --------------------------------------------------------
 
@@ -137,14 +129,14 @@ INSERT INTO `NodeType` (`id`, `type_name`) VALUES
 -- テーブルの制約 `Commit`
 --
 ALTER TABLE `Commit`
-  ADD CONSTRAINT `fk_Commit_Argument1` FOREIGN KEY (`Argument_id`) REFERENCES `Argument` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+  ADD CONSTRAINT `fk_Commit_Argument1` FOREIGN KEY (`argument_id`) REFERENCES `Argument` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
 -- テーブルの制約 `DBNode`
 --
 ALTER TABLE `DBNode`
-  ADD CONSTRAINT `fk_Node_Argument1` FOREIGN KEY (`Argument_id`) REFERENCES `Argument` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  ADD CONSTRAINT `fk_Node_NodeType1` FOREIGN KEY (`NodeType_id`) REFERENCES `NodeType` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+  ADD CONSTRAINT `fk_Node_Argument1` FOREIGN KEY (`argument_id`) REFERENCES `Argument` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_Node_NodeType1` FOREIGN KEY (`nodeType_id`) REFERENCES `NodeType` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
 -- テーブルの制約 `NodeLink`

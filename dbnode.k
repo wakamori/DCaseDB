@@ -102,6 +102,7 @@ class Context extends DBNode {
 	Json toJson() {
 		Json json = this._toJson();
 		json.setString("DBNodeType","Context");
+		json.set("context",this.condition);
 		return json;
 	}
 }

@@ -25,32 +25,34 @@ Evidence makeEvidence(DCaseDB repo, String treeName, String name,String descript
 	return repo.CreateDBNode(treeName, json) as Evidence;
 }
 
+Context makeContext(DCaseDB repo, String treeName, String name, String description) {
+	Json json = new Json();
+	json.setString("name",name);
+	json.setString("description",description);
+	json.setString("DBNodeType","Context");
+	return repo.CreateDBNode(treeName, json) as Context;
+}
+
 void main() {
-	String TreeName = "tree";
-	String TreeName2 = "mosh";
+	String TreeName = "BasicSyntax";
 	DCaseDB repo = new DCaseDB();
 	repo.Connect("dcasedb","dcasedb");
-	repo.CreateArgument(TreeName,"this is a test root1");
-	repo.CreateArgument(TreeName2,"this is a test root 2");
+	repo.CreateArgument(TreeName,"Basic Syntax");
 
-	Strategy s1 = makeStrategy(repo, TreeName, "S-1", "S-1 test");
-	repo.InsertLink(TreeName, repo.SearchArgument(TreeName).root.name, s1.name);
+	Goal root = repo.SearchArgument(TreeName);
 
-	Goal g2_1 = makeGoal(repo, TreeName, "G2-1", "G2-1 test");
+	Context c = makeContext(repo, TreeName, "BasicSyntaxContext", "Basic Syntax Context");
+	repo.InsertLink(TreeName, root.name, c.name);
+
+	Strategy s1 = makeStrategy(repo, TreeName, "Strategy1", "Separated by Syntax");
+	repo.InsertLink(TreeName, root.name, s1.name);
+
+	Goal g2_1 = makeGoal(repo, TreeName, "FunctionDeclaration", "Function Decralation");
 	repo.InsertLink(TreeName, s1.name , g2_1.name);
 
-	Goal g2_2 = makeGoal(repo, TreeName, "G2-2", "G2-2 test");
+	Goal g2_2 = makeGoal(repo, TreeName, "ReturnStatement", "Return Statement");
 	repo.InsertLink(TreeName, s1.name , g2_2.name);
 
-	Evidence e1 = makeEvidence(repo, TreeName, "E1", "E1 test");
-	repo.InsertLink(TreeName, g2_1.name , e1.name);
-
-	Strategy s = repo.SearchDBNode(TreeName,"S-1") as Strategy;
-	Json s_args = new Json();
-	s_args.setString("description","updated.");
-	repo.UpdateDBNode(TreeName, s,s_args);
-
-	System.p(repo.SearchArgument(TreeName2).toJson());
 	System.p(repo.SearchArgument(TreeName).toJson());
 }
 

@@ -28,15 +28,33 @@ class DBDriver {
 		return new DBNode();
 	}
 
+	Json getContext(int id) {
+		Json json = new Json();
+		ResultSet r = this.con.query("SELECT key,value FROM Context WHERE node_id="+id);
+		while(r.next()) {
+			String key = r.getString("key");
+			String value = r.getString("value");
+			json.setString(key,value);
+		}
+		return json;
+	}
+
 	DBNode[] getDBNodeList(int argument_id) {
-		ResultSet r = this.con.query("SELECT name,description,evidence_flag,type_name FROM DBNode,NodeType WHERE argument_id="+argument_id+" AND nodeType_id=NodeType.id;");
+		ResultSet r = this.con.query("SELECT DBNode.id,name,description,evidence_flag,type_name FROM DBNode,NodeType WHERE argument_id="+argument_id+" AND nodeType_id=NodeType.id;");
 		DBNode[] nodes = [];
 		while(r.next()) {
-			DBNode node = this.MakeNode(r.getString("type_name"));
+			String type = r.getString("type_name");
+			DBNode node = this.MakeNode(type);
 			node.name = r.getString("name");
 			node.description = r.getString("description");
 			node.is_evidence = r.getBoolean("evidence_flag");
-			nodes.add(node);
+			if(type == "Context") {
+				Context context = node as Context;
+				context.condition = this.getContext(r.getInt("id"));
+				nodes.add(context);
+			} else {
+				nodes.add(node);
+			}
 		}
 		return nodes;
 	}
@@ -105,7 +123,7 @@ class DBDriver {
 		return id;
 	}
 
-	int getDBNodeId(String name) {
+	int getDBNodeId(String name) { //FIXME Argument_name
 		ResultSet nodeId = this.con.query("SELECT id FROM DBNode WHERE name='" + name + "'");
 		int id;
 		while(nodeId.next()) {
@@ -137,5 +155,15 @@ class DBDriver {
 		int parent_id   = this.getDBNodeId(parent_name);
 		int child_id    = this.getDBNodeId(child_name);
 		this.con.query("INSERT INTO NodeLink(argument_id,parent_Node_id,child_Node_id) VALUES('"+argument_id+"','"+parent_id+"','"+child_id+"')");
+	}
+
+	void addContext(String argument_name, String context_name, Json context) {
+		int argument_id     = this.getArgumentId(name);
+		int context_id      = this.getDBNodeId(context_name);
+		String[] keys = context.keys();
+		for(int i = 0; i<keys.getSize();i++) {
+			String key = keys[i];
+			this.con.query("INSERT INTO Context(key,value,node_id) Values('"+ key +"','" +context.getString(key)+ "'," +context_id+ ")");
+		}
 	}
 }
