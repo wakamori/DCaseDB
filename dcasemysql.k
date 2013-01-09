@@ -30,10 +30,10 @@ class DBDriver {
 
 	Json getContext(int id) {
 		Json json = new Json();
-		ResultSet r = this.con.query("SELECT key,value FROM Context WHERE node_id="+id);
+		ResultSet r = this.con.query("SELECT context_key,value FROM Context WHERE node_id="+id);
 		if(r.getSize() > 0) {
 			while(r.next()) {
-				String key = r.getString("key");
+				String key = r.getString("context_key");
 				String value = r.getString("value");
 				json.setString(key,value);
 			}
@@ -165,7 +165,7 @@ class DBDriver {
 		String[] keys = context.keys();
 		for(int i = 0; i<keys.getSize();i++) {
 			String key = keys[i];
-			this.con.query("INSERT INTO Context(key,value,node_id) Values('"+ key +"','" +context.getString(key)+ "'," +context_id+ ")");
+			this.con.query("INSERT INTO Context(context_key,value,node_id) Values('"+ key +"','" +context.getString(key)+ "'," +context_id+ ")");
 		}
 	}
 }

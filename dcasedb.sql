@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- ホスト: localhost
--- 生成時間: 2013 年 1 月 09 日 22:16
+-- 生成時間: 2013 年 1 月 09 日 23:24
 -- サーバのバージョン: 5.5.28
 -- PHP のバージョン: 5.3.10-1ubuntu3.4
 
@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS `Commit` (
   `time` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_Commit_Argument1` (`argument_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS `Commit` (
 
 CREATE TABLE IF NOT EXISTS `Context` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `key` text,
+  `context_key` text,
   `value` text,
   `node_id` int(11) NOT NULL,
   PRIMARY KEY (`id`)
@@ -97,7 +97,7 @@ CREATE TABLE IF NOT EXISTS `NodeLink` (
   PRIMARY KEY (`id`),
   KEY `fk_NodeLink_Node1_idx` (`parent_Node_id`),
   KEY `fk_NodeLink_Node2_idx` (`child_Node_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
