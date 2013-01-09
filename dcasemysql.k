@@ -49,7 +49,6 @@ class DBDriver {
 			l.parent = r.getString("parent_name");
 			l.child = r.getString("child_name");
 			links.add(l);
-			System.p(l.toJson());
 		}
 		return links;
 	}
