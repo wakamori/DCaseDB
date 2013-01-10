@@ -8,7 +8,16 @@ import("konoha.sql");
 import("konoha.object");
 import("js4.array");
 import("js4.date");
-
+//Import("MiniKonoha.NameSpace");
+//Import("Type.Json");
+//Import("Lib.Openssl");
+//Import("Syntax.CStyleFor");
+//Import("Java.Class");
+//Import("konoha.map");
+//Import("MiniKonoha.Sql");
+//Import("Java.Object");
+//Import("JavaScript.Array");
+//Import("JavaScript.Date");
 
 const MtdCreateDBNode = "CreateDBNode";
 const MtdDeleteDBNode = "DeleteDBNode";
@@ -122,7 +131,7 @@ class Context extends DBNode {
 	void addKeyValue(Json json) {
 		String[] keys = json.keys();
 		for(int i = 0; i < keys.getSize(); i++) {
-			this.condition.setString(keys[i],json.get(keys[i])); //TODO Need validation
+			this.condition.setString(keys[i],json.getString(keys[i])); //TODO Need validation
 		}
 	}
 
@@ -541,7 +550,7 @@ class DBDriver {
 	}
 
 	void addContext(String argument_name, String context_name, Json context) {
-		int argument_id     = this.getArgumentId(name);
+		int argument_id     = this.getArgumentId(argument_name);
 		int context_id      = this.getDBNodeId(context_name);
 		String[] keys = context.keys();
 		for(int i = 0; i<keys.getSize();i++) {
@@ -684,7 +693,7 @@ class DCaseDB {
 
 	void AddContext(String argument_name, String context_name, Json context) {
 		Argument argument = this.SearchArgument(argument_name);
-		Context c = argument.SearchDBNode(context_name);
+		Context c = argument.SearchDBNode(context_name) as Context;
 		c.addKeyValue(context);
 		argument.Commit("AddContext",context); //FIXME
 		this.db.addContext(argument_name,context_name,context);
