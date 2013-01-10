@@ -138,4 +138,12 @@ class DCaseDB {
 		}
 		return json;
 	}
+
+	void AddContext(String argument_name, String context_name, Json context) {
+		Argument argument = this.SearchArgument(argument_name);
+		Context c = argument.SearchDBNode(context_name);
+		c.addKeyValue(context);
+		argument.Commit("AddContext",context); //FIXME
+		this.db.addContext(argument_name,context_name,context);
+	}
 }

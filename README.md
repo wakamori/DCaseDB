@@ -40,7 +40,7 @@
     content = {
         "name" : "hogehoge",
         "DBNodeType" : "Context",
-        "condition" : {"architecture" : "x86_64", "OS" : "CentOS 6.3",  ...}
+        "context" : {"architecture" : "x86_64", "OS" : "CentOS 6.3",  ...}
     }
 </pre>
 * void   InsertLink(String ArgumentName, String parentName, String childName)

@@ -78,12 +78,13 @@ class Context extends DBNode {
 	Json condition;
 	Context(Json content) {
 		//TODO Create Argument
-		this.condition = Json.parse("[]"); //FIXME?
+		this.condition = new Json();
 		this.updateContent(content);
-		if(content.hasKey("condition")) {
+		if(content.hasKey("context")) {
 			Json array = content.get("condition");
-			for(int i = 0; i < array.getSize(); i++) {
-				this.condition.add(array.get(i)); //TODO Need validation
+			String[] keys = array.keys();
+			for(int i = 0; i < keys.getSize(); i++) {
+				this.condition.setString(keys[i],array.get(keys[i])); //TODO Need validation
 			}
 		}
 	}
@@ -96,7 +97,10 @@ class Context extends DBNode {
 	}
 
 	void addKeyValue(Json json) {
-		this.condition.add(json);
+		String[] keys = json.keys();
+		for(int i = 0; i < keys.getSize(); i++) {
+			this.condition.setString(keys[i],json.get(keys[i])); //TODO Need validation
+		}
 	}
 
 	Json toJson() {
