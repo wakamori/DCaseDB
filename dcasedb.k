@@ -560,11 +560,11 @@ class DBDriver {
 	}
 }
 
-class DCaseDB {
+@Public class DCaseDB {
 	Map[Argument] tree;
 	DBDriver db;
 
-	void CreateArgument(String name,String description) {
+	@Public void CreateArgument(String name,String description) {
 		int id = this.db.CreateArgument(name);
 		Json content = new Json();
 		content.setString("name",name);
@@ -581,12 +581,12 @@ class DCaseDB {
 		this.db.addArgumentRoot(name,id);
 	}
 
-	void Connect(String name, String passwd) {
+	@Public void Connect(String name, String passwd) {
 		this.db = new DBDriver(name,passwd);
 	}
 
 	//TODO Search Argument
-	Argument SearchArgument(String name) {
+	@Public Argument SearchArgument(String name) {
 		if(this.tree.has(name)) {
 			return this.tree.get(name);
 		} else {
@@ -597,11 +597,11 @@ class DCaseDB {
 	}
 
 	//TODO many tree & return DBNode[]
-	DBNode SearchDBNode(String root, String searchText) {
+	@Public DBNode SearchDBNode(String root, String searchText) {
 		return this.SearchArgument(root).SearchDBNode(searchText);
 	}
 
-	DBNode CreateDBNode(String name, Json content) {
+	@Public DBNode CreateDBNode(String name, Json content) {
 		Argument argument = this.SearchArgument(name);
 		String NodeType = content.getString(JsonKeyDBNodeType);
 		if(NodeType == NodeTypeGoal) {
@@ -640,7 +640,7 @@ class DCaseDB {
 		return NULL; //FIXME
 	}
 
-	void InsertLink(String name, String parent, String child) {
+	@Public void InsertLink(String name, String parent, String child) {
 		Argument argument = this.SearchArgument(name);
 		this.db.InsertLink(name,parent,child);
 		Link l = new Link(parent, child);
@@ -648,19 +648,19 @@ class DCaseDB {
 		argument.Commit(MtdInsertLink,l.toJson());
 	}
 
-	void UpdateDBNode(String name, DBNode node, Json contents) {
+	@Public void UpdateDBNode(String name, DBNode node, Json contents) {
 		this.SearchArgument(name).Commit(MtdUpdateDBNode, node.update(contents));
 	}
 
-	void UpdateParentLink(String name, String parent_old, String parent_new, String child) {
+	@Public void UpdateParentLink(String name, String parent_old, String parent_new, String child) {
 		this.SearchArgument(name).UpdateLink(0,parent_old,parent_new,child);
 	}
 
-	void UpdateChildLink(String name, String parent, String child_old, String child_new) {
+	@Public void UpdateChildLink(String name, String parent, String child_old, String child_new) {
 		this.SearchArgument(name).UpdateLink(1,parent,child_new,child_old);
 	}
 
-	void DeleteDBNode(String name, String node) {
+	@Public void DeleteDBNode(String name, String node) {
 		Argument argument = this.SearchArgument(name);
 		int[] link_idx = argument.SearchLinkIndexes(node);
 		int   node_idx = argument.SearchDBNodeIndex(node);
@@ -671,18 +671,18 @@ class DCaseDB {
 		argument.nodes.removeAt(node_idx);
 	}
 
-	void DeleteLink(String name, String parent, String child) {
+	@Public void DeleteLink(String name, String parent, String child) {
 		Argument argument = this.SearchArgument(name);
 		argument.DeleteLink(argument.SearchLinkIndex(parent,child));
 	}
 
 	//TODO
-	Json ShowRevision(String name, String revision) {
+	@Public Json ShowRevision(String name, String revision) {
 		Argument argument = this.SearchArgument(name);
 		return this.useCommitLog(argument);
 	}
 
-	Json useCommitLog(Argument argument) {
+	@Public Json useCommitLog(Argument argument) {
 		Json json = argument.toJson();
 		Json commitlog = json.get(JsonKeyCommitLog);
 		for(int i = 0; i < commitlog.getSize(); i++) {
@@ -691,11 +691,12 @@ class DCaseDB {
 		return json;
 	}
 
-	void AddContext(String argument_name, String context_name, Json context) {
+	@Public void AddContext(String argument_name, String context_name, Json context) {
 		Argument argument = this.SearchArgument(argument_name);
 		Context c = argument.SearchDBNode(context_name) as Context;
 		c.addKeyValue(context);
-		argument.Commit("AddContext",context); //FIXME
+		Commit c = argument.Commit("AddContext",context); //FIXME
 		this.db.addContext(argument_name,context_name,context);
+		this.db.InsertCommit(argument_name,"AddContext",c);
 	}
 }

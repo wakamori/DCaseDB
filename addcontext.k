@@ -9,7 +9,7 @@ void main() {
 	repo.Connect("dcasedb","dcasedb");
 
 	Json json = new Json();
-	json.setString("OS","Ubuntu 12.04 64bit");
+	json.setString("CPU","Core i7");
 	repo.AddContext(TreeName,"BasicSyntaxContext",json);
 	stdout.println(repo.SearchArgument(TreeName).toJson());
 }
