@@ -5,7 +5,7 @@
 
 ##必要なライブラリ
 * openssl
-* MySQL(TODO)
+* MySQL
 
 ##Class
 各クラスにはtoJson()メソッドが用意されており、Jsonにdumpできる。
@@ -71,11 +71,13 @@
 * void   Connect()
     * すでにあるDBにアクセスする。現状未実装
 
-* void   CreateArgument(String name)
-    * Argumentの作成。nameにはTopGoalの名前をいれる。
+* void   CreateArgument(String name, String content)
+    * Argumentの作成。nameにはTopGoalの名前、contentにはTopGoalの引数をいれる。
+    * この時点でContextを作成するべき。
 
-* void   AddContext(String ArgumentName, Json condition) //TODO
+* void   AddContext(String ArgumentName, String context_name,Json condition) //TODO
     * あるArgumentにcontextの条件を追加する。(既存のkeyは更新されます。)
+    * 現在Argument名だけだとContextへの参照を作るのが面倒なため、リファクタリングが必要。
     * Json 例:
 <pre>
     condition = {
@@ -104,6 +106,9 @@
     * links     ... DBNode間のLinkをTree構造に復元する
     * nodes     ... DBNodeの情報(Array[Json])
     * CommitLog ... Commitの情報(Array[Json])
+##Web API
+作成予定(JSON-RPCにする予定)
 
 ## Usage
-test.k,test2.k参照
+test.k,test2.ki,test3.k参照
+CGIサンプルとしてtree.k参照

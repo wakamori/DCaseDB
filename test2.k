@@ -1,4 +1,4 @@
-load("db.k");
+load("dcasedb.k");
 import("konoha.object");
 
 Strategy makeStrategy(DCaseDB repo, String treeName, String name,String description) {

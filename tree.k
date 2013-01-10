@@ -1,7 +1,7 @@
 #!/usr/local/bin/minikonoha
 
 import("konoha.file");
-load("db.k");
+load("dcasedb.k");
 
 
 void main() {
