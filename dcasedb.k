@@ -330,7 +330,7 @@ class Argument {
 		return ltroot.toJson();
 	}
 
-	Json toJson() {
+	@Public Json toJson() {
 		Json json = this.jsonArgument();
 		json.set(JsonKeyCommitLog,this.commit_log.toJson());
 		json.setString("HEAD", this.commit_log.head);
