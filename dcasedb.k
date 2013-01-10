@@ -539,7 +539,11 @@ class DBDriver {
 		String nodeName     = content.getString("name");
 		String description  = content.getString("description");
 		boolean is_evidence = content.getBoolean("is_evidence");
-		this.con.query("INSERT INTO DBNode(name,description,evidence_flag,nodeType_id,argument_id) VALUES('" + nodeName +"','"+ description + "','" + is_evidence + "',"+nodeId+"," + argument_id +") ");
+		String evidence = "FALSE";
+		if(is_evidence) {
+			evidence = "TRUE";
+		}
+		this.con.query("INSERT INTO DBNode(name,description,evidence_flag,nodeType_id,argument_id) VALUES('" + nodeName +"','"+ description + "','" + evidence + "',"+nodeId+"," + argument_id +") ");
 	}
 
 	void InsertLink(String argument_name, String parent_name, String child_name) {
