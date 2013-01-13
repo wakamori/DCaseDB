@@ -1,7 +1,7 @@
 #!/usr/local/bin/minikonoha
 
 import("cstyle.file");
-load("dcasedb.k");
+load("dcasedb_glue.k");
 
 
 void main() {
