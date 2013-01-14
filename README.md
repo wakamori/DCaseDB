@@ -112,4 +112,6 @@
 
 ## Usage
 test/ ディレクトリ参照<br>
-CGIサンプルとしてtree.k参照
+CGIサンプルとしてtree.k参照<br>
+misc/dcasedb.sql ... DCaseDBのテーブル作成用クエリ
+misc/rm.sql      ... DBのデータ削除用クエリ
