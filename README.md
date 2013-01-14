@@ -1,4 +1,4 @@
-# DCase DB
+﻿# DCase DB
 ##開発環境
 * Ubuntu 12.04(amd64)
 * minikonoha(stableブランチ) masterへ移行予定
@@ -68,8 +68,8 @@
 * Argument SearchArgument(String ArgumentName)
     * Argumentの検索。現状はnameが完全一致するArgumentを返す。
 
-* void   Connect()
-    * すでにあるDBにアクセスする。現状未実装
+* void   Connect(String userName, String password)
+    * DBにアクセスする。今はMySQL依存の実装だが、一般化していきたい。
 
 * void   CreateArgument(String name, String content)
     * Argumentの作成。nameにはTopGoalの名前、contentにはTopGoalの引数をいれる。
@@ -110,5 +110,5 @@
 作成予定(JSON-RPCにする予定)
 
 ## Usage
-test.k,test2.ki,test3.k参照
+test/ ディレクトリ参照<br>
 CGIサンプルとしてtree.k参照
