@@ -529,7 +529,8 @@ class DBDriver {
 		this.con.query("INSERT INTO Commit(method,args,argument_id,revision,time) VALUES ('"+ method +"','" + c.argument + "'," + id + ",'"+c.revision+"',"+ c.time +")");
 	}
 
-	void CreateDBNode(String name,String nodeType,Json content) {
+	void CreateDBNode(String name,String nodeType, Json content) {
+		System.p(content.getString("description"));
 		ResultSet nodeTypeId = this.con.query("SELECT id FROM NodeType WHERE type_name='" + nodeType + "'");
 		int nodeId;
 		while(nodeTypeId.next()) {

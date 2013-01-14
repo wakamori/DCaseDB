@@ -10,7 +10,7 @@ void main() {
 	DCaseDB repo = new DCaseDB();
 	repo.Connect("dcasedb","dcasedb");
 
-	stdout.println("Content-type: application/json\n\n");
+	stdout.println("Content-type: application/json; charset=UTF-8\n\n");
 	stdout.println(repo.SearchArgument(TreeName).toJson());
 }
 
