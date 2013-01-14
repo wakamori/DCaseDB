@@ -106,6 +106,7 @@
     * links     ... DBNode間のLinkをTree構造に復元する
     * nodes     ... DBNodeの情報(Array[Json])
     * CommitLog ... Commitの情報(Array[Json])
+
 ##Web API
 作成予定(JSON-RPCにする予定)
 
