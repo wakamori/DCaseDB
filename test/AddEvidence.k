@@ -16,7 +16,7 @@ void main() {
 	repo.Connect("dcasedb","dcasedb");
 	repo.SearchArgument(TreeName);
 
-	Evidence falseEvidence = makeEvidence(repo, TreeName, "Evidence1", "test script",false);
+	Evidence falseEvidence = makeEvidence(repo, TreeName, "Evidence1", "Always Fail test script",false);
 	Evidence trueEvidence = makeEvidence(repo, TreeName, "Evidence2", "test script2",true);
 	Goal g1 = repo.SearchDBNode(TreeName,"ReturnStatement") as Goal;
 	Goal g2 = repo.SearchDBNode(TreeName,"FunctionDeclaration") as Goal;

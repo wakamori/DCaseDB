@@ -9,7 +9,9 @@ void main() {
 	repo.Connect("dcasedb","dcasedb");
 
 	Json json = new Json();
-	json.setString("CPU","Core i7");
+	json.setString("OS","Ubuntu 12.04");
+	json.setString("Architecture","x86_64");
+	json.setString("C Compiler","GCC 4.6.3");
 	repo.AddContext(TreeName,"BasicSyntaxContext",json);
 	stdout.println(repo.SearchArgument(TreeName).toJson());
 }
