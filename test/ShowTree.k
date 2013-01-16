@@ -1,4 +1,4 @@
-load("dcasedb.k");
+load("../dcasedb_glue.k");
 
 
 void main() {

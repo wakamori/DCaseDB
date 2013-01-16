@@ -406,6 +406,9 @@ class DBDriver {
 	Json getContext(int id) {
 	}
 
+	void addArgumentRoot(String name, int id) {
+	}
+
 	Argument SearchArgument(String name) {
 	}
 
