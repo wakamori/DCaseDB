@@ -398,14 +398,41 @@ class Argument {
 	}
 }
 
+//@Abstract
 class DBDriver {
+	DBDriver() {
+	}
+
+	Json getContext(int id) {
+	}
+
+	Argument SearchArgument(String name) {
+	}
+
+	int CreateArgument(String name) {
+	}
+
+	void CreateDBNode(String name,String nodeType, Json content) {
+	}
+
+	void InsertCommit(String argument_name, String method, Commit c) {
+	}
+
+	void InsertLink(String argument_name, String parent_name, String child_name) {
+	}
+
+	void addContext(String argument_name, String context_name, Json context) {
+	}
+
+}
+
+class MySQLDriver extends DBDriver {
 	Connection con;
 
-	DBDriver(String name, String passwd) {
+	MySQLDriver(String name, String passwd) {
 		this.con = new Connection("mysql://" + name + ":" + passwd + "@localhost:3306");
 		this.con.query("USE dcasedb;");
 	}
-
 
 	DBNode MakeNode(String NodeType) {
 		if(NodeType == NodeTypeGoal) {
@@ -587,7 +614,8 @@ class DBDriver {
 	}
 
 	@Public void Connect(String name, String passwd) {
-		this.db = new DBDriver(name,passwd);
+		//this.db = new DBDriver(name,passwd);
+		this.db = new MySQLDriver(name,passwd);
 	}
 
 	//TODO Search Argument
