@@ -617,7 +617,7 @@ class MySQLDriver extends DBDriver {
 	}
 
 	@Public void Connect(String name, String passwd) {
-		//this.db = new DBDriver(name,passwd);
+		//this.db = new DBDriver();
 		this.db = new MySQLDriver(name,passwd);
 	}
 
