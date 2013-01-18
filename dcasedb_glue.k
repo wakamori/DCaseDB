@@ -13,9 +13,9 @@ import("js4.date");
 //Import("Lib.Openssl");
 //Import("Syntax.CStyleFor");
 //Import("Java.Class");
-//Import("konoha.map");
+//Import("MiniKonoha.Map");
 //Import("MiniKonoha.Sql");
-//Import("Java.Object");
+//Import("JavaStyle.Object");
 //Import("JavaScript.Array");
 //Import("JavaScript.Date");
 
@@ -59,7 +59,7 @@ class DBNode {
 		return this._toJson();
 	}
 
-	@Private void updateContent(Json content) {
+	void updateContent(Json content) {
 		if(content.hasKey("name")) {
 			this.name = content.getString("name");
 		}
