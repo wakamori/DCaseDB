@@ -4,7 +4,7 @@
 * minikonoha(stableブランチ) masterへ移行予定
 
 ##必要なライブラリ
-* openssl
+* OpenSSL
 * MySQL
 
 ##Class
@@ -87,6 +87,11 @@
 </pre>
 * Json getContext(String ArgumentName) //TODO
     * ArgumentのContextを取得する。
+* Argument ForkArgument(Argument from_argument ,int depth) //TODO
+    * Argumentのフォークを行う。depthにどの階層までコピーするか書く。
+* DBNode[] SearchArgumentDBNode(Argument argument,String DBNodeType) //TODO
+    * Argument内のあるタイプのノードだけ抜き出す。
+    * API名は変更予定。
 
 ### Argument Class
 * Json   toJson()
