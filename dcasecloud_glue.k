@@ -297,9 +297,15 @@ class CommitLog {
 class Argument {
 	String argumentId;
 	Map[Branch] branches; //FIXME Map
+	Map[CommitLog] commits;
 
 	Argument() {
 		this.branches.set("master", new Branch());
+		this.commits.set("master", new CommitLog());
+	}
+
+	Commit Commit(String method, Json argument) {
+		return this.commit_log.addCommit(method,argument);
 	}
 
 	@Public Branch GetBranch(String BranchId) {
@@ -311,29 +317,23 @@ class Argument {
 	}
 
 	@Public Argument Fork(String originalId, String newId, Context ctx, String revision) {
+		return new Argument(); //FIXME
 	}
 }
 
 class Branch {
 	String branchId;
-	CommitLog commitLog;
 	DBNode root;
 	DBNode[] nodes;
 
 	Branch() {
 		this.root = NULL;
-		this.commit_log = new CommitLog();
 		this.nodes = [];
 	}
 
-	Branch(DBNode[] nodes, CommitLog cl,DBNode root) {
-		this.commit_log = cl;
+	Branch(DBNode[] nodes, DBNode root) {
 		this.nodes = nodes;
 		this.root = root;
-	}
-
-	Commit Commit(String method, Json argument) {
-		return this.commit_log.addCommit(method,argument);
 	}
 
 	//TODO
