@@ -296,8 +296,22 @@ class CommitLog {
 
 class Argument {
 	String argumentId;
-	Branch master;
-	Branch[] branches; //FIXME Map
+	Map[Branch] branches; //FIXME Map
+
+	Argument() {
+		this.branches.set("master", new Branch());
+	}
+
+	@Public Branch GetBranch(String BranchId) {
+		return this.branches.get(BranchId);
+	}
+
+	@Public Branch Fork(String originId, String newId, Contex ctx) {
+		this.Fork(originId, newId, ctx, this.GetBranch(originId).commitLog.head);
+	}
+
+	@Public Argument Fork(String originalId, String newId, Context ctx, String revision) {
+	}
 }
 
 class Branch {
@@ -334,8 +348,40 @@ class DBDriver {
 }
 
 class DriverMySQL extends DBDriver {
+	DriverMySQL(String userName, String password) {
+	}
 }
 
 class API {
+	Map[Argument] arguments;
+	DBDriver db;
 
+	API() {
+	}
+
+	API(String userName, String password) {
+		this.Connect(userName, password);
+	}
+
+	@Public void Connect(String userName, String password) {
+		this.db = new DriverMySQL(userName, password);
+	}
+
+	@Public Argument CreateArgument(String argumentId, String description) {
+	}
+
+	@Public Argument GetArgument(String argumentId) {
+		return this.arguments.get(argumentId);
+	}
+
+	@Public String[] GetArgumentIds() {
+		return []; //FIXME
+	}
+
+	@Public DBNode[] SearchDBNode(String searchText) {
+		return []; //FIXME
+	}
+
+	@Public DBNode CreateDBNode(String name, Json content) {
+	}
 }
