@@ -8,11 +8,11 @@
 //import("konoha.object");
 //import("js4.array");
 //import("js4.date");
-Import("MiniKonoha.NameSpace");
 Import("Type.Json");
 Import("Lib.Openssl");
 Import("Syntax.CStyleFor");
 Import("Java.Class");
+Import("MiniKonoha.NameSpace");
 Import("MiniKonoha.Map");
 Import("MiniKonoha.Sql");
 Import("JavaStyle.Object");
@@ -102,7 +102,12 @@ class DBNode {
 	}
 
 	Json GetContext() {
+		//Abstract
 		return NULL;
+	}
+
+	void AddContext(Json context) {
+		//Abstract
 	}
 }
 
@@ -129,13 +134,6 @@ class Context extends DBNode {
 		return NULL;
 	}
 
-	void addKeyValues(Json json) {
-		String[] keys = json.keys();
-		for(int i = 0; i < keys.getSize(); i++) {
-			this.context.setString(keys[i],json.getString(keys[i])); //TODO Need validation
-		}
-	}
-
 	void addKeyValue(String key, String value) {
 		this.context.setString(key,value);
 	}
@@ -149,6 +147,13 @@ class Context extends DBNode {
 
 	Json GetContext() {
 		return this.context;
+	}
+
+	void AddContext(Json context) {
+		String[] keys = context.keys();
+		for(int i = 0; i < keys.getSize(); i++) {
+			this.context.setString(keys[i],context.getString(keys[i])); //TODO Need validation
+		}
 	}
 }
 
@@ -180,6 +185,10 @@ class Goal extends DBNode {
 		}
 		return json;
 	}
+
+	void AddContext(Json context) {
+		//TODO Search Context
+	}
 }
 
 class Strategy extends DBNode {
@@ -209,6 +218,10 @@ class Strategy extends DBNode {
 			}
 		}
 		return json;
+	}
+
+	void AddContext(Json context) {
+		//TODO Search Context
 	}
 }
 
@@ -247,33 +260,6 @@ class Rebuttal extends DBNode {
 		return json;
 	}
 }
-
-/*
-class Link {
-	String parentID;
-	String childID;
-	Link(String parent, String child) {
-		this.parentID = parent;
-		this.childID = child;
-	}
-
-	Link(Json content) {
-		if(content.hasKey("parentID")) {
-			this.parentID = content.getString("parentID");
-		}
-		if(content.hasKey("childID")) {
-			this.childID  = content.getString("childID");
-		}
-	}
-
-	Json toJson() {
-		Json json = new Json();
-		json.setString("parentID",this.parent);
-		json.setString("childID",this.child);
-		return json;
-	}
-}
-*/
 
 class Commit {
 	String method;
@@ -442,7 +428,7 @@ class API {
 		this.Connect(userName, password);
 	}
 
-	@Public void Connect(String userName, String password) {
+	void Connect(String userName, String password) {
 		this.db = new DriverMySQL(userName, password);
 	}
 
@@ -464,13 +450,65 @@ class API {
 	@Public DBNode CreateDBNode(String name, Json content) {
 	}
 
-	@Public void InsertLink(String argumentName, String parentId, String childId) {
-		this.InsertLink(argumentName, "master", parentId, childId);
+	@Public void InsertLink(String argumentId, String parentId, String childId) {
+		this.InsertLink(argumentId, "master", parentId, childId);
 	}
 
 	@Public void InsertLink(String argumentId, String branchId, String parentId, String childId) {
 		Branch branch = this.GetArgument(argumentId).GetBranch(branchId);
 		DBNode parent = branch.GetDBNode(parentId);
 		DBNode child = branch.GetDBNode(childId);
+		parent.addChild(child);
+		//TODO Commit
+	}
+
+	//FIXME Json contents
+	@Public void UpdateDBNode(String argumentId, DBNode node, Json contents) {
+		this.UpdateDBNode(argumentId,"master",node,contents);
+	}
+
+	@Public void UpdateDBNode(String argumentId, String branchId, DBNode node, Json contents) {
+		//TODO
+	}
+
+	@Public void UpdateParentLink(String argumentId, String oldParentId, String newParentId, String nodeId) {
+		this.UpdateParentLink(argumentId, "master", oldParentId, newParentId, nodeId);
+	}
+
+	@Public void UpdateParentLink(String argumentId, String branchId, String oldParentId, String newParentId, String nodeId) {
+		//TODO
+	}
+
+	@Public void UpdateChildLink(String argumentId, String nodeId, String oldChildId, String newChildId) {
+		this.UpdateChildLink(argumentId, "master", nodeId, oldChildId, newChildId);
+	}
+
+	@Public void UpdateChildLink(String argumentId, String branchId, String nodeId, String oldChildId, String newChildId) {
+		//TODO
+	}
+
+	@Public void DeleteDBNode(String argumentId, String nodeId) {
+		this.DeleteDBNode(argumentId, "master", nodeId);
+	}
+
+	@Public void DeleteDBNode(String argumentId, String branchId, String nodeId) {
+		//TODO
+	}
+
+	@Public void DeleteLink(String argumentId, String parentId, String childId) {
+		this.DeleteLink(argumentId, "master", parentId, childId);
+	}
+
+	@Public void DeleteLink(String argumentId, "master", String parentId, String childId) {
+		//TODO
+	}
+
+	@Public void AddContext(String argumentId, String nodeId, Json context) {
+		this.AddContext(argumentId, "master", nodeId, context);
+	}
+
+	@Public void AddContext(String argumentId, String branchId, String nodeId, Json context) {
+		DBNode node = this.GetArgument(argumentId).GetBranch(branchId).GetDBNode(nodeId);
+		node.addContext(context);
 	}
 }
