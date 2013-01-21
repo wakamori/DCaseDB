@@ -1,23 +1,23 @@
-import("konoha.ns");
-import("konoha.json");
-import("openssl");
-import("cstyle");
-import("java2.class");
-import("konoha.map");
-import("konoha.sql");
-import("konoha.object");
-import("js4.array");
-import("js4.date");
-//Import("MiniKonoha.NameSpace");
-//Import("Type.Json");
-//Import("Lib.Openssl");
-//Import("Syntax.CStyleFor");
-//Import("Java.Class");
-//Import("MiniKonoha.Map");
-//Import("MiniKonoha.Sql");
-//Import("JavaStyle.Object");
-//Import("JavaScript.Array");
-//Import("JavaScript.Date");
+//import("konoha.ns");
+//import("konoha.json");
+//import("openssl");
+//import("cstyle");
+//import("java2.class");
+//import("konoha.map");
+//import("konoha.sql");
+//import("konoha.object");
+//import("js4.array");
+//import("js4.date");
+Import("MiniKonoha.NameSpace");
+Import("Type.Json");
+Import("Lib.Openssl");
+Import("Syntax.CStyleFor");
+Import("Java.Class");
+Import("MiniKonoha.Map");
+Import("MiniKonoha.Sql");
+Import("JavaStyle.Object");
+Import("JavaScript.Array");
+Import("JavaScript.Date");
 
 class DBNode {
 	String nodeId;
@@ -294,33 +294,6 @@ class CommitLog {
 
 }
 
-class Argument {
-	String argumentId;
-	Map[Branch] branches; //FIXME Map
-	Map[CommitLog] commits;
-
-	Argument() {
-		this.branches.set("master", new Branch());
-		this.commits.set("master", new CommitLog());
-	}
-
-	Commit Commit(String method, Json argument) {
-		return this.commit_log.addCommit(method,argument);
-	}
-
-	@Public Branch GetBranch(String BranchId) {
-		return this.branches.get(BranchId);
-	}
-
-	@Public Branch Fork(String originId, String newId, Contex ctx) {
-		this.Fork(originId, newId, ctx, this.GetBranch(originId).commitLog.head);
-	}
-
-	@Public Argument Fork(String originalId, String newId, Context ctx, String revision) {
-		return new Argument(); //FIXME
-	}
-}
-
 class Branch {
 	String branchId;
 	DBNode root;
@@ -343,8 +316,36 @@ class Branch {
 	}
 }
 
-class DBDriver {
 
+class Argument {
+	String argumentId;
+	Map[Branch] branches; //FIXME Map
+	Map[CommitLog] commits;
+
+	Argument() {
+		this.branches.set("master", new Branch());
+		this.commits.set("master", new CommitLog());
+	}
+
+	Commit Commit(String method, Json argument) {
+		return this.commit_log.addCommit(method,argument);
+	}
+
+	@Public Branch GetBranch(String BranchId) {
+		return this.branches.get(BranchId);
+	}
+
+	@Public Branch Fork(String originId, String newId, Context ctx) {
+		this.Fork(originId, newId, ctx, this.GetBranch(originId).commitLog.head);
+	}
+
+	@Public Argument Fork(String originalId, String newId, Context ctx, String revision) {
+		return new Argument(); //FIXME
+	}
+}
+
+class DBDriver {
+	DBDriver(){}
 }
 
 class DriverMySQL extends DBDriver {
