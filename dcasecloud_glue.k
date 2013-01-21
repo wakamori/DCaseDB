@@ -309,13 +309,45 @@ class Branch {
 		this.root = root;
 	}
 
+	Json DBNodeListToJson() {
+		Json json = Json.parse("[]");
+		for(int i = 0; i < this.nodes.getSize();i++) {
+			json.add(this.nodes[i].toJson());
+		}
+		return json;
+	}
+
+	Json _ArgumentTreeToJson(DBNode node) {
+		Json json = new Json();
+		json.setString("name",node.nodeId);
+		Json children = Json.parse("[]");
+		for(int i = 0; i < node.childIds.getSize(); i++) {
+			children.add(this._ArgumentTreeToJson(this.GetDBNode(node.childIds[i])));
+		}
+		json.set("children",children);
+		return json;
+	}
+
+	Json ArgumentTreeToJson() {
+		Json json = new Json();
+		json.setString("name",this.root.nodeId);
+		Json children = Json.parse("[]");
+		for(int i = 0; i < this.root.childIds.getSize(); i++) {
+			children.add(this._ArgumentTreeToJson(this.GetDBNode(this.root.childIds[i])));
+		}
+		json.set("children",children);
+		return json;
+	}
+
 	//TODO
 	@Public Json toJson() {
 		Json json = new Json();
+		json.set("root",this.root.toJson());
+		json.set("nodes",this.DBNodeListToJson());
+		json.set("links",this.ArgumentTreeToJson());
 		return json;
 	}
 }
-
 
 class Argument {
 	String argumentId;
@@ -328,7 +360,7 @@ class Argument {
 	}
 
 	Commit Commit(String method, Json argument) {
-		return this.commit_log.addCommit(method,argument);
+		return this.commits.addCommit(method,argument);
 	}
 
 	@Public Branch GetBranch(String BranchId) {
@@ -341,6 +373,18 @@ class Argument {
 
 	@Public Argument Fork(String originalId, String newId, Context ctx, String revision) {
 		return new Argument(); //FIXME
+	}
+
+	Json toJson(String branchName) {
+		Json json = this.GetBranch(branchName).toJson();
+		CommitLog clog = this.commits.get(branchName);
+		json.set("CommitLog",clog.toJson());
+		json.setString("HEAD",clog.head);
+		return json;
+	}
+
+	Json toJson() {
+		return this.toJson("master");
 	}
 }
 
