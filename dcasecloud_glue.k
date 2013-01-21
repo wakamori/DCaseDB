@@ -24,22 +24,15 @@ class DBNode {
 	String description;
 	boolean isEvidence;
 
-	String parentId;
-	String[] childIds;
-
-	DBNode(String nodeId, String description, boolean isEvidence,String parentId) {
-		this.nodeId      = nodeId;
-		this.description = description;
-		this.isEvidence  = isEvidence;
-		this.parentId    = parentId;
-		this.childIds    = [];
-	}
+	//String parentId;
+	DBNode parent;
+	//String[] childIds;
+	DBNode[] children;
 
 	DBNode(String nodeId, String description, boolean isEvidence) {
 		this.nodeId      = nodeId;
 		this.description = description;
 		this.isEvidence  = isEvidence;
-		this.parentId    = "";
 		this.childIds    = [];
 	}
 
@@ -47,7 +40,6 @@ class DBNode {
 		this.nodeId      = nodeId;
 		this.description = description;
 		this.isEvidence  = false;
-		this.parentId    = "";
 		this.childIds    = [];
 	}
 
@@ -55,7 +47,6 @@ class DBNode {
 		this.nodeId      = nodeId;
 		this.description = "";
 		this.isEvidence  = false;
-		this.parentId    = "";
 		this.childIds    = [];
 	}
 
@@ -63,14 +54,18 @@ class DBNode {
 		this.nodeId      = "";
 		this.description = "";
 		this.isEvidence  = "";
-		this.parentId    = "";
 		this.childIds    = [];
 		this._Update(content);
 	}
 
-	void AddChild(DBNode childNode) {
-		this.childIds.add(childNode.nodeId);
-		childNode.parentId = this.nodeId;
+	void AddChild(DBNode child) {
+		this.children.add(child);
+		children.parent = this;
+	}
+
+	void AddParent(DBNode parent) {
+		this.parent = parent;
+		parent.children.add(this);
 	}
 
 	//Private
@@ -83,9 +78,6 @@ class DBNode {
 		}
 		if(content.hasKey("isEvidence")) {
 			this.isEvidence = content.getBoolean("isEvidence");
-		}
-		if(content.hasKey("parentId")) {
-			this.parentId = content.getString("parentId");
 		}
 	}
 
@@ -107,6 +99,10 @@ class DBNode {
 
 	Json toJson() {
 		return this._toJson();
+	}
+
+	Json GetContext() {
+		return NULL;
 	}
 }
 
@@ -150,9 +146,12 @@ class Context extends DBNode {
 		json.set("context",this.context);
 		return json;
 	}
+
+	Json GetContext() {
+		return this.context;
+	}
 }
 
-//FIXME Need ContextNode information?
 class Goal extends DBNode {
 	Goal(){}
 
@@ -162,8 +161,24 @@ class Goal extends DBNode {
 		return json;
 	}
 
-	//TODO
+	//FIXME validation
 	Json GetContext() {
+		Json json = this.parent.GetContext();
+		Json context_array = Json.parse("[]");
+		for(int i = 0; i < this.children.getSize();i++) {
+			if(this.children[i].toJson().getString("DBNodeType") == "Context") { //FIXME instanceOf
+				Context c = this.children[i] as Context;
+				context_array.add(c.GetContext());
+			}
+		}
+		for(int i = 0; i < context_array.getSize();i++) {
+			Json context = context_array.get(i);
+			String[] keys = context.keys();
+			for(int j = 0; j < keys.getSize(); j++) {
+				json.setString(keys[i],context.getString(keys[i]));
+			}
+		}
+		return json;
 	}
 }
 
@@ -176,8 +191,24 @@ class Strategy extends DBNode {
 		return json;
 	}
 
-	//TODO
+	//FIXME validation
 	Json GetContext() {
+		Json json = this.parent.GetContext();
+		Json context_array = Json.parse("[]");
+		for(int i = 0; i < this.children.getSize();i++) {
+			if(this.children[i].toJson().getString("DBNodeType") == "Context") { //FIXME instanceOf
+				Context c = this.children[i] as Context;
+				context_array.add(c.GetContext());
+			}
+		}
+		for(int i = 0; i < context_array.getSize();i++) {
+			Json context = context_array.get(i);
+			String[] keys = context.keys();
+			for(int j = 0; j < keys.getSize(); j++) {
+				json.setString(keys[i],context.getString(keys[i]));
+			}
+		}
+		return json;
 	}
 }
 
@@ -188,6 +219,10 @@ class Evidence extends DBNode {
 		Json json = this._toJson();
 		json.setString("DBNodeType","Evidence");
 		return json;
+	}
+
+	Json GetContext(){
+		return this.parent.GetContext();
 	}
 }
 
@@ -339,7 +374,6 @@ class Branch {
 		return json;
 	}
 
-	//TODO
 	@Public Json toJson() {
 		Json json = new Json();
 		json.set("root",this.root.toJson());
@@ -351,7 +385,7 @@ class Branch {
 
 class Argument {
 	String argumentId;
-	Map[Branch] branches; //FIXME Map
+	Map[Branch] branches;
 	Map[CommitLog] commits;
 
 	Argument() {
@@ -371,8 +405,8 @@ class Argument {
 		this.Fork(originId, newId, ctx, this.GetBranch(originId).commitLog.head);
 	}
 
-	@Public Argument Fork(String originalId, String newId, Context ctx, String revision) {
-		return new Argument(); //FIXME
+	@Public Branch Fork(String originalId, String newId, Context ctx, String revision) {
+		return new Branch(); //FIXME
 	}
 
 	Json toJson(String branchName) {
@@ -420,7 +454,7 @@ class API {
 	}
 
 	@Public String[] GetArgumentIds() {
-		return []; //FIXME
+		return this.arguments.keys(); //FIXME
 	}
 
 	@Public DBNode[] SearchDBNode(String searchText) {
@@ -428,5 +462,15 @@ class API {
 	}
 
 	@Public DBNode CreateDBNode(String name, Json content) {
+	}
+
+	@Public void InsertLink(String argumentName, String parentId, String childId) {
+		this.InsertLink(argumentName, "master", parentId, childId);
+	}
+
+	@Public void InsertLink(String argumentId, String branchId, String parentId, String childId) {
+		Branch branch = this.GetArgument(argumentId).GetBranch(branchId);
+		DBNode parent = branch.GetDBNode(parentId);
+		DBNode child = branch.GetDBNode(childId);
 	}
 }

@@ -1,41 +1,57 @@
-import("konoha.ns");
-import("konoha.json");
-import("openssl");
-import("cstyle");
-import("java2.class");
-import("konoha.map");
-import("konoha.sql");
-import("konoha.object");
-import("js4.array");
-import("js4.date");
-//Import("MiniKonoha.NameSpace");
-//Import("Type.Json");
-//Import("Lib.Openssl");
-//Import("Syntax.CStyleFor");
-//Import("Java.Class");
-//Import("MiniKonoha.Map");
-//Import("MiniKonoha.Sql");
-//Import("JavaStyle.Object");
-//Import("JavaScript.Array");
-//Import("JavaScript.Date");
+//import("konoha.ns");
+//import("konoha.json");
+//import("openssl");
+//import("cstyle");
+//import("java2.class");
+//import("konoha.map");
+//import("konoha.sql");
+//import("konoha.object");
+//import("js4.array");
+//import("js4.date");
+Import("MiniKonoha.NameSpace");
+Import("Type.Json");
+Import("Lib.Openssl");
+Import("Syntax.CStyleFor");
+Import("Java.Class");
+Import("MiniKonoha.Map");
+Import("MiniKonoha.Sql");
+Import("JavaStyle.Object");
+Import("JavaScript.Array");
+Import("JavaScript.Date");
 
-const MtdCreateDBNode = "CreateDBNode";
-const MtdDeleteDBNode = "DeleteDBNode";
-const MtdUpdateDBNode = "UpdateDBNode";
-const MtdInsertLink   = "InsertLink";
-const MtdDeleteLink   = "DeleteLink";
-const MtdUpdateLink   = "UpdateLink";
+DefineConst("MtdCreateDBNode","CreateDBNode");
+DefineConst("MtdDeleteDBNode","DeleteDBNode");
+DefineConst("MtdUpdateDBNode","UpdateDBNode");
+DefineConst("MtdInsertLink","InsertLink");
+DefineConst("MtdDeleteLink","DeleteLink");
+DefineConst("MtdUpdateLink","UpdateLink");
+DefineConst("JsonKeyDBNodeType", "DBNodeType");
+DefineConst("JsonKeyCommitLog", "CommitLog");
+DefineConst("JsonKeyRoot", "root");
+DefineConst("JsonKeyNodes", "nodes");
+DefineConst("JsonKeyLinks", "links");
+DefineConst("NodeTypeGoal","Goal");
+DefineConst("NodeTypeStrategy","Strategy");
+DefineConst("NodeTypeContext","Context");
+DefineConst("NodeTypeEvidence","Evidence");
 
-const JsonKeyDBNodeType = "DBNodeType";
-const JsonKeyCommitLog  = "CommitLog";
-const JsonKeyRoot       = "root";
-const JsonKeyNodes      = "nodes";
-const JsonKeyLinks      = "links";
-
-const NodeTypeGoal     = "Goal";
-const NodeTypeStrategy = "Strategy";
-const NodeTypeContext  = "Context";
-const NodeTypeEvidence = "Evidence";
+//const MtdCreateDBNode = "CreateDBNode";
+//const MtdDeleteDBNode = "DeleteDBNode";
+//const MtdUpdateDBNode = "UpdateDBNode";
+//const MtdInsertLink   = "InsertLink";
+//const MtdDeleteLink   = "DeleteLink";
+//const MtdUpdateLink   = "UpdateLink";
+//
+//const JsonKeyDBNodeType = "DBNodeType";
+//const JsonKeyCommitLog  = "CommitLog";
+//const JsonKeyRoot       = "root";
+//const JsonKeyNodes      = "nodes";
+//const JsonKeyLinks      = "links";
+//
+//const NodeTypeGoal     = "Goal";
+//const NodeTypeStrategy = "Strategy";
+//const NodeTypeContext  = "Context";
+//const NodeTypeEvidence = "Evidence";
 
 class DBNode {
 	String  name;
@@ -595,11 +611,13 @@ class MySQLDriver extends DBDriver {
 	}
 }
 
-@Public class DCaseDB {
+class DCaseDB {
 	Map[Argument] tree;
 	DBDriver db;
 
-	@Public void CreateArgument(String name,String description) {
+	DCaseDB() {}
+
+	@Public void CreateArgument(String name, String description) {
 		int id = this.db.CreateArgument(name);
 		Json content = new Json();
 		content.setString("name",name);
