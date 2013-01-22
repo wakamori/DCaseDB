@@ -1,23 +1,23 @@
-//import("konoha.ns");
-//import("konoha.json");
-//import("openssl");
-//import("cstyle");
-//import("java2.class");
-//import("konoha.map");
-//import("konoha.sql");
-//import("konoha.object");
-//import("js4.array");
-//import("js4.date");
-Import("Type.Json");
-Import("Lib.Openssl");
-Import("Syntax.CStyleFor");
-Import("Java.Class");
-Import("MiniKonoha.NameSpace");
-Import("MiniKonoha.Map");
-Import("MiniKonoha.Sql");
-Import("JavaStyle.Object");
-Import("JavaScript.Array");
-Import("JavaScript.Date");
+import("konoha.ns");
+import("konoha.json");
+import("openssl");
+import("cstyle");
+import("java2.class");
+import("konoha.map");
+import("konoha.sql");
+import("konoha.object");
+import("js4.array");
+import("js4.date");
+//Import("Type.Json");
+//Import("Lib.Openssl");
+//Import("Syntax.CStyleFor");
+//Import("Java.Class");
+//Import("MiniKonoha.NameSpace");
+//Import("MiniKonoha.Map");
+//Import("MiniKonoha.Sql");
+//Import("JavaStyle.Object");
+//Import("JavaScript.Array");
+//Import("JavaScript.Date");
 
 class DBNode {
 	String nodeId;
@@ -382,6 +382,15 @@ class Branch {
 		return json;
 	}
 
+	void RemoveNode(DBNode node) {
+		for(int i = 0; i < this.nodes.getSize(); i++) {
+			if(node.nodeId == this.nodes[i].nodeId) {
+				this.nodes.removeAt(i);
+				break;
+			}
+		}
+	}
+
 	@Public Json toJson() {
 		Json json = new Json();
 		json.set("root",this.root.toJson());
@@ -415,6 +424,9 @@ class Argument {
 
 	@Public Branch Fork(String originalId, String newId, Context ctx, String revision) {
 		return new Branch(); //FIXME
+	}
+
+	DBNode GetDBNode() {
 	}
 
 	Json toJson(String branchName) {
@@ -470,6 +482,27 @@ class API {
 	}
 
 	@Public DBNode CreateDBNode(String name, Json content) {
+		String NodeType = content.getString("DBNodeType");
+		if(NodeType == "Goal") {
+			Goal node = new Goal(content);
+			return node;
+		} else if (NodeType == "Strategy") {
+			Strategy node = new Strategy(content);
+			return node;
+		} else if (NodeType == "Context") {
+			Context node = new Context(content);
+			return node;
+		} else if (NodeType == "Evidence") {
+			Evidence node = new Evidence(content);
+			return node;
+		} else if (NodeType == "Justification") {
+			Justification node = new Justification(content);
+			return node;
+		} else if (NodeType == "Rebuttal") {
+			Rebuttal node = new Rebuttal(content);
+			return node;
+		}
+		return NULL;
 	}
 
 	@Public void InsertLink(String argumentId, String parentId, String childId) {
@@ -499,12 +532,9 @@ class API {
 		newParent.AddChild(node);
 	}
 
-	@Public void UpdateChildLink(String argumentId, String nodeId, String oldChildId, String newChildId) {
-		this.UpdateChildLink(argumentId, "master", nodeId, oldChildId, newChildId);
-	}
-
-	@Public void UpdateChildLink(String argumentId, String branchId, String nodeId, String oldChildId, String newChildId) {
-		//TODO
+	@Public void UpdateChildLink(DBNode node, DBNode oldChild, DBNode newChild) {
+		node.RemoveChild(oldChild);
+		node.AddChild(newChild);
 	}
 
 	@Public void DeleteDBNode(String argumentId, String nodeId) {
@@ -512,7 +542,9 @@ class API {
 	}
 
 	@Public void DeleteDBNode(String argumentId, String branchId, String nodeId) {
-		//TODO
+		Branch branch = this.GetArgument(argumentId).GetBranch(branchId);
+		DBNode node = branch.GetDBNode(ndoeId);
+		branch.RemoveNode(node);
 	}
 
 	@Public void DeleteLink(String argumentId, String parentId, String childId) {

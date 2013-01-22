@@ -1,7 +1,7 @@
-load("../dcasedb_glue.k");
+Load("../dcasecloud_glue.k");
 import("konoha.object");
 
-Strategy makeStrategy(DCaseDB repo, String treeName, String name,String description) {
+Strategy makeStrategy(API repo, String treeName, String name,String description) {
 	Json json = new Json();
 	json.setString("name",name);
 	json.setString("description",description);
@@ -9,7 +9,7 @@ Strategy makeStrategy(DCaseDB repo, String treeName, String name,String descript
 	return repo.CreateDBNode(treeName,json) as Strategy;
 }
 
-Goal makeGoal(DCaseDB repo, String treeName, String name,String description) {
+Goal makeGoal(API repo, String treeName, String name,String description) {
 	Json json = new Json();
 	json.setString("name",name);
 	json.setString("description",description);
@@ -17,7 +17,7 @@ Goal makeGoal(DCaseDB repo, String treeName, String name,String description) {
 	return repo.CreateDBNode(treeName, json) as Goal;
 }
 
-Evidence makeEvidence(DCaseDB repo, String treeName, String name,String description) {
+Evidence makeEvidence(API repo, String treeName, String name,String description) {
 	Json json = new Json();
 	json.setString("name",name);
 	json.setString("description",description);
@@ -25,7 +25,7 @@ Evidence makeEvidence(DCaseDB repo, String treeName, String name,String descript
 	return repo.CreateDBNode(treeName, json) as Evidence;
 }
 
-Context makeContext(DCaseDB repo, String treeName, String name, String description) {
+Context makeContext(API repo, String treeName, String name, String description) {
 	Json json = new Json();
 	json.setString("name",name);
 	json.setString("description",description);
@@ -35,11 +35,11 @@ Context makeContext(DCaseDB repo, String treeName, String name, String descripti
 
 void main() {
 	String TreeName = "BasicSyntax";
-	DCaseDB repo = new DCaseDB();
+	API repo = new API();
 	repo.Connect("dcasedb","dcasedb");
 	repo.CreateArgument(TreeName,"Basic Syntax");
 
-	Goal root = repo.SearchArgument(TreeName).root as Goal;
+	Goal root = repo.GetArgument(TreeName).GetDBNode("BasicSyntax") as Goal;
 
 	Context c = makeContext(repo, TreeName, "BasicSyntaxContext", "Basic Syntax Context");
 	repo.InsertLink(TreeName, root.name, c.name);
