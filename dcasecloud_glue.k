@@ -106,7 +106,7 @@ class DBNode {
 		return json;
 	}
 
-	Json _toJson() {
+	Json PrivateToJson() {
 		Json json = new Json();
 		json.setString("nodeId",this.nodeId);
 		json.setString("description",this.description);
@@ -115,7 +115,8 @@ class DBNode {
 	}
 
 	Json toJson() {
-		return this._toJson();
+		Json json = this.PrivateToJson();
+		return json;
 	}
 
 	Json GetContext() {
@@ -157,7 +158,7 @@ class Context extends DBNode {
 	}
 
 	Json toJson() {
-		Json json = this._toJson();
+		Json json = this.PrivateToJson();
 		json.setString("DBNodeType","Context");
 		json.set("context",this.context);
 		return json;
@@ -179,7 +180,7 @@ class Goal extends DBNode {
 	Goal(){}
 
 	Json toJson() {
-		Json json = this._toJson();
+		Json json = this.PrivateToJson();
 		json.setString("DBNodeType","Goal");
 		return json;
 	}
@@ -220,7 +221,7 @@ class Strategy extends DBNode {
 	Strategy(){}
 
 	Json toJson() {
-		Json json = this._toJson();
+		Json json = this.PrivateToJson();
 		json.setString("DBNodeType","Strategy");
 		return json;
 	}
@@ -260,7 +261,7 @@ class Evidence extends DBNode {
 	Evidence() {}
 
 	Json toJson() {
-		Json json = this._toJson();
+		Json json = this.PrivateToJson();
 		json.setString("DBNodeType","Evidence");
 		return json;
 	}
@@ -275,7 +276,7 @@ class Justification extends DBNode {
 	Justification(){}
 
 	Json toJson() {
-		Json json = this._toJson();
+		Json json = this.PrivateToJson();
 		json.setString("DBNodeType","Justification");
 		return json;
 	}
@@ -286,7 +287,7 @@ class Rebuttal extends DBNode {
 	Rebuttal(){}
 
 	Json toJson() {
-		Json json = this._toJson();
+		Json json = this.PrivateToJson();
 		json.setString("DBNodeType","Rebuttal");
 		return json;
 	}
@@ -379,18 +380,19 @@ class Branch {
 
 	Json DBNodeListToJson() {
 		Json json = Json.parse("[]");
-		for(int i = 0; i < this.nodes.getSize();i = i + 1) {
+		int max = this.nodes.getSize();
+		for(int i = 0; i < max; i = i + 1) {
 			json.add(this.nodes[i].toJson());
 		}
 		return json;
 	}
 
-	Json _ArgumentTreeToJson(DBNode node) {
+	Json PrivateArgumentTreeToJson(DBNode node) {
 		Json json = new Json();
 		json.setString("name",node.nodeId);
 		Json children = Json.parse("[]");
 		for(int i = 0; i < node.children.getSize(); i = i + 1) {
-			children.add(this._ArgumentTreeToJson(node.children[i]));
+			children.add(this.PrivateArgumentTreeToJson(node.children[i]));
 		}
 		json.set("children",children);
 		return json;
@@ -401,7 +403,7 @@ class Branch {
 		json.setString("name",this.root.nodeId);
 		Json children = Json.parse("[]");
 		for(int i = 0; i < this.root.children.getSize(); i = i + 1) {
-			children.add(this._ArgumentTreeToJson(this.root.children[i]));
+			children.add(this.PrivateArgumentTreeToJson(this.root.children[i]));
 		}
 		json.set("children",children);
 		return json;
