@@ -68,7 +68,7 @@ class DBNode {
 	}
 
 	void RemoveChild(DBNode child) {
-		for(int i = 0; i < this.children.getSize(); i++) {
+		for(int i = 0; i < this.children.getSize(); i = i + 1) {
 			if(this.children[i].nodeId == child.nodeId){
 				children.removeAt(i);
 				break;
@@ -137,7 +137,7 @@ class Context extends DBNode {
 		if(content.hasKey("context")) {
 			Json array = content.get("context");
 			String[] keys = array.keys();
-			for(int i = 0; i < keys.getSize(); i++) {
+			for(int i = 0; i < keys.getSize(); i = i + 1) {
 				this.context.setString(keys[i],array.getString(keys[i]));//TODO validation
 			}
 		}
@@ -167,7 +167,7 @@ class Context extends DBNode {
 
 	void AddContext(Json context) {
 		String[] keys = context.keys();
-		for(int i = 0; i < keys.getSize(); i++) {
+		for(int i = 0; i < keys.getSize(); i = i + 1) {
 			this.context.setString(keys[i],context.getString(keys[i])); //TODO Need validation
 		}
 	}
@@ -186,16 +186,16 @@ class Goal extends DBNode {
 	Json GetContext() {
 		Json json = this.parent.GetContext();
 		Json context_array = Json.parse("[]");
-		for(int i = 0; i < this.children.getSize();i++) {
+		for(int i = 0; i < this.children.getSize();i = i + 1) {
 			if(this.children[i].toJson().getString("DBNodeType") == "Context") { //FIXME instanceOf
 				Context c = this.children[i] as Context;
 				context_array.add(c.GetContext());
 			}
 		}
-		for(int i = 0; i < context_array.getSize();i++) {
+		for(int i = 0; i < context_array.getSize();i = i + 1) {
 			Json context = context_array.get(i);
 			String[] keys = context.keys();
-			for(int j = 0; j < keys.getSize(); j++) {
+			for(int j = 0; j < keys.getSize(); j = j + 1) {
 				json.setString(keys[i],context.getString(keys[i]));
 			}
 		}
@@ -203,7 +203,7 @@ class Goal extends DBNode {
 	}
 
 	void AddContext(Json context) {
-		for(int i = 0; i < this.children.getSize();i++) {
+		for(int i = 0; i < this.children.getSize();i = i + 1) {
 			if(this.children[i].toJson().getString("DBNodeType") == "Context") { //FIXME instanceOf
 				Context c = this.children[i] as Context;
 				c.AddContext(context);
@@ -226,13 +226,13 @@ class Strategy extends DBNode {
 	Json GetContext() {
 		Json json = this.parent.GetContext();
 		Json context_array = Json.parse("[]");
-		for(int i = 0; i < this.children.getSize();i++) {
+		for(int i = 0; i < this.children.getSize();i = i + 1) {
 			if(this.children[i].toJson().getString("DBNodeType") == "Context") { //FIXME instanceOf
 				Context c = this.children[i] as Context;
 				context_array.add(c.GetContext());
 			}
 		}
-		for(int i = 0; i < context_array.getSize();i++) {
+		for(int i = 0; i < context_array.getSize();i = i + 1) {
 			Json context = context_array.get(i);
 			String[] keys = context.keys();
 			for(int j = 0; j < keys.getSize(); j++) {
@@ -243,7 +243,7 @@ class Strategy extends DBNode {
 	}
 
 	void AddContext(Json context) {
-		for(int i = 0; i < this.children.getSize();i++) {
+		for(int i = 0; i < this.children.getSize();i = i + 1) {
 			if(this.children[i].toJson().getString("DBNodeType") == "Context") { //FIXME instanceOf
 				Context c = this.children[i] as Context;
 				c.AddContext(context);
@@ -335,7 +335,7 @@ class CommitLog {
 
 	Json toJson() {
 		Json json = Json.parse("[]");
-		for(int i = 0;i < this.commits.getSize(); i++) {
+		for(int i = 0;i < this.commits.getSize(); i = i + 1) {
 			json.add(this.commits[i].toJson());
 		}
 		return json;
@@ -363,22 +363,20 @@ class Branch {
 		if(this.root.nodeId == nodeId) {
 			return this.root;
 		}
-		//for(int i = 0; i < this.nodes.getSize(); i++) {
 		int i = 0;
-		while(i<this.nodes.getSize()) {
+		for(int i = 0; i < this.nodes.getSize(); i = i + 1) {
 			System.p(nodeId == this.nodes[i].nodeId);
 			if(this.nodes[i].nodeId == nodeId) {
 				System.p("GetDBNode:"+nodeId);
 				return this.nodes[i];
 			}
-			i = i + 1;
 		}
 		return NULL;
 	}
 
 	Json DBNodeListToJson() {
 		Json json = Json.parse("[]");
-		for(int i = 0; i < this.nodes.getSize();i++) {
+		for(int i = 0; i < this.nodes.getSize();i = i + 1) {
 			json.add(this.nodes[i].toJson());
 		}
 		return json;
@@ -388,7 +386,7 @@ class Branch {
 		Json json = new Json();
 		json.setString("name",node.nodeId);
 		Json children = Json.parse("[]");
-		for(int i = 0; i < node.children.getSize(); i++) {
+		for(int i = 0; i < node.children.getSize(); i = i + 1) {
 			children.add(this._ArgumentTreeToJson(node.children[i]));
 		}
 		json.set("children",children);
@@ -400,7 +398,7 @@ class Branch {
 		json.setString("name",this.root.nodeId);
 		Json children = Json.parse("[]");
 		System.p(this.root);
-		for(int i = 0; i < this.root.children.getSize(); i++) {
+		for(int i = 0; i < this.root.children.getSize(); i = i + 1) {
 			children.add(this._ArgumentTreeToJson(this.root.children[i]));
 		}
 		json.set("children",children);
@@ -408,7 +406,7 @@ class Branch {
 	}
 
 	void RemoveNode(DBNode node) {
-		for(int i = 0; i < this.nodes.getSize(); i++) {
+		for(int i = 0; i < this.nodes.getSize(); i = i + 1) {
 			if(node.nodeId == this.nodes[i].nodeId) {
 				this.nodes.removeAt(i);
 				break;
@@ -494,7 +492,7 @@ class API {
 	DBDriver db;
 
 	API() {
-		//arguments = new Map[Argument];
+		arguments = new Map[Argument];
 	}
 
 	API(String userName, String password) {
