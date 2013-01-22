@@ -187,7 +187,13 @@ class Goal extends DBNode {
 	}
 
 	void AddContext(Json context) {
-		//TODO Search Context
+		for(int i = 0; i < this.children.getSize();i++) {
+			if(this.children[i].toJson().getString("DBNodeType") == "Context") { //FIXME instanceOf
+				Context c = this.children[i] as Context;
+				c.AddContext(context);
+				break;
+			}
+		}
 	}
 }
 
@@ -221,7 +227,13 @@ class Strategy extends DBNode {
 	}
 
 	void AddContext(Json context) {
-		//TODO Search Context
+		for(int i = 0; i < this.children.getSize();i++) {
+			if(this.children[i].toJson().getString("DBNodeType") == "Context") { //FIXME instanceOf
+				Context c = this.children[i] as Context;
+				c.AddContext(context);
+				break;
+			}
+		}
 	}
 }
 
