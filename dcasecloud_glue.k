@@ -25,6 +25,8 @@ Import("JavaScript.Date");
 class DBNode {
 	String nodeId;
 	String description;
+	String argumentId;
+	String branchId;
 	boolean isEvidence;
 
 	//String parentId;
@@ -207,9 +209,10 @@ class Goal extends DBNode {
 			if(this.children[i].toJson().getString("DBNodeType") == "Context") { //FIXME instanceOf
 				Context c = this.children[i] as Context;
 				c.AddContext(context);
-				break;
+				return;
 			}
 		}
+		//FIXME if there is no Context, add new Context(not here?)
 	}
 }
 
@@ -397,7 +400,6 @@ class Branch {
 		Json json = new Json();
 		json.setString("name",this.root.nodeId);
 		Json children = Json.parse("[]");
-		System.p(this.root);
 		for(int i = 0; i < this.root.children.getSize(); i = i + 1) {
 			children.add(this._ArgumentTreeToJson(this.root.children[i]));
 		}
@@ -470,6 +472,8 @@ class Argument {
 		CommitLog clog = this.commits.get(branchName);
 		json.set("CommitLog",clog.toJson());
 		json.setString("HEAD",clog.head);
+		json.setString("argumentId",this.argumentId);
+		json.setString("branchId",branchName);
 		return json;
 	}
 
@@ -492,7 +496,7 @@ class API {
 	DBDriver db;
 
 	API() {
-		arguments = new Map[Argument];
+		//arguments = new Map[Argument];
 	}
 
 	API(String userName, String password) {
@@ -512,6 +516,7 @@ class API {
 
 		this.arguments.set(argumentId, new Argument());
 		Argument argument = this.arguments.get(argumentId);
+		argument.argumentId = argumentId;
 
 		Goal g = this.CreateDBNode(argumentId,content) as Goal;
 		argument.SetRoot(g);
