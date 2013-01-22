@@ -1,23 +1,26 @@
-import("konoha.ns");
-import("konoha.json");
-import("openssl");
-import("cstyle");
-import("java2.class");
-import("konoha.map");
-import("konoha.sql");
-import("konoha.object");
-import("js4.array");
-import("js4.date");
-//Import("Type.Json");
-//Import("Lib.Openssl");
-//Import("Syntax.CStyleFor");
-//Import("Java.Class");
-//Import("MiniKonoha.NameSpace");
-//Import("MiniKonoha.Map");
-//Import("MiniKonoha.Sql");
-//Import("JavaStyle.Object");
-//Import("JavaScript.Array");
-//Import("JavaScript.Date");
+//import("konoha.ns");
+//import("konoha.json");
+//import("openssl");
+//import("cstyle");
+//import("java2.class");
+//import("konoha.map");
+//import("konoha.sql");
+//import("konoha.object");
+//import("js4.array");
+//import("js4.date");
+
+Import("Type.Json");
+Import("Lib.Openssl");
+Import("Syntax.CStyleFor");
+Import("Syntax.CStyleWhile");
+Import("Syntax.Null");
+Import("Java.Class");
+Import("MiniKonoha.NameSpace");
+Import("MiniKonoha.Map");
+Import("MiniKonoha.Sql");
+Import("JavaStyle.Object");
+Import("JavaScript.Array");
+Import("JavaScript.Date");
 
 class DBNode {
 	String nodeId;
@@ -33,34 +36,35 @@ class DBNode {
 		this.nodeId      = nodeId;
 		this.description = description;
 		this.isEvidence  = isEvidence;
-		this.childIds    = [];
+		this.children    = [];
 	}
 
 	DBNode(String nodeId, String description) {
 		this.nodeId      = nodeId;
 		this.description = description;
 		this.isEvidence  = false;
-		this.childIds    = [];
+		this.children    = [];
 	}
 
 	DBNode(String nodeId) {
 		this.nodeId      = nodeId;
 		this.description = "";
 		this.isEvidence  = false;
-		this.childIds    = [];
+		this.children    = [];
 	}
 
 	DBNode(Json content) {
 		this.nodeId      = "";
 		this.description = "";
-		this.isEvidence  = "";
-		this.childIds    = [];
-		this._Update(content);
+		this.isEvidence  = false;
+		this.children    = [];
+		this.pUpdate(content);
+		System.p("new DBNode(Json)");
 	}
 
 	void AddChild(DBNode child) {
 		this.children.add(child);
-		children.parent = this;
+		child.parent = this;
 	}
 
 	void RemoveChild(DBNode child) {
@@ -79,9 +83,9 @@ class DBNode {
 	}
 
 	//Private
-	void _Update(Json content) {
+	void pUpdate(Json content) {
 		if(content.hasKey("nodeId")) {
-			this.name = content.getString("nodeId");
+			this.nodeId = content.getString("nodeId");
 		}
 		if(content.hasKey("description")) {
 			this.description = content.getString("description");
@@ -89,19 +93,20 @@ class DBNode {
 		if(content.hasKey("isEvidence")) {
 			this.isEvidence = content.getBoolean("isEvidence");
 		}
+		System.p("private pUpdate");
 	}
 
 	Json Update(Json content) {
 		Json json = new Json();
 		json.set("before",this.toJson());
-		this._Update(content);
+		this.pUpdate(content);
 		json.set("after", this.toJson());
 		return json;
 	}
 
 	Json _toJson() {
 		Json json = new Json();
-		json.setString("nodeId",this.name);
+		json.setString("nodeId",this.nodeId);
 		json.setString("description",this.description);
 		json.setBoolean("isEvidence",this.isEvidence);
 		return json;
@@ -127,7 +132,8 @@ class Context extends DBNode {
 	Context(Json content) {
 		//TODO Create Argument
 		this.context = new Json();
-		this._Update(content);
+
+		this.pUpdate(content);
 		if(content.hasKey("context")) {
 			Json array = content.get("context");
 			String[] keys = array.keys();
@@ -345,11 +351,29 @@ class Branch {
 	Branch() {
 		this.root = NULL;
 		this.nodes = [];
+		System.p("new Branch()");
 	}
 
 	Branch(DBNode[] nodes, DBNode root) {
 		this.nodes = nodes;
 		this.root = root;
+	}
+
+	DBNode GetDBNode(String nodeId) {
+		if(this.root.nodeId == nodeId) {
+			return this.root;
+		}
+		//for(int i = 0; i < this.nodes.getSize(); i++) {
+		int i = 0;
+		while(i<this.nodes.getSize()) {
+			System.p(nodeId == this.nodes[i].nodeId);
+			if(this.nodes[i].nodeId == nodeId) {
+				System.p("GetDBNode:"+nodeId);
+				return this.nodes[i];
+			}
+			i = i + 1;
+		}
+		return NULL;
 	}
 
 	Json DBNodeListToJson() {
@@ -364,8 +388,8 @@ class Branch {
 		Json json = new Json();
 		json.setString("name",node.nodeId);
 		Json children = Json.parse("[]");
-		for(int i = 0; i < node.childIds.getSize(); i++) {
-			children.add(this._ArgumentTreeToJson(this.GetDBNode(node.childIds[i])));
+		for(int i = 0; i < node.children.getSize(); i++) {
+			children.add(this._ArgumentTreeToJson(node.children[i]));
 		}
 		json.set("children",children);
 		return json;
@@ -375,8 +399,9 @@ class Branch {
 		Json json = new Json();
 		json.setString("name",this.root.nodeId);
 		Json children = Json.parse("[]");
-		for(int i = 0; i < this.root.childIds.getSize(); i++) {
-			children.add(this._ArgumentTreeToJson(this.GetDBNode(this.root.childIds[i])));
+		System.p(this.root);
+		for(int i = 0; i < this.root.children.getSize(); i++) {
+			children.add(this._ArgumentTreeToJson(this.root.children[i]));
 		}
 		json.set("children",children);
 		return json;
@@ -426,7 +451,20 @@ class Argument {
 		return new Branch(); //FIXME
 	}
 
-	DBNode GetDBNode() {
+	DBNode GetDBNode(String nodeId) {
+		return this.GetDBNode("master",nodeId);
+	}
+
+	DBNode GetDBNode(String branchId, String nodeId) {
+		return this.GetBranch(branchId).GetDBNode(nodeId);
+	}
+
+	void SetRoot(Goal g) {
+		this.SetRoot("master",g);
+	}
+
+	void SetRoot(String branchId, Goal g) {
+		this.GetBranch(branchId).root = g;
 	}
 
 	Json toJson(String branchName) {
@@ -456,6 +494,7 @@ class API {
 	DBDriver db;
 
 	API() {
+		//arguments = new Map[Argument];
 	}
 
 	API(String userName, String password) {
@@ -464,9 +503,20 @@ class API {
 
 	void Connect(String userName, String password) {
 		this.db = new DriverMySQL(userName, password);
+		System.p("Connected"); //FIXME
 	}
 
 	@Public Argument CreateArgument(String argumentId, String description) {
+		Json content = new Json();
+		content.setString("nodeId",argumentId);
+		content.setString("description",description);
+		content.setString("DBNodeType","Goal");
+
+		this.arguments.set(argumentId, new Argument());
+		Argument argument = this.arguments.get(argumentId);
+
+		Goal g = this.CreateDBNode(argumentId,content) as Goal;
+		argument.SetRoot(g);
 	}
 
 	@Public Argument GetArgument(String argumentId) {
@@ -481,7 +531,7 @@ class API {
 		return []; //FIXME
 	}
 
-	@Public DBNode CreateDBNode(String name, Json content) {
+	@Public DBNode CreateDBNode(String argumentId, Json content) {
 		String NodeType = content.getString("DBNodeType");
 		if(NodeType == "Goal") {
 			Goal node = new Goal(content);
@@ -505,14 +555,14 @@ class API {
 		return NULL;
 	}
 
-	@Public void InsertLink(String argumentId, String parentId, String childId) {
+	@Public void InsertLink(String argumentId, DBNode parentId, DBNode childId) {
 		this.InsertLink(argumentId, "master", parentId, childId);
 	}
 
-	@Public void InsertLink(String argumentId, String branchId, String parentId, String childId) {
+	@Public void InsertLink(String argumentId, String branchId, DBNode parent, DBNode child) {
 		Branch branch = this.GetArgument(argumentId).GetBranch(branchId);
-		DBNode parent = branch.GetDBNode(parentId);
-		DBNode child = branch.GetDBNode(childId);
+		branch.nodes.add(parent);
+		branch.nodes.add(child);
 		parent.addChild(child);
 		//TODO Commit
 	}
