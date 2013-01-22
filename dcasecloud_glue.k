@@ -63,6 +63,16 @@ class DBNode {
 		children.parent = this;
 	}
 
+	void RemoveChild(DBNode child) {
+		for(int i = 0; i < this.children.getSize(); i++) {
+			if(this.children[i].nodeId == child.nodeId){
+				children.removeAt(i);
+				break;
+			}
+		}
+		child.parent = NULL;
+	}
+
 	void AddParent(DBNode parent) {
 		this.parent = parent;
 		parent.children.add(this);
@@ -480,15 +490,13 @@ class API {
 	}
 
 	@Public void UpdateDBNode(String argumentId, String branchId, DBNode node, Json contents) {
-		//TODO
+		node.Update(contents);
+		//TODO Commit Log
 	}
 
-	@Public void UpdateParentLink(String argumentId, String oldParentId, String newParentId, String nodeId) {
-		this.UpdateParentLink(argumentId, "master", oldParentId, newParentId, nodeId);
-	}
-
-	@Public void UpdateParentLink(String argumentId, String branchId, String oldParentId, String newParentId, String nodeId) {
-		//TODO
+	@Public void UpdateParentLink(DBNode oldParent, DBNode newParent, DBNode node) {
+		oldParent.RemoveChild(node);
+		newParent.AddChild(node);
 	}
 
 	@Public void UpdateChildLink(String argumentId, String nodeId, String oldChildId, String newChildId) {
@@ -511,7 +519,7 @@ class API {
 		this.DeleteLink(argumentId, "master", parentId, childId);
 	}
 
-	@Public void DeleteLink(String argumentId, "master", String parentId, String childId) {
+	@Public void DeleteLink(String argumentId, String branchId, String parentId, String childId) {
 		//TODO
 	}
 
