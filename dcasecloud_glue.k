@@ -385,7 +385,7 @@ class Branch {
 
 	Json PrivateArgumentTreeToJson(DBNode node) {
 		Json json = new Json();
-		json.setInt("id",node.nodeId);
+		json.setInt("nodeId",node.nodeId);
 		Json children = Json.parse("[]");
 		//for(int i = 0; i < node.children.getSize(); i = i + 1) {
 		int i = 0;
@@ -399,7 +399,7 @@ class Branch {
 
 	Json ArgumentTreeToJson() {
 		Json json = new Json();
-		json.setInt("name",this.root.nodeId);
+		json.setInt("nodeId",this.root.nodeId);
 		Json children = Json.parse("[]");
 		//for(int i = 0; i < this.root.children.getSize(); i = i + 1) {
 		int i = 0;
