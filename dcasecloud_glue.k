@@ -29,9 +29,7 @@ class DBNode {
 	String branchId;
 	boolean isEvidence;
 
-	//String parentId;
 	DBNode parent;
-	//String[] childIds;
 	DBNode[] children;
 
 	DBNode(int nodeId, String description, boolean isEvidence) {
@@ -441,8 +439,8 @@ class Argument {
 	Argument(int masterId) {
 		this.branches = new Map[Branch];
 		this.masterBranchId =masterId;
-		this.branches.set("br"+masterId, new Branch());
-		this.commits.set("br"+masterId, new CommitLog());
+		this.branches.set(""+masterId, new Branch());
+		this.commits.set(""+masterId, new CommitLog());
 	}
 
 	Commit Commit(String method, Json argument) {
@@ -450,7 +448,7 @@ class Argument {
 	}
 
 	@Public Branch GetBranch(int BranchId) {
-		return this.branches.get("br"+BranchId);
+		return this.branches.get(""+BranchId);
 	}
 
 	@Public Branch Fork(String originId, String newId, Context ctx) {
@@ -483,7 +481,7 @@ class Argument {
 
 	Json toJson(int branchId) {
 		Json json = this.GetBranch(branchId).toJson();
-		CommitLog clog = this.commits.get("br"+branchId);//FIXME wrapper
+		CommitLog clog = this.commits.get(""+branchId);//FIXME wrapper
 		json.set("CommitLog",clog.toJson());
 		json.setString("HEAD",clog.head);
 		json.setInt("argumentId",this.argumentId);
@@ -590,7 +588,7 @@ class API {
 		content.setString("DBNodeType","Goal");
 
 		Argument argument = this.db.CreateArgument();
-		this.arguments.set("arg"+argument.argumentId, argument);
+		this.arguments.set(""+argument.argumentId, argument);
 
 		Goal g = this.CreateDBNode(argument.argumentId,content) as Goal;
 		argument.SetRoot(g);
@@ -598,7 +596,7 @@ class API {
 	}
 
 	@Public Argument GetArgument(int argumentId) {
-		return this.arguments.get("arg"+argumentId);
+		return this.arguments.get(""+argumentId);
 	}
 
 	@Public String[] GetArgumentIds() {

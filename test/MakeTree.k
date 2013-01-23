@@ -51,6 +51,7 @@ void main() {
 	repo.InsertLink(id, s1 , g2_2);
 
 	System.p(repo.GetArgument(id).toJson());
+	System.p(repo.GetArgumentIds());
 }
 
 main();
