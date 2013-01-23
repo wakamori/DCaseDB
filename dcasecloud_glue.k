@@ -476,6 +476,7 @@ class Branch {
 
 class Argument {
 	int argumentId;
+	String name;
 	int masterBranchId;
 	Map[Branch] branches;
 	Map[CommitLog] commits;
@@ -541,39 +542,38 @@ class Argument {
 class DBDriver {
 	DBDriver(){}
 
-	Json GetContext(int id) {
-	}
+	Json GetContext(int id) {}
 
-	Argument GetArgument(int argumentId) {
-	}
+	Argument GetArgument(int argumentId) {}
 
-	//TODO args
-	Argument CreateArgument() {
-		System.p("aaaa");
-	}
+	Argument CreateArgument() {}
 
-	void SetRoot(int argumentId, int topGoalId) {
-	}
+	Argument CreateArgument(String name) {}
 
-	//DBNode
-	DBNode CreateDBNode(String nodeType, Json content) {
-	}
+	void SetRoot(int argumentId, int topGoalId) {}
+
+	DBNode CreateDBNode(String nodeType, Json content) {}
 
 	//TODO
-	//void InsertCommit(String argument_name, String method, Commit c) {
-	//}
+	//void InsertCommit(String argument_name, String method, Commit c) {}
 
-	void InsertLink(int argumentId, int branchId, int parentId, int childId) {
-	}
+	void InsertLink(int argumentId, int branchId, int parentId, int childId) {}
 
-	void AddContext(int id, Json context) {
-	}
+	void AddContext(int id, Json context) {}
 
-	void UpdateDBNode(DBNode node, int argumentId, int branchId) {
-	}
+	void UpdateDBNode(DBNode node, int argumentId, int branchId) {}
 
-	int[] GetArgumentIdList() {
-	}
+	void UpdateDBNode(DBNode node, String description) {}
+
+	void UpdateDBNode(DBNode node, String description, boolean isEvidence) {}
+
+	void UpdateDBNode(DBNode node, boolean isEvidence) {}
+
+	void UpdateDBNodeName(DBNode node, String name) {}
+
+	int[] GetArgumentIdList() {}
+
+	int GetArgumentIdByName(String name) {}
 }
 
 class DriverMySQL extends DBDriver {
@@ -666,6 +666,12 @@ class DriverMySQL extends DBDriver {
 		//TODO
 	}
 
+	int GetArgumentIdByName(String name) {
+		ResultSet r = this.con.query("SELECT id FROM Argument WHERE name='"+ name +"'");
+		r.next();
+		return r.getInt("id");
+	}
+
 	Argument GetArgument(int argumentId) {
 		ResultSet r = this.con.query("SELECT goal_id,master_branch_id FROM Argument WHERE id="+ argumentId +"");
 		r.next();
@@ -704,6 +710,15 @@ class DriverMySQL extends DBDriver {
 		return argument;
 	}
 
+	Argument CreateArgument(String name) {
+		Branch branch = this.CreateBranch();
+		this.con.query("INSERT INTO Argument(name,master_branch_id) VALUES('"+name+"',"+branch.branchId+")");
+		Argument argument = new Argument(branch.branchId, branch);
+		argument.argumentId = this.con.getInsertId();
+		this.UpdateBranch(branch,argument.argumentId);
+		return argument;
+	}
+
 	int GetNodeType(String nodeType) {
 		ResultSet nodeTypeId = this.con.query("SELECT id FROM NodeType WHERE type_name='" + nodeType + "'");
 		int typeId;
@@ -732,6 +747,36 @@ class DriverMySQL extends DBDriver {
 		this.con.query("UPDATE DBNode SET argument_id="+argumentId+", branch_id="+branchId+" WHERE id="+node.nodeId);
 		node.argumentId = argumentId;
 		node.branchId   = branchId;
+	}
+
+	void UpdateDBNodeName(DBNode node, String name) {
+		this.con.query("UPDATE DBNode SET name="+name+" WHERE id="+node.nodeId);
+	}
+
+	void UpdateDBNode(DBNode node, String description) {
+		this.con.query("UPDATE DBNode SET description="+description+" WHERE id="+node.nodeId);
+	}
+
+	void UpdateDBNode(DBNode node, String description, boolean isEvidence) {
+		String evidence = "FALSE";
+		if(isEvidence){
+			evidence = "TRUE";
+		}
+		this.con.query("UPDATE DBNode SET description="+description+", evidence_flag="+evidence +" WHERE id="+node.nodeId);
+	}
+
+	void UpdateDBNode(DBNode node, boolean isEvidence) {
+		String evidence = "FALSE";
+		if(isEvidence) {
+			evidence = "TRUE";
+		}
+		this.con.query("UPDATE DBNode SET evidence_flag="+evidence +" WHERE id="+node.nodeId);
+	}
+
+	int GetDBNodeByName(String name) {
+		ResultSet r = this.con.query("SELECT id FROM DBNode WHERE name='"+ name +"'");
+		r.next();
+		return r.getInt("id");
 	}
 
 	void InsertLink(int argumentId, int branchId, int parentId, int childId) {
@@ -839,6 +884,12 @@ class API {
 
 	@Public void UpdateDBNode(String argumentId, String branchId, DBNode node, Json contents) {
 		node.Update(contents);
+		if(contents.haskey("description")) {
+			this.db.UpdateDBNode(node.nodeId, contents.getString("description"));
+		}
+		if(contents.haskey("isEvidence")) {
+			this.db.UpdateDBNode(node.nodeId, contents.getBoolean("isEvidence"));
+		}
 		//TODO Commit Log
 	}
 
