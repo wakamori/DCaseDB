@@ -116,7 +116,7 @@ class DBNode {
 		return NULL;
 	}
 
-	void AddContext(Json context) {
+	int AddContext(Json context) {
 		//Abstract
 	}
 }
@@ -160,11 +160,15 @@ class Context extends DBNode {
 		return this.context;
 	}
 
-	void AddContext(Json context) {
+	int AddContext(Json context) {
 		String[] keys = context.keys();
-		for(int i = 0; i < keys.getSize(); i = i + 1) {
+		//for(int i = 0; i < keys.getSize(); i = i + 1) {
+		int i = 0;
+		while(i < keys.getSize()) {
 			this.context.setString(keys[i],context.getString(keys[i])); //TODO Need validation
+			i = i + 1;
 		}
+		return this.nodeId;
 	}
 }
 
@@ -181,30 +185,42 @@ class Goal extends DBNode {
 	Json GetContext() {
 		Json json = this.parent.GetContext();
 		Json context_array = Json.parse("[]");
-		for(int i = 0; i < this.children.getSize();i = i + 1) {
+		//for(int i = 0; i < this.children.getSize();i = i + 1) {
+		int i = 0;
+		while(i < this.children.getSize()) {
 			if(this.children[i].toJson().getString("DBNodeType") == "Context") { //FIXME instanceOf
 				Context c = this.children[i] as Context;
 				context_array.add(c.GetContext());
 			}
+			i = i + 1;
 		}
-		for(int i = 0; i < context_array.getSize();i = i + 1) {
+		//for(int i = 0; i < context_array.getSize();i = i + 1) {
+		i = 0;
+		while(i < context_array.getSize()) {
 			Json context = context_array.get(i);
 			String[] keys = context.keys();
-			for(int j = 0; j < keys.getSize(); j = j + 1) {
-				json.setString(keys[i],context.getString(keys[i]));
+			//for(int j = 0; j < keys.getSize(); j = j + 1) {
+			int j = 0;
+			while(j < keys.getSize()) {
+				json.setString(keys[j],context.getString(keys[j]));
+				j = j + 1;
 			}
+			i = i + 1;
 		}
 		return json;
 	}
 
-	void AddContext(Json context) {
-		for(int i = 0; i < this.children.getSize();i = i + 1) {
+	int AddContext(Json context) {
+		//for(int i = 0; i < this.children.getSize();i = i + 1) {
+		int i = 0;
+		while(i < this.children.getSize()) {
 			if(this.children[i].toJson().getString("DBNodeType") == "Context") { //FIXME instanceOf
 				Context c = this.children[i] as Context;
-				c.AddContext(context);
-				return;
+				return c.AddContext(context);
 			}
+			i = i + 1;
 		}
+		return -1;
 		//FIXME if there is no Context, add new Context(not here?)
 	}
 }
@@ -222,30 +238,43 @@ class Strategy extends DBNode {
 	Json GetContext() {
 		Json json = this.parent.GetContext();
 		Json context_array = Json.parse("[]");
-		for(int i = 0; i < this.children.getSize();i = i + 1) {
+		//for(int i = 0; i < this.children.getSize();i = i + 1) {
+		int i = 0;
+		while(i < this.children.getSize()) {
 			if(this.children[i].toJson().getString("DBNodeType") == "Context") { //FIXME instanceOf
 				Context c = this.children[i] as Context;
 				context_array.add(c.GetContext());
 			}
+			i = i + 1;
 		}
-		for(int i = 0; i < context_array.getSize();i = i + 1) {
+		//for(int i = 0; i < context_array.getSize();i = i + 1) {
+		i = 0;
+		while(i < context_array.getSize()) {
 			Json context = context_array.get(i);
 			String[] keys = context.keys();
-			for(int j = 0; j < keys.getSize(); j++) {
-				json.setString(keys[i],context.getString(keys[i]));
+			//for(int j = 0; j < keys.getSize(); j = j + 1) {
+			int j = 0;
+			while(j < keys.getSize()) {
+				json.setString(keys[j],context.getString(keys[j]));
+				j = j + 1;
 			}
+			i = i + 1;
 		}
 		return json;
 	}
 
 	void AddContext(Json context) {
-		for(int i = 0; i < this.children.getSize();i = i + 1) {
+		//for(int i = 0; i < this.children.getSize();i = i + 1) {
+		int i = 0;
+		while(i < this.children.getSize()) {
 			if(this.children[i].toJson().getString("DBNodeType") == "Context") { //FIXME instanceOf
 				Context c = this.children[i] as Context;
-				c.AddContext(context);
-				break;
+				return c.AddContext(context);
 			}
+			i = i + 1;
 		}
+		return -1;
+		//FIXME if there is no Context, add new Context(not here?)
 	}
 }
 
@@ -363,7 +392,6 @@ class Branch {
 		//for(int i = 0; i < this.nodes.getSize(); i = i + 1) {
 		int i = 0;
 		while(i < this.nodes.getSize()) {
-			System.p(nodeId == this.nodes[i].nodeId);
 			if(this.nodes[i].nodeId == nodeId) {
 				return this.nodes[i];
 			}
@@ -513,7 +541,7 @@ class Argument {
 class DBDriver {
 	DBDriver(){}
 
-	Json getContext(int id) {
+	Json GetContext(int id) {
 	}
 
 	Argument GetArgument(int argumentId) {
@@ -538,7 +566,7 @@ class DBDriver {
 	void InsertLink(int argumentId, int branchId, int parentId, int childId) {
 	}
 
-	void addContext(int argumentId, int contextId, Json context) {
+	void AddContext(int id, Json context) {
 	}
 
 	void UpdateDBNode(DBNode node, int argumentId, int branchId) {
@@ -554,6 +582,17 @@ class DriverMySQL extends DBDriver {
 	DBDriver(String userName, String password) {
 		this.con = new Connection("mysql://" + userName + ":" + password + "@localhost:3306");
 		this.con.query("USE dcasedb;");
+	}
+
+	Json GetContext(int id) {
+		Json json = new Json();
+		ResultSet r = this.con.query("SELECT context_key,value FROM Context WHERE node_id="+id);
+		while(r.next()) {
+			String key = r.getString("context_key");
+			String value = r.getString("value");
+			json.setString(key,value);
+		}
+		return json;
 	}
 
 	DBNode MakeNode(String NodeType, Json content) {
@@ -612,7 +651,13 @@ class DriverMySQL extends DBDriver {
 			node.nodeId     = r.getInt("id");
 			node.argumentId = argumentId;
 			node.branchId   = branchId;
-			nodes.add(node);
+			if(nodeType == "Context") {
+				Context context = node as Context;
+				context.context = this.getContext(context.nodeId);
+				nodes.add(context);
+			} else {
+				nodes.add(node);
+			}
 		}
 		return this.GetLinks(nodes);
 	}
@@ -720,6 +765,15 @@ class DriverMySQL extends DBDriver {
 		return retVal;
 	}
 
+	void AddContext(int id, Json context) {
+		int i = 0;
+		String[] keys = context.keys();
+		while(i<keys.getSize()) {
+			String key = keys[i];
+			this.con.query("INSERT INTO Context(context_key,value,node_id) Values('"+ key +"','" +context.getString(key)+ "'," +id+ ")");
+			i = i + 1;
+		}
+	}
 }
 
 class API {
@@ -834,12 +888,19 @@ class API {
 		//TODO
 	}
 
-	@Public void AddContext(String argumentId, String nodeId, Json context) {
-		this.AddContext(argumentId, "master", nodeId, context);
+	@Public void AddContext(int argumentId, int nodeId, Json context) {
+		int branchid = this.GetArgument(argumentId).masterBranchId;
+		this.AddContext(argumentId, branchid, nodeId, context);
 	}
 
-	@Public void AddContext(String argumentId, String branchId, String nodeId, Json context) {
+	@Public void AddContext(int argumentId, int branchId, int nodeId, Json context) {
 		DBNode node = this.GetArgument(argumentId).GetBranch(branchId).GetDBNode(nodeId);
-		node.addContext(context);
+		int id = node.addContext(context);
+		//TODO Add new Context
+		this.db.AddContext(id,context);
+	}
+
+	@Public Json GetContext(DBNode node) {
+		return node.GetContext();
 	}
 }
