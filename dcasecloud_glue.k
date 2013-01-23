@@ -60,8 +60,7 @@ class DBNode {
 		this.description = "";
 		this.isEvidence  = false;
 		this.children    = [];
-		this.pUpdate(content);
-		System.p("new DBNode(Json)");
+		this.PrivateUpdate(content);
 	}
 
 	void AddChild(DBNode child) {
@@ -85,7 +84,7 @@ class DBNode {
 	}
 
 	//Private
-	void pUpdate(Json content) {
+	void PrivateUpdate(Json content) {
 		if(content.hasKey("nodeId")) {
 			this.nodeId = content.getString("nodeId");
 		}
@@ -95,13 +94,12 @@ class DBNode {
 		if(content.hasKey("isEvidence")) {
 			this.isEvidence = content.getBoolean("isEvidence");
 		}
-		System.p("private pUpdate");
 	}
 
 	Json Update(Json content) {
 		Json json = new Json();
 		json.set("before",this.toJson());
-		this.pUpdate(content);
+		this.PrivateUpdate(content);
 		json.set("after", this.toJson());
 		return json;
 	}
@@ -136,7 +134,7 @@ class Context extends DBNode {
 		//TODO Create Argument
 		this.context = new Json();
 
-		this.pUpdate(content);
+		this.PrivateUpdate(content);
 		if(content.hasKey("context")) {
 			Json array = content.get("context");
 			String[] keys = array.keys();
@@ -355,7 +353,6 @@ class Branch {
 	Branch() {
 		this.root = NULL;
 		this.nodes = [];
-		System.p("new Branch()");
 	}
 
 	Branch(DBNode[] nodes, DBNode root) {
@@ -381,8 +378,11 @@ class Branch {
 	Json DBNodeListToJson() {
 		Json json = Json.parse("[]");
 		int max = this.nodes.getSize();
-		for(int i = 0; i < max; i = i + 1) {
+		//for(int i = 0; i < max; i = i + 1) {
+		int i = 0;
+		while(i < max) {
 			json.add(this.nodes[i].toJson());
+			i = i + 1;
 		}
 		return json;
 	}
@@ -391,8 +391,11 @@ class Branch {
 		Json json = new Json();
 		json.setString("name",node.nodeId);
 		Json children = Json.parse("[]");
-		for(int i = 0; i < node.children.getSize(); i = i + 1) {
+		//for(int i = 0; i < node.children.getSize(); i = i + 1) {
+		int i = 0;
+		while(i < node.children.getSize()) {
 			children.add(this.PrivateArgumentTreeToJson(node.children[i]));
+			i = i + 1;
 		}
 		json.set("children",children);
 		return json;
@@ -402,19 +405,25 @@ class Branch {
 		Json json = new Json();
 		json.setString("name",this.root.nodeId);
 		Json children = Json.parse("[]");
-		for(int i = 0; i < this.root.children.getSize(); i = i + 1) {
+		//for(int i = 0; i < this.root.children.getSize(); i = i + 1) {
+		int i = 0;
+		while(i < this.root.children.getSize()) {
 			children.add(this.PrivateArgumentTreeToJson(this.root.children[i]));
+			i = i + 1;
 		}
 		json.set("children",children);
 		return json;
 	}
 
 	void RemoveNode(DBNode node) {
-		for(int i = 0; i < this.nodes.getSize(); i = i + 1) {
+		//for(int i = 0; i < this.nodes.getSize(); i = i + 1) {
+		int i = 0;
+		while(i < this.nodes.getSize()) {
 			if(node.nodeId == this.nodes[i].nodeId) {
 				this.nodes.removeAt(i);
 				break;
 			}
+			i = i + 1;
 		}
 	}
 
@@ -433,6 +442,7 @@ class Argument {
 	Map[CommitLog] commits;
 
 	Argument() {
+		this.branches = new Map[Branch];
 		this.branches.set("master", new Branch());
 		this.commits.set("master", new CommitLog());
 	}
@@ -486,10 +496,51 @@ class Argument {
 
 class DBDriver {
 	DBDriver(){}
+
+	Json getContext(int id) {
+	}
+
+	Argument GetArgument(int argumentId) {
+	}
+
+	//TODO args
+	Argument CreateArgument() {
+	}
+
+	//DBNode
+	DBNode CreateDBNode(String nodeType, Json content) {
+	}
+
+	//TODO
+	//void InsertCommit(String argument_name, String method, Commit c) {
+	//}
+
+	void InsertLink(int argumentId, int parentId, int childId) {
+	}
+
+	void addContext(int argumentId, int contextId, Json context) {
+	}
 }
 
 class DriverMySQL extends DBDriver {
+	Connection con;
+
 	DriverMySQL(String userName, String password) {
+		this.con = new Connection("mysql://" + userName + ":" + password + "@localhost:3306");
+		this.con.query("USE dcasedb;");
+	}
+
+	DBNode MakeNode(String NodeType) {
+		if(NodeType == NodeTypeGoal) {
+			return new Goal();
+		} else if (NodeType == NodeTypeStrategy) {
+			return new Strategy();
+		} else if (NodeType == NodeTypeContext) {
+			return new Context();
+		} else if (NodeType == NodeTypeEvidence) {
+			return new Evidence();
+		}
+		return new DBNode();
 	}
 }
 
@@ -498,7 +549,7 @@ class API {
 	DBDriver db;
 
 	API() {
-		//arguments = new Map[Argument];
+		arguments = new Map[Argument];
 	}
 
 	API(String userName, String password) {
@@ -507,7 +558,6 @@ class API {
 
 	void Connect(String userName, String password) {
 		this.db = new DriverMySQL(userName, password);
-		System.p("Connected"); //FIXME
 	}
 
 	@Public Argument CreateArgument(String argumentId, String description) {

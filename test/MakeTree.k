@@ -36,8 +36,7 @@ Context makeContext(API repo, String treeName, String name, String description) 
 
 void main() {
 	String TreeName = "BasicSyntax";
-	API repo = new API();
-	repo.Connect("dcasedb","dcasedb");
+	API repo = new API("dcasedb","dcasedb");
 	repo.CreateArgument(TreeName,"Basic Syntax");
 
 	DBNode root = repo.GetArgument(TreeName).GetDBNode("BasicSyntax");
