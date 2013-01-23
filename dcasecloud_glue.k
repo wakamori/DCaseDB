@@ -341,6 +341,7 @@ class CommitLog {
 
 class Branch {
 	int branchId;
+	int argumentId;
 	DBNode root;
 	DBNode[] nodes;
 
@@ -359,12 +360,14 @@ class Branch {
 			return this.root;
 		}
 		int i = 0;
-		for(int i = 0; i < this.nodes.getSize(); i = i + 1) {
+		//for(int i = 0; i < this.nodes.getSize(); i = i + 1) {
+		int i = 0;
+		while(i < this.nodes.getSize()) {
 			System.p(nodeId == this.nodes[i].nodeId);
 			if(this.nodes[i].nodeId == nodeId) {
-				System.p("GetDBNode:"+nodeId);
 				return this.nodes[i];
 			}
+			i = i + 1;
 		}
 		return NULL;
 	}
@@ -436,10 +439,10 @@ class Argument {
 	Map[Branch] branches;
 	Map[CommitLog] commits;
 
-	Argument(int masterId) {
+	Argument(int masterId, Branch branch) {
 		this.branches = new Map[Branch];
 		this.masterBranchId =masterId;
-		this.branches.set(""+masterId, new Branch());
+		this.branches.set(""+masterId, branch);
 		this.commits.set(""+masterId, new CommitLog());
 	}
 
@@ -552,9 +555,24 @@ class DBDriver {
 		//return new DBNode();
 	}
 
+	Branch CreateBranch() {
+		this.con.query("INSERT INTO Branch() VALUES()");
+		Branch branch = new Branch();
+		branch.branchId = this.con.getInsertId();
+		return branch;
+	}
+
+	void UpdateBranch(Branch branch, int argumentId) {
+		this.con.query("UPDATE Branch SET Argument_id="+argumentId);
+		branch.argumentId = argumentId;
+	}
+
 	Argument CreateArgument() {
-		Argument argument = new Argument(this.GetID());
-		argument.argumentId = this.GetID();
+		Branch branch = this.CreateBranch();
+		this.con.query("INSERT INTO Argument(master_branch_id) VALUES("+branch.branchId+")");
+		Argument argument = new Argument(branch.branchId, branch);
+		argument.argumentId = this.con.getInsertId();
+		this.UpdateBranch(branch,argument.argumentId);
 		return argument;
 	}
 
