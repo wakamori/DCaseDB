@@ -524,6 +524,9 @@ class DBDriver {
 		System.p("aaaa");
 	}
 
+	void SetRoot(int argumentId, int topGoalId) {
+	}
+
 	//DBNode
 	DBNode CreateDBNode(String nodeType, Json content) {
 	}
@@ -532,28 +535,25 @@ class DBDriver {
 	//void InsertCommit(String argument_name, String method, Commit c) {
 	//}
 
-	void InsertLink(int argumentId, int parentId, int childId) {
+	void InsertLink(int argumentId, int branchId, int parentId, int childId) {
 	}
 
 	void addContext(int argumentId, int contextId, Json context) {
 	}
+
 	void UpdateDBNode(DBNode node, int argumentId, int branchId) {
+	}
+
+	int[] GetArgumentIdList() {
 	}
 }
 
 class DriverMySQL extends DBDriver {
 	Connection con;
-	int time;
-
-	int GetID(){
-		time = time + 1;
-		return time;
-	}
 
 	DBDriver(String userName, String password) {
 		this.con = new Connection("mysql://" + userName + ":" + password + "@localhost:3306");
 		this.con.query("USE dcasedb;");
-		this.time = new Date().getTime();
 	}
 
 	DBNode MakeNode(String NodeType, Json content) {
@@ -566,7 +566,90 @@ class DriverMySQL extends DBDriver {
 		} else if (NodeType == "Evidence") {
 			return new Evidence(content);
 		}
-		//return new DBNode();
+		return null; //FIXME
+	}
+
+	DBNode PrivateGetNode(DBNode[] nodes,int id) {
+		int i = 0;
+		while(i<nodes.getSize()) {
+			if(nodes[i].nodeId == id) {
+				return nodes[i];
+			}
+			i = i + 1;
+		}
+		return null;
+	}
+
+	DBNode[] GetLinks(DBNode[] nodes) {
+		int i = 0;
+		while(i<nodes.getSize()) {
+			ResultSet r = this.con.query("SELECT parent_Node_id FROM NodeLink WHERE child_Node_id="+nodes[i].nodeId+"");
+			while(r.next()){
+				int id = r.getInt("parent_Node_id");
+				nodes[i].parent = this.PrivateGetNode(nodes,id);
+			}
+
+			ResultSet r1 = this.con.query("SELECT child_Node_id FROM NodeLink WHERE parent_Node_id="+nodes[i].nodeId+"");
+			while(r1.next()){
+				int id = r1.getInt("child_Node_id");
+				nodes[i].children.add(this.PrivateGetNode(nodes,id));
+			}
+			i = i + 1;
+		}
+		return nodes;
+	}
+
+	DBNode[] GetDBNodeList(int argumentId, int branchId) {
+		DBNode[] nodes = [];
+		ResultSet r = this.con.query("SELECT DBNode.id,description,evidence_flag,type_name FROM DBNode,NodeType WHERE argument_id="+argumentId+" AND branch_id="+ branchId +" AND nodeType_id=NodeType.id;");
+		while(r.next()) {
+			Json json = new Json();
+			json.setString("description",r.getString("description"));
+			String nodeType = r.getString("type_name");
+			json.setString("DBNodeType",nodeType);
+			json.setBoolean("isEvidence", r.getBoolean("evidence_flag"));
+			DBNode node = this.MakeNode(nodeType,json);
+			node.nodeId     = r.getInt("id");
+			node.argumentId = argumentId;
+			node.branchId   = branchId;
+			nodes.add(node);
+		}
+		return this.GetLinks(nodes);
+	}
+
+	/*
+	DBNode GetDBNode(int nodeId) {
+		ResultSet r = this.con.query("SELECT description,evidence_flag,type_name,argument_id,branch_id FROM DBNode,NodeType WHERE DBNode.id="+nodeId+" AND nodeType_id=NodeType.id;");
+		r.next();
+		Json json = new Json();
+		json.setString("description",r.getString("description"));
+		String nodeType = r.getString("type_name");
+		json.setString("DBNodeType",nodeType);
+		json.setBoolean("isEvidence", r.getBoolean("evidence_flag"));
+		DBNode node = this.MakeNode(nodeType,json);
+		int argId          = r.getInt("argument_id");
+		int brId           = r.getInt("branch_id");
+		node.nodeId     = nodeId;
+		node.argumentId = argId;
+		node.branchId   = brId;
+		return node;
+	}
+	*/
+	Argument GetArgument(int argumentId,int branch_id) {
+		//TODO
+	}
+
+	Argument GetArgument(int argumentId) {
+		ResultSet r = this.con.query("SELECT goal_id,master_branch_id FROM Argument WHERE id="+ argumentId +"");
+		r.next();
+		int goalId = r.getInt("goal_id");
+		int branchId = r.getInt("master_branch_id");
+
+		DBNode[] nodes = this.GetDBNodeList(argumentId,branchId);
+		DBNode   root  = this.PrivateGetNode(nodes,goalId);
+		Branch branch = new Branch(nodes,root);
+		Argument argument = new Argument(branchId,branch);
+		return argument;
 	}
 
 	Branch CreateBranch() {
@@ -579,6 +662,10 @@ class DriverMySQL extends DBDriver {
 	void UpdateBranch(Branch branch, int argumentId) {
 		this.con.query("UPDATE Branch SET Argument_id=" + argumentId + " WHERE id=" + branch.branchId);
 		branch.argumentId = argumentId;
+	}
+
+	void SetRoot(int argumentId, int topGoalId) {
+		this.con.query("UPDATE Argument SET goal_id="+topGoalId+" WHERE id="+argumentId);
 	}
 
 	Argument CreateArgument() {
@@ -619,6 +706,20 @@ class DriverMySQL extends DBDriver {
 		node.argumentId = argumentId;
 		node.branchId   = branchId;
 	}
+
+	void InsertLink(int argumentId, int branchId, int parentId, int childId) {
+		this.con.query("INSERT INTO NodeLink(argument_id,parent_Node_id,child_Node_id,branch_id) VALUES("+argumentId+","+parentId+","+childId+","+branchId+")");
+	}
+
+	int[] GetArgumentIdList() {
+		ResultSet r = this.con.query("SELECT id FROM Argument");
+		int[] retVal = [];
+		while(r.next()){
+			retVal.add(r.getInt("id"));
+		}
+		return retVal;
+	}
+
 }
 
 class API {
@@ -630,6 +731,7 @@ class API {
 	}
 
 	API(String userName, String password) {
+		arguments = new Map[Argument];
 		this.Connect(userName, password);
 	}
 
@@ -647,15 +749,23 @@ class API {
 
 		Goal g = this.CreateDBNode(argument.argumentId,content) as Goal;
 		argument.SetRoot(g);
+		this.db.SetRoot(argument.argumentId,g.nodeId);
 		return argument;
 	}
 
 	@Public Argument GetArgument(int argumentId) {
-		return this.arguments.get(""+argumentId);
+		String argId = ""+argumentId;
+		if(this.arguments.has(argId)) {
+			return this.arguments.get(argId);
+		}else{
+			Argument argument = this.db.GetArgument(argumentId);
+			this.arguments.set(argId,argument);
+			return argument;
+		}
 	}
 
-	@Public String[] GetArgumentIds() {
-		return this.arguments.keys(); //FIXME
+	@Public int[] GetArgumentIds() {
+		return this.db.GetArgumentIdList();
 	}
 
 	@Public DBNode[] SearchDBNode(String searchText) {
@@ -681,6 +791,7 @@ class API {
 			this.db.UpdateDBNode(child,id,branchId);
 		}
 		parent.addChild(child);
+		this.db.InsertLink(id,branchId,parent.nodeId,child.nodeId);
 		//TODO Commit
 	}
 

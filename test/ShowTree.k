@@ -1,13 +1,12 @@
-load("../dcasedb_glue.k");
+load("../dcasecloud_glue.k");
 
 
 void main() {
-	String TreeName = "BasicSyntax";
 
-	DCaseDB repo = new DCaseDB();
-	repo.Connect("dcasedb","dcasedb");
-
-	System.p(repo.SearchArgument(TreeName).toJson());
+	API repo = new API("dcasedb","dcasedb");
+	int[] Ids = repo.GetArgumentIds();
+	Argument argument = repo.GetArgument(Ids[1]);
+	System.p(argument.toJson());
 }
 
 main();
