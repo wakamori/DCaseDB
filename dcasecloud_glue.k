@@ -25,8 +25,8 @@ Import("JavaScript.Date");
 class DBNode {
 	int nodeId;
 	String description;
-	String argumentId;
-	String branchId;
+	int argumentId;
+	int branchId;
 	boolean isEvidence;
 
 	DBNode parent;
@@ -412,6 +412,19 @@ class Branch {
 		return json;
 	}
 
+	boolean AddNode(DBNode node) {
+		//for(int i = 0; i < this.nodes.getSize(); i = i + 1) {
+		int i = 0;
+		while(i < this.nodes.getSize()) {
+			if(node.nodeId == this.nodes[i].nodeId) {
+				return false;
+			}
+			i = i + 1;
+		}
+		this.nodes.add(node);
+		return true;
+	}
+
 	void RemoveNode(DBNode node) {
 		//for(int i = 0; i < this.nodes.getSize(); i = i + 1) {
 		int i = 0;
@@ -496,7 +509,7 @@ class Argument {
 		return this.toJson(this.masterBranchId);
 	}
 }
-/*
+
 class DBDriver {
 	DBDriver(){}
 
@@ -524,10 +537,11 @@ class DBDriver {
 
 	void addContext(int argumentId, int contextId, Json context) {
 	}
+	void UpdateDBNode(DBNode node, int argumentId, int branchId) {
+	}
 }
-*/
-//class DriverMySQL extends DBDriver {
-class DBDriver {
+
+class DriverMySQL extends DBDriver {
 	Connection con;
 	int time;
 
@@ -563,7 +577,7 @@ class DBDriver {
 	}
 
 	void UpdateBranch(Branch branch, int argumentId) {
-		this.con.query("UPDATE Branch SET Argument_id="+argumentId);
+		this.con.query("UPDATE Branch SET Argument_id=" + argumentId + " WHERE id=" + branch.branchId);
 		branch.argumentId = argumentId;
 	}
 
@@ -576,11 +590,34 @@ class DBDriver {
 		return argument;
 	}
 
-	//DBNode
+	int GetNodeType(String nodeType) {
+		ResultSet nodeTypeId = this.con.query("SELECT id FROM NodeType WHERE type_name='" + nodeType + "'");
+		int typeId;
+		while(nodeTypeId.next()) {
+			typeId = nodeTypeId.getInt("id");
+		}
+		return typeId;
+	}
+
 	DBNode CreateDBNode(String nodeType, Json content) {
 		DBNode node = this.MakeNode(nodeType,content);
-		node.nodeId = this.GetID();
+		int typeId = this.GetNodeType(nodeType);
+
+		String description = content.getString("description");
+		boolean isEvidence = content.getBoolean("isEvidence");
+		String evidence = "FALSE";
+		if(isEvidence) {
+			evidence = "TRUE";
+		}
+		this.con.query("INSERT INTO DBNode(description,evidence_flag,nodeType_id) VALUES('"+ description + "'," + evidence + ","+typeId+") ");
+		node.nodeId = this.con.getInsertId();
 		return node;
+	}
+
+	void UpdateDBNode(DBNode node, int argumentId, int branchId) {
+		this.con.query("UPDATE DBNode SET argument_id="+argumentId+", branch_id="+branchId+" WHERE id="+node.nodeId);
+		node.argumentId = argumentId;
+		node.branchId   = branchId;
 	}
 }
 
@@ -597,7 +634,7 @@ class API {
 	}
 
 	void Connect(String userName, String password) {
-		this.db = new DBDriver(userName, password);
+		this.db = new DriverMySQL(userName, password);
 	}
 
 	@Public Argument CreateArgument(String description) {
@@ -637,8 +674,12 @@ class API {
 
 	@Public void InsertLink(int id, int branchId, DBNode parent, DBNode child) {
 		Branch branch = this.GetArgument(id).GetBranch(branchId);
-		branch.nodes.add(parent);
-		branch.nodes.add(child);
+		if(branch.AddNode(parent)){
+			this.db.UpdateDBNode(parent,id,branchId);
+		}
+		if(branch.AddNode(child)){
+			this.db.UpdateDBNode(child,id,branchId);
+		}
 		parent.addChild(child);
 		//TODO Commit
 	}
