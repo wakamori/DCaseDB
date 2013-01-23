@@ -100,7 +100,7 @@ class DBNode {
 
 	Json PrivateToJson() {
 		Json json = new Json();
-		json.setInt("nodeId",this.nodeId);
+		json.setString("nodeId",this.nodeId.toString());
 		json.setString("description",this.description);
 		json.setBoolean("isEvidence",this.isEvidence);
 		return json;
@@ -414,7 +414,7 @@ class Branch {
 
 	Json PrivateArgumentTreeToJson(DBNode node) {
 		Json json = new Json();
-		json.setInt("nodeId",node.nodeId);
+		json.setString("nodeId",node.nodeId.toString());
 		Json children = Json.parse("[]");
 		//for(int i = 0; i < node.children.getSize(); i = i + 1) {
 		int i = 0;
@@ -428,7 +428,7 @@ class Branch {
 
 	Json ArgumentTreeToJson() {
 		Json json = new Json();
-		json.setInt("nodeId",this.root.nodeId);
+		json.setString("nodeId",this.root.nodeId.toString());
 		Json children = Json.parse("[]");
 		//for(int i = 0; i < this.root.children.getSize(); i = i + 1) {
 		int i = 0;
@@ -528,8 +528,8 @@ class Argument {
 		CommitLog clog = this.commits.get(""+branchId);//FIXME wrapper
 		json.set("CommitLog",clog.toJson());
 		json.setString("HEAD",clog.head);
-		json.setInt("argumentId",this.argumentId);
-		json.setInt("branchId",branchId);
+		json.setString("argumentId",this.argumentId.toString());
+		json.setString("branchId",branchId.toString());
 		return json;
 	}
 
@@ -662,24 +662,6 @@ class DriverMySQL extends DBDriver {
 		return this.GetLinks(nodes);
 	}
 
-	/*
-	DBNode GetDBNode(int nodeId) {
-		ResultSet r = this.con.query("SELECT description,evidence_flag,type_name,argument_id,branch_id FROM DBNode,NodeType WHERE DBNode.id="+nodeId+" AND nodeType_id=NodeType.id;");
-		r.next();
-		Json json = new Json();
-		json.setString("description",r.getString("description"));
-		String nodeType = r.getString("type_name");
-		json.setString("DBNodeType",nodeType);
-		json.setBoolean("isEvidence", r.getBoolean("evidence_flag"));
-		DBNode node = this.MakeNode(nodeType,json);
-		int argId          = r.getInt("argument_id");
-		int brId           = r.getInt("branch_id");
-		node.nodeId     = nodeId;
-		node.argumentId = argId;
-		node.branchId   = brId;
-		return node;
-	}
-	*/
 	Argument GetArgument(int argumentId,int branch_id) {
 		//TODO
 	}
@@ -831,9 +813,9 @@ class API {
 		return this.db.CreateDBNode(NodeType,content);
 	}
 
-	@Public void InsertLink(int id, DBNode parentId, DBNode childId) {
+	@Public void InsertLink(int id, DBNode parent, DBNode child) {
 		int masterId = this.GetArgument(id).masterBranchId;
-		this.InsertLink(id, masterId, parentId, childId);
+		this.InsertLink(id, masterId, parent, child);
 	}
 
 	@Public void InsertLink(int id, int branchId, DBNode parent, DBNode child) {
