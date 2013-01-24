@@ -6,6 +6,7 @@
 	<script type="text/javascript">
 
 var commonData = {
+	//url: 'http://192.168.59.251/dcase_cloud/interface.cgi'
 	url: 'http://localhost/cgi-bin/interface.cgi'
 };
 
@@ -23,7 +24,7 @@ function onclick_template($selector, name, data) {
 			success: function(msg) {},
 			error: function(msg) {},
 			complete: function(msg) {
-				alert(name + ' method\n' + msg['responseText']);
+				alert(name + ' method\nRequest:\n' + JSON.stringify(data) + '\nResponse:\n' + msg['responseText']);
 			}
 		});
 	});
@@ -46,7 +47,7 @@ var insert_data = {
 	params: {
 		type: "Goal",
 		description: "hello, world",
-		parent: {args_id: "A1", node_id: "G1"}
+		parent: {args_id: "A1", node_id: "S1"}
 	}
 };
 
@@ -140,6 +141,38 @@ var traverse_data = {
 	}
 };
 
+var get1_data = {
+	jsonrpc: "2.0",
+	version: 1,
+	method: "get",
+	param: {
+		filter: ["Argument"]
+	}
+};
+
+var get2_data = {
+	jsonrpc: "2.0",
+	version: 1,
+	method: "get",
+	param: {
+		argument_id: "0"
+	}
+};
+
+var insert1_data = {
+	jsonrpc: "2.0",
+	version: 1,
+	method: "insert",
+	param: {
+		type: "Goal",
+		description: "hello, matz!!",
+		parent: {
+			argument_id: "0",
+			node_id: "7"
+		}
+	}
+};
+
 onclick_template($('#create_btn'),   'create',   create_data);
 onclick_template($('#insert_btn'),   'insert',   insert_data);
 onclick_template($('#update_btn'),   'update',   update_data);
@@ -151,6 +184,11 @@ onclick_template($('#diff_btn'),     'diff',     diff_data);
 onclick_template($('#log_btn'),      'log',      log_data);
 onclick_template($('#search_btn'),   'search',   search_data);
 onclick_template($('#traverse_btn'), 'traverse', traverse_data);
+
+onclick_template($('#get1_btn'), 'get1', get1_data);
+onclick_template($('#get2_btn'), 'get2', get2_data);
+onclick_template($('#insert1_btn'), 'insert1', insert1_data);
+onclick_template($('#commit1_btn'), 'commit1', commit_data);
 
 });
 
@@ -184,5 +222,17 @@ onclick_template($('#traverse_btn'), 'traverse', traverse_data);
 		<h2>traverse</h2>
 		<button id="traverse_btn">traverse</button>
 	</div>
+	<div class="list" style="float: left; padding: 20px;">
+		<h1>Viewer Test Flow</h2>
+		<h2>get Argument List</h2>
+		<button id="get1_btn">get1</button>
+		<h2>get Nodes in Arguments</h2>
+		<button id="get2_btn">get2</button>
+		<h2>insert Goal in Arguments</h2>
+		<button id="insert1_btn">insert1</button>
+		<h2>Commit it!</h2>
+		<button id="commit1_btn">commit1</button>
+	</div>
+
 </body>
 </html>

@@ -1,6 +1,6 @@
 #! /usr/local/bin/minikonoha -MFuelVM
 
-Load("webAPI_util.k");
+Load("webapi.k");
 
 void main() {
 	Json j = Json.parse(getMsg());
