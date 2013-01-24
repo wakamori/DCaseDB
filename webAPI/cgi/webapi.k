@@ -77,11 +77,41 @@ boolean paramCheck_Insert(Json j) {
 }
 
 String run_Insert(Json j) {
-	if (j.hasKey("id")) {
-		return JsonRPC_formattingWithID("result", "{ \"argument_id\": \"0\", \"node_id\": \"11\" }", j.getInt("id"));
+	Json jnode;
+	DBNode node;
+	DBNode dist_node;
+	int argument_id = j.getString("argument_id").toint();
+	if (j.hasKey("new")) {
+		jnode = j.get("new");
+		node = repo.CreateDBNode(argument_id, j);
 	}
 	else {
-		return JsonRPC_formatting("result", "{ \"argument_id\": \"0\", \"node_id\": \"11\" }");
+		int node_id = j.getString("node_id").toint();
+		node = repo.GetArgument(argument_id).GetDBNode(node_id);
+	}
+
+	if (j.hasKey("parent") {
+		Json p = j.get("parent");
+		int dist_args_id = p.get("argument_id").toint();
+		int dist_node_id = p.get("node_id").toint();
+		dist_node = repo.GetArgument(dist_args_id).GetDBNode(dist_node_id);
+		repo.InsertLink(argument_id, dist_node, node);
+	}
+	else if (j.hasKey("child") {
+		Json p = j.get("child");
+		int dist_args_id = p.get("argument_id").toint();
+		int dist_node_id = p.get("node_id").toint();
+		dist_node = repo.GetArgument(dist_args_id).GetDBNode(dist_node_id);
+		repo.InsertLink(argument_id, node, dist_node);
+	}
+	Json ret = new Json();
+	ret.setString("argument_id", argument_id.toString());
+	ret.setString("node_id", node.node_id);
+	if (j.hasKey("id")) {
+		return JsonRPC_formattingWithID("result", ret.toString(), j.getInt("id"));
+	}
+	else {
+		return JsonRPC_formatting("result", ret.toString());
 	}
 }
 
@@ -93,6 +123,10 @@ boolean paramCheck_Update(Json j) {
 }
 
 String run_Update(Json j) {
+	int argument_id = j.getString("argument_id").toint();
+	int node_id = j.getString("node_id").toint();
+	DBNode node = repo.GetArgument(argument_id).GetDBNode(node_id);
+	repo.UpdateDBNode(argument_id, node, j);
 	if (j.hasKey("id")) {
 		return JsonRPC_formattingWithID("result", "\"success\"", j.getInt("id"));
 	}
@@ -128,16 +162,17 @@ String run_Get(Json j) {
 	Json f = j.get("filter");
 	String ret;
 	if (j.hasKey("argument_id")) {
-		ret = "{\"HEAD\":\"\",\"root\":{\"description\":\"Basic Syntax\",\"node_id\":\"6\",\"type\":\"Goal\",\"isEvidence\":false},\"argument_id\":\"0\",\"links\":{\"node_id\":\"6\",\"children\":[{\"node_id\":\"7\",\"children\":[]},{\"node_id\":\"8\",\"children\":[{\"node_id\":\"9\",\"children\":[]},{\"node_id\":\"10\",\"children\":[]}]}]},\"branch_id\":\"2\",\"nodes\":[{\"description\":\"Basic Syntax\",\"node_id\":\"6\",\"type\":\"Goal\",\"isEvidence\":false},{\"description\":\"Function Decralation\", \"node_id\":\"9\",\"type\":\"Goal\",\"isEvidence\":false},{\"description\":\"Return Statement\",\"node_id\":\"10\",\"type\":\"Goal\",\"isEvidence\":false},{\"description\":\"Separated by Syntax\", \"node_id\":\"8\",\"type\":\"Strategy\",\"isEvidence\":false},{\"description\":\"Basic Syntax Context\",\"node_id\":\"7\",\"type\":\"Context\",\"isEvidence\":false,\"properties\":{\"OS\":\"Ubuntu 12.04\",\"Architecture\":\"x86_64\",\"C Compiler\":\"GCC 4.6.3\"}}],\"CommitLog\":[]}";
+		ret = repo.getArgument(j.getString("argument_id").toint()).toJson().toString();
 	}
 	else {
-		//System.p("hello");
+		if (f.getSize() == 0) {
+			throw_invalidParams(j);
+		}
 		int i = 0;
 		while (i < f.getSize()){
-			System.p(f[i]);
 			if (/Argument/.test(f[i].toString())) {
-				//System.p(f[i]);
 				ret = "[\"0\"]";
+				ret = repo.GetArgumentIds().toString();
 			}
 			i = i + 1;
 		}
@@ -225,11 +260,19 @@ boolean paramCheck_Search(Json j) {
 }
 
 String run_Search(Json j) {
+	String keyword = j.getString("keyword");
+	Json f = j.get("filter");
+	int i = 0;
+	Json ret = Json.parse("[]");
+	while (i < f.getSize()) {
+		ret.add(repo.Search(keyword, f[i].toString()));
+		i = i + 1;
+	}
 	if (j.hasKey("id")) {
-		return JsonRPC_formattingWithID("result", "[{ \"argument_id\": \"A1\", \"node_id\": \"G1\", \"type\": \"Goal\", \"description\": \"hello, world\" },{ \"argument_id\": \"A1\", \"node_id\": \"C1\", \"type\": \"Context\", \"description\": \"hello, world\", \"properties\": [\"foo\": \"bar\", \"hoge\": \"piyo\"] }]", j.getInt("id"));
+		return JsonRPC_formattingWithID("result", ret.toJson(), j.getInt("id"));
 	}
 	else {
-		return JsonRPC_formatting("result", "[{ \"argument_id\": \"A1\", \"node_id\": \"G1\", \"type\": \"Goal\", \"description\": \"hello, world\" },{ \"argument_id\": \"A1\", \"node_id\": \"C1\", \"type\": \"Context\", \"description\": \"hello, world\", \"properties\": [\"foo\": \"bar\", \"hoge\": \"piyo\"] }]");
+		return JsonRPC_formatting("result", ret.toJson());
 	}
 }
 

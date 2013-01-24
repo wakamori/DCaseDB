@@ -974,6 +974,7 @@ class API {
 		//TODO Commit
 	}
 
+	//FIXME return boolean
 	//FIXME Json contents
 	@Public void UpdateDBNode(int argument_id, DBNode node, Json contents) {
 		int masterId = this.GetArgument(id).masterBranchId;
