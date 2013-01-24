@@ -574,6 +574,8 @@ class DBDriver {
 	int[] GetArgumentIdList() {}
 
 	int GetArgumentIdByName(String name) {}
+
+	Json Search(String text) {}
 }
 
 class DriverMySQL extends DBDriver {
@@ -591,6 +593,19 @@ class DriverMySQL extends DBDriver {
 			String key = r.getString("context_key");
 			String value = r.getString("value");
 			json.setString(key,value);
+		}
+		return json;
+	}
+
+	Json Search(String text) {
+		Json json = Json.parse("[]");
+		ResultSet r = this.con.query("SELECT id,argument_id,branch_id FROM DBNode WHERE description LIKE '%"+text+"%'");
+		while(r.next()) {
+			Json j = new Json();
+			j.setString("nodeId",r.getInt("id").toString());
+			j.setString("argumentId",r.getInt("argument_id").toString());
+			j.setString("branchId",r.getInt("branch_id").toString());
+			json.add(j);
 		}
 		return json;
 	}
@@ -935,5 +950,9 @@ class API {
 
 	@Public Json GetContext(DBNode node) {
 		return node.GetContext();
+	}
+
+	@Public Json Search(String text) {
+		return this.db.Search(text);
 	}
 }
