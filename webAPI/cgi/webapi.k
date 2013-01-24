@@ -1,7 +1,7 @@
 
-Import("Does.DCaseCloud");
+Import("Deos.DCaseCloud");
 Import("Type.Json");
-Import("Minikonoha.Map");
+Import("MiniKonoha.Map");
 Import("Syntax.Null");
 Import("Syntax.GlobalVariable");
 Import("Syntax.CStyleWhile");
@@ -77,38 +77,38 @@ boolean paramCheck_Insert(Json j) {
 }
 
 String run_Insert(Json j) {
-	Json jnode;
+	Json jnode = new Json();
 	DBNode node;
 	DBNode dist_node;
 	int argument_id = j.getString("argument_id").toint();
 	if (j.hasKey("new")) {
 		jnode = j.get("new");
-		node = repo.CreateDBNode(argument_id, j);
+		node = global.repo.CreateDBNode(argument_id, jnode);
 	}
 	else {
 		int node_id = j.getString("node_id").toint();
-		node = repo.GetArgument(argument_id).GetDBNode(node_id);
+		node = global.repo.GetArgument(argument_id).GetDBNode(node_id);
 	}
 
-	if (j.hasKey("parent") {
+	if (j.hasKey("parent")) {
 		Json p = j.get("parent");
-		int dist_args_id = p.get("argument_id").toint();
-		int dist_node_id = p.get("node_id").toint();
-		dist_node = repo.GetArgument(dist_args_id).GetDBNode(dist_node_id);
-		repo.InsertLink(argument_id, dist_node, node);
+		int dist_args_id = p.getString("argument_id").toint();
+		int dist_node_id = p.getString("node_id").toint();
+		dist_node = global.repo.GetArgument(dist_args_id).GetDBNode(dist_node_id);
+		global.repo.InsertLink(argument_id, dist_node, node);
 	}
-	else if (j.hasKey("child") {
+	else if (j.hasKey("child")) {
 		Json p = j.get("child");
-		int dist_args_id = p.get("argument_id").toint();
-		int dist_node_id = p.get("node_id").toint();
-		dist_node = repo.GetArgument(dist_args_id).GetDBNode(dist_node_id);
-		repo.InsertLink(argument_id, node, dist_node);
+		int dist_args_id = p.getString("argument_id").toint();
+		int dist_node_id = p.getString("node_id").toint();
+		dist_node = global.repo.GetArgument(dist_args_id).GetDBNode(dist_node_id);
+		global.repo.InsertLink(argument_id, node, dist_node);
 	}
 	Json ret = new Json();
 	ret.setString("argument_id", argument_id.toString());
-	ret.setString("node_id", node.node_id);
+	ret.setString("node_id", node.node_id.toString());
 	if (j.hasKey("id")) {
-		return JsonRPC_formattingWithID("result", ret.toString(), j.getInt("id"));
+		return JsonRPC_formattingWithID("result", ret.toString(), j.getString("id").toint());
 	}
 	else {
 		return JsonRPC_formatting("result", ret.toString());
@@ -125,8 +125,8 @@ boolean paramCheck_Update(Json j) {
 String run_Update(Json j) {
 	int argument_id = j.getString("argument_id").toint();
 	int node_id = j.getString("node_id").toint();
-	DBNode node = repo.GetArgument(argument_id).GetDBNode(node_id);
-	repo.UpdateDBNode(argument_id, node, j);
+	DBNode node = global.repo.GetArgument(argument_id).GetDBNode(node_id);
+	global.repo.UpdateDBNode(argument_id, node, j);
 	if (j.hasKey("id")) {
 		return JsonRPC_formattingWithID("result", "\"success\"", j.getInt("id"));
 	}
@@ -162,9 +162,10 @@ String run_Get(Json j) {
 	Json f = j.get("filter");
 	String ret;
 	if (j.hasKey("argument_id")) {
-		ret = repo.getArgument(j.getString("argument_id").toint()).toJson().toString();
+		ret = global.repo.getArgument(j.getString("argument_id").toint()).toJson().toString();
 	}
 	else {
+		System.p("hello");
 		if (f.getSize() == 0) {
 			throw_invalidParams(j);
 		}
@@ -172,7 +173,7 @@ String run_Get(Json j) {
 		while (i < f.getSize()){
 			if (/Argument/.test(f[i].toString())) {
 				ret = "[\"0\"]";
-				ret = repo.GetArgumentIds().toString();
+				ret = global.repo.GetArgumentIds().toString();
 			}
 			i = i + 1;
 		}
@@ -265,7 +266,7 @@ String run_Search(Json j) {
 	int i = 0;
 	Json ret = Json.parse("[]");
 	while (i < f.getSize()) {
-		ret.add(repo.Search(keyword, f[i].toString()));
+		ret.add(global.repo.Search(keyword, f[i].toString()));
 		i = i + 1;
 	}
 	if (j.hasKey("id")) {
