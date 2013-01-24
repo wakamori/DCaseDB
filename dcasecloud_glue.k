@@ -850,16 +850,16 @@ class API {
 	Map[Argument] arguments;
 	DBDriver db;
 
-	API() {
+	@Public API() {
 		arguments = new Map[Argument];
 	}
 
-	API(String userName, String password) {
+	@Public API(String userName, String password) {
 		arguments = new Map[Argument];
 		this.Connect(userName, password);
 	}
 
-	void Connect(String userName, String password) {
+	@Public void Connect(String userName, String password) {
 		this.db = new DriverMySQL(userName, password);
 	}
 
