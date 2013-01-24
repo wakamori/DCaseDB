@@ -1,14 +1,3 @@
-//import("konoha.ns");
-//import("konoha.json");
-//import("openssl");
-//import("cstyle");
-//import("java2.class");
-//import("konoha.map");
-//import("konoha.sql");
-//import("konoha.object");
-//import("js4.array");
-//import("js4.date");
-
 Import("Type.Json");
 Import("Lib.Openssl");
 Import("Syntax.CStyleFor");
