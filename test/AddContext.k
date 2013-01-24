@@ -13,6 +13,7 @@ void main() {
 	json.setString("OS","Ubuntu 12.04");
 	json.setString("Architecture","x86_64");
 	json.setString("C Compiler","GCC 4.6.3");
+	json.setString("C++ Compiler","G++ 4.6.3");
 	repo.AddContext(9,argument.GetRoot().node_id,json);
 	System.p(argument.toJson());
 }

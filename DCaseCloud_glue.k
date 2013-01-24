@@ -29,6 +29,7 @@ class DBNode {
 		this.isEvidence  = isEvidence;
 		this.children    = [];
 		this.lazy_children = Json.parse("[]");
+		this.argument_id = -1;
 	}
 
 	DBNode(int node_id, String description) {
@@ -37,6 +38,7 @@ class DBNode {
 		this.isEvidence  = false;
 		this.children    = [];
 		this.lazy_children = Json.parse("[]");
+		this.argument_id = -1;
 	}
 
 	DBNode(int node_id) {
@@ -45,9 +47,11 @@ class DBNode {
 		this.isEvidence  = false;
 		this.children    = [];
 		this.lazy_children = Json.parse("[]");
+		this.argument_id = -1;
 	}
 
 	DBNode(Json content) {
+		this.argument_id = -1;
 		this.description = "";
 		this.isEvidence  = false;
 		this.children    = [];
@@ -412,8 +416,17 @@ class Branch {
 		Json children = Json.parse("[]");
 		//for(int i = 0; i < node.children.getSize(); i = i + 1) {
 		int i = 0;
+		int id = node.argument_id;
 		while(i < node.children.getSize()) {
-			children.add(this.PrivateArgumentTreeToJson(node.children[i]));
+			if(node.children[i].argument_id != id) {
+				Json json = new Json();
+				json.setString("type","Argument");
+				//json.setString("description",); //FIXME
+				json.setString("argument_id",id.toString());
+				children.add(json);
+			}else {
+				children.add(this.PrivateArgumentTreeToJson(node.children[i]));
+			}
 			i = i + 1;
 		}
 		json.set("children",children);
@@ -426,8 +439,17 @@ class Branch {
 		Json children = Json.parse("[]");
 		//for(int i = 0; i < this.root.children.getSize(); i = i + 1) {
 		int i = 0;
+		int id = this.root.argument_id;
 		while(i < this.root.children.getSize()) {
-			children.add(this.PrivateArgumentTreeToJson(this.root.children[i]));
+			if(this.root.children[i].argument_id != id) {
+				Json json = new Json();
+				json.setString("type","Argument");
+				//json.setString("description",); //FIXME
+				json.setString("argument_id",id.toString());
+				children.add(json);
+			}else {
+				children.add(this.PrivateArgumentTreeToJson(this.root.children[i]));
+			}
 			i = i + 1;
 		}
 		json.set("children",children);
@@ -443,8 +465,12 @@ class Branch {
 			}
 			i = i + 1;
 		}
-		this.nodes.add(node);
-		return true;
+		if(node.argument_id == -1) {
+			this.nodes.add(node);
+			node.argument_id = this.argument_id;
+			return true;
+		}
+		return false;
 	}
 
 	void RemoveNode(DBNode node) {
