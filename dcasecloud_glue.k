@@ -30,13 +30,16 @@ class DBNode {
 	boolean isEvidence;
 
 	DBNode parent;
+	Json lazy_parent;
 	DBNode[] children;
+	Json lazy_children;
 
 	DBNode(int node_id, String description, boolean isEvidence) {
 		this.node_id      = node_id;
 		this.description = description;
 		this.isEvidence  = isEvidence;
 		this.children    = [];
+		this.lazy_children = Json.parse("[]");
 	}
 
 	DBNode(int node_id, String description) {
@@ -44,6 +47,7 @@ class DBNode {
 		this.description = description;
 		this.isEvidence  = false;
 		this.children    = [];
+		this.lazy_children = Json.parse("[]");
 	}
 
 	DBNode(int node_id) {
@@ -51,6 +55,7 @@ class DBNode {
 		this.description = "";
 		this.isEvidence  = false;
 		this.children    = [];
+		this.lazy_children = Json.parse("[]");
 	}
 
 	DBNode(Json content) {
@@ -58,6 +63,7 @@ class DBNode {
 		this.isEvidence  = false;
 		this.children    = [];
 		this.PrivateUpdate(content);
+		this.lazy_children = Json.parse("[]");
 	}
 
 	void AddChild(DBNode child) {
@@ -106,17 +112,17 @@ class DBNode {
 		return json;
 	}
 
-	Json toJson() {
+	@Public Json toJson() {
 		Json json = this.PrivateToJson();
 		return json;
 	}
 
-	Json GetContext() {
+	@Public Json GetContext() {
 		//Abstract
 		return NULL;
 	}
 
-	int AddContext(Json context) {
+	@Public int AddContext(Json context) {
 		//Abstract
 	}
 }
@@ -149,18 +155,18 @@ class Context extends DBNode {
 		this.context.setString(key,value);
 	}
 
-	Json toJson() {
+	@Public Json toJson() {
 		Json json = this.PrivateToJson();
 		json.setString("type","Context");
 		json.set("properties",this.context);
 		return json;
 	}
 
-	Json GetContext() {
+	@Public Json GetContext() {
 		return this.context;
 	}
 
-	int AddContext(Json context) {
+	@Public int AddContext(Json context) {
 		String[] keys = context.keys();
 		//for(int i = 0; i < keys.getSize(); i = i + 1) {
 		int i = 0;
@@ -175,14 +181,14 @@ class Context extends DBNode {
 class Goal extends DBNode {
 	Goal(){}
 
-	Json toJson() {
+	@Public Json toJson() {
 		Json json = this.PrivateToJson();
 		json.setString("type","Goal");
 		return json;
 	}
 
 	//FIXME validation
-	Json GetContext() {
+	@Public Json GetContext() {
 		Json json = this.parent.GetContext();
 		Json context_array = Json.parse("[]");
 		//for(int i = 0; i < this.children.getSize();i = i + 1) {
@@ -210,7 +216,7 @@ class Goal extends DBNode {
 		return json;
 	}
 
-	int AddContext(Json context) {
+	@Public int AddContext(Json context) {
 		//for(int i = 0; i < this.children.getSize();i = i + 1) {
 		int i = 0;
 		while(i < this.children.getSize()) {
@@ -228,14 +234,14 @@ class Goal extends DBNode {
 class Strategy extends DBNode {
 	Strategy(){}
 
-	Json toJson() {
+	@Public Json toJson() {
 		Json json = this.PrivateToJson();
 		json.setString("type","Strategy");
 		return json;
 	}
 
 	//FIXME validation
-	Json GetContext() {
+	@Public Json GetContext() {
 		Json json = this.parent.GetContext();
 		Json context_array = Json.parse("[]");
 		//for(int i = 0; i < this.children.getSize();i = i + 1) {
@@ -263,7 +269,7 @@ class Strategy extends DBNode {
 		return json;
 	}
 
-	void AddContext(Json context) {
+	@Public void AddContext(Json context) {
 		//for(int i = 0; i < this.children.getSize();i = i + 1) {
 		int i = 0;
 		while(i < this.children.getSize()) {
@@ -281,13 +287,13 @@ class Strategy extends DBNode {
 class Evidence extends DBNode {
 	Evidence() {}
 
-	Json toJson() {
+	@Public Json toJson() {
 		Json json = this.PrivateToJson();
 		json.setString("type","Evidence");
 		return json;
 	}
 
-	Json GetContext(){
+	@Public Json GetContext(){
 		return this.parent.GetContext();
 	}
 }
@@ -296,7 +302,7 @@ class Evidence extends DBNode {
 class Justification extends DBNode {
 	Justification(){}
 
-	Json toJson() {
+	@Public Json toJson() {
 		Json json = this.PrivateToJson();
 		json.setString("type","Justification");
 		return json;
@@ -307,7 +313,7 @@ class Justification extends DBNode {
 class Rebuttal extends DBNode {
 	Rebuttal(){}
 
-	Json toJson() {
+	@Public Json toJson() {
 		Json json = this.PrivateToJson();
 		json.setString("type","Rebuttal");
 		return json;
@@ -388,7 +394,6 @@ class Branch {
 		if(this.root.node_id == node_id) {
 			return this.root;
 		}
-		int i = 0;
 		//for(int i = 0; i < this.nodes.getSize(); i = i + 1) {
 		int i = 0;
 		while(i < this.nodes.getSize()) {
@@ -657,6 +662,15 @@ class DriverMySQL extends DBDriver {
 		return null;
 	}
 
+	Json GetDBNodeById(int nodeId) {
+		ResultSet r = this.con.query("SELECT argument_id,branch_id FROM DBNode WHERE id="+ nameId +"");
+		r.next();
+		Json json = new Json();
+		json.setInt("argument_id",r.getInt("argument_id"));
+		json.setInt("branch_id",r.getInt("branch_id"));
+		return json;
+	}
+
 	DBNode[] GetLinks(DBNode[] nodes) {
 		int i = 0;
 		while(i<nodes.getSize()) {
@@ -664,12 +678,22 @@ class DriverMySQL extends DBDriver {
 			while(r.next()){
 				int id = r.getInt("parent_Node_id");
 				nodes[i].parent = this.PrivateGetNode(nodes,id);
+				if(nodes[i].parent == null) {
+					Json json = this.GetDBNodeById(id);
+					nodes[i].lazy_parent = json;
+				}
 			}
 
 			ResultSet r1 = this.con.query("SELECT child_Node_id FROM NodeLink WHERE parent_Node_id="+nodes[i].node_id+"");
 			while(r1.next()){
 				int id = r1.getInt("child_Node_id");
-				nodes[i].children.add(this.PrivateGetNode(nodes,id));
+				DBNode node = this.PrivateGetNode(nodes,id);
+				if(node!=null) {
+					nodes[i].children.add(this.PrivateGetNode(nodes,id));
+				}else{
+					Json json = this.GetDBNodeById(id);
+					nodes[i].lazy_children.add(json);
+				}
 			}
 			i = i + 1;
 		}
@@ -701,7 +725,17 @@ class DriverMySQL extends DBDriver {
 	}
 
 	DCaseArgument GetArgument(int argument_id,int branch_id) {
-		//TODO
+		//FIXME branch
+		ResultSet r = this.con.query("SELECT goal_id,master_branch_id FROM Argument WHERE id="+ argument_id +"");
+		r.next();
+		int goalId = r.getInt("goal_id");
+		int master_branch_id = r.getInt("master_branch_id");
+
+		DBNode[] nodes = this.GetDBNodeList(argument_id,branch_id);
+		DBNode   root  = this.PrivateGetNode(nodes,goalId);
+		Branch branch = new Branch(nodes,root);
+		Argument argument = new Argument(branch_id,branch);
+		return argument;
 	}
 
 	//FIXME
