@@ -4,8 +4,8 @@ load("../dcasecloud_glue.k");
 void main() {
 
 	API repo = new API("dcasedb","dcasedb");
-	int[] Ids = repo.GetArgumentIds();
-	Argument argument = repo.GetArgument(Ids[1]);
+	Json Ids = repo.GetArgumentIds();
+	Argument argument = repo.GetArgument(Ids.get(1).getString("argument_id").toint());
 	System.p(argument.toJson());
 }
 
