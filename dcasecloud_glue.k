@@ -577,6 +577,7 @@ class DBDriver {
 	int GetArgumentIdByName(String name) {}
 
 	Json Search(String text) {}
+	Json Search(String text,String nodeType) {}
 }
 
 class DriverMySQL extends DBDriver {
@@ -604,12 +605,14 @@ class DriverMySQL extends DBDriver {
 	Json Search(String text, String nodeType) {
 		Json json = Json.parse("[]");
 		//FIXME
-		ResultSet r = this.con.query("SELECT id,argument_id,branch_id FROM DBNode WHERE description LIKE '%"+text+"%'");
+		ResultSet r = this.con.query("SELECT DBNode.id,argument_id,branch_id,type_name,description FROM DBNode,NodeType WHERE nodeType_id=NodeType.id AND type_name='"+nodeType+"' AND description LIKE '%"+text+"%'");
 		while(r.next()) {
 			Json j = new Json();
 			j.setString("node_id",r.getInt("id").toString());
 			j.setString("argument_id",r.getInt("argument_id").toString());
 			j.setString("branch_id",r.getInt("branch_id").toString());
+			j.setString("type",r.getString("type_name"));
+			j.setString("description",r.getString("description"));
 			json.add(j);
 		}
 		return json;
@@ -617,12 +620,14 @@ class DriverMySQL extends DBDriver {
 
 	Json Search(String text) {
 		Json json = Json.parse("[]");
-		ResultSet r = this.con.query("SELECT id,argument_id,branch_id FROM DBNode WHERE description LIKE '%"+text+"%'");
+		ResultSet r = this.con.query("SELECT DBNode.id,argument_id,branch_id,type_name,description FROM DBNode,NodeType WHERE nodeType_id=NodeType.id AND description LIKE '%"+text+"%'");
 		while(r.next()) {
 			Json j = new Json();
 			j.setString("node_id",r.getInt("id").toString());
 			j.setString("argument_id",r.getInt("argument_id").toString());
 			j.setString("branch_id",r.getInt("branch_id").toString());
+			j.setString("type",r.getString("node_type"));
+			j.setString("description",r.getString("description"));
 			json.add(j);
 		}
 		return json;
@@ -982,5 +987,9 @@ class API {
 
 	@Public Json Search(String text) {
 		return this.db.Search(text);
+	}
+
+	@Public Json Search(String text,String nodeType) {
+		return this.db.Search(text,nodeType);
 	}
 }
