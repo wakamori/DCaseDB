@@ -482,7 +482,7 @@ class Argument {
 	Map[Branch] branches;
 	Map[CommitLog] commits;
 
-	Argument(int masterId, Branch branch) {
+	@Public Argument(int masterId, Branch branch) {
 		this.branches = new Map[Branch];
 		this.masterBranchId =masterId;
 		this.branches.set(masterId.toString(), branch);
@@ -505,27 +505,27 @@ class Argument {
 		return new Branch(); //FIXME
 	}
 
-	DBNode GetDBNode(int node_id) {
+	@Public DBNode GetDBNode(int node_id) {
 		return this.GetDBNode(this.masterBranchId, node_id);
 	}
 
-	DBNode GetDBNode(int branch_id, int node_id) {
+	@Public DBNode GetDBNode(int branch_id, int node_id) {
 		return this.GetBranch(branch_id).GetDBNode(node_id);
 	}
 
-	void SetRoot(Goal g) {
+	@Public void SetRoot(Goal g) {
 		this.SetRoot(this.masterBranchId,g);
 	}
 
-	void SetRoot(int branch_id, Goal g) {
+	@Public void SetRoot(int branch_id, Goal g) {
 		this.GetBranch(branch_id).root = g;
 	}
 
-	DBNode GetRoot() {
+	@Public DBNode GetRoot() {
 		return this.GetBranch(this.masterBranchId).root;
 	}
 
-	Json toJson(int branch_id) {
+	@Public Json toJson(int branch_id) {
 		Json json = this.GetBranch(branch_id).toJson();
 		CommitLog clog = this.commits.get(""+branch_id);//FIXME wrapper
 		json.set("CommitLog",clog.toJson());
@@ -535,7 +535,7 @@ class Argument {
 		return json;
 	}
 
-	Json toJson() {
+	@Public Json toJson() {
 		return this.toJson(this.masterBranchId);
 	}
 }
