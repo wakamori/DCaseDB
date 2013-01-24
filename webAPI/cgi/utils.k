@@ -1,9 +1,9 @@
-import("Type.Json");
-import("Syntax.CStyleWhile");
-import("Syntax.Null");
-import("Java.Class");
-import("posix.process");
-import("Type.File");
+Import("Type.Json");
+Import("Syntax.CStyleWhile");
+Import("Syntax.Null");
+Import("Java.Class");
+Import("posix.process");
+Import("Type.File");
 
 boolean checkVersion(int version) {
 	boolean ret = false;
