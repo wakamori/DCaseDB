@@ -477,6 +477,7 @@ class Branch {
 class Argument {
 	int argument_id;
 	String name;
+	String description;
 	int masterBranchId;
 	Map[Branch] branches;
 	Map[CommitLog] commits;
@@ -484,8 +485,8 @@ class Argument {
 	Argument(int masterId, Branch branch) {
 		this.branches = new Map[Branch];
 		this.masterBranchId =masterId;
-		this.branches.set(""+masterId, branch);
-		this.commits.set(""+masterId, new CommitLog());
+		this.branches.set(masterId.toString(), branch);
+		this.commits.set(masterId.toString(), new CommitLog());
 	}
 
 	Commit Commit(String method, Json argument) {
@@ -493,7 +494,7 @@ class Argument {
 	}
 
 	@Public Branch GetBranch(int BranchId) {
-		return this.branches.get(""+BranchId);
+		return this.branches.get(BranchId.toString());
 	}
 
 	@Public Branch Fork(String originId, String newId, Context ctx) {
@@ -548,7 +549,7 @@ class DBDriver {
 
 	Argument CreateArgument() {}
 
-	Argument CreateArgument(String name) {}
+	Argument CreateArgument(String description) {}
 
 	void SetRoot(int argument_id, int topGoalId) {}
 
@@ -571,7 +572,7 @@ class DBDriver {
 
 	void UpdateDBNodeName(DBNode node, String name) {}
 
-	int[] GetArgumentIdList() {}
+	Json GetArgumentIdList() {}
 
 	int GetArgumentIdByName(String name) {}
 
@@ -698,8 +699,9 @@ class DriverMySQL extends DBDriver {
 		//TODO
 	}
 
+	//FIXME
 	int GetArgumentIdByName(String name) {
-		ResultSet r = this.con.query("SELECT id FROM Argument WHERE name='"+ name +"'");
+		ResultSet r = this.con.query("SELECT id FROM Argument WHERE description LIKE '%"+ name +"%'");
 		r.next();
 		return r.getInt("id");
 	}
@@ -742,11 +744,12 @@ class DriverMySQL extends DBDriver {
 		return argument;
 	}
 
-	Argument CreateArgument(String name) {
+	Argument CreateArgument(String description) {
 		Branch branch = this.CreateBranch();
-		this.con.query("INSERT INTO Argument(name,master_branch_id) VALUES('"+name+"',"+branch.branch_id+")");
+		this.con.query("INSERT INTO Argument(description,master_branch_id) VALUES('"+description+"',"+branch.branch_id+")");
 		Argument argument = new Argument(branch.branch_id, branch);
 		argument.argument_id = this.con.getInsertId();
+		argument.description = description;
 		this.UpdateBranch(branch,argument.argument_id);
 		return argument;
 	}
@@ -815,11 +818,14 @@ class DriverMySQL extends DBDriver {
 		this.con.query("INSERT INTO NodeLink(argument_id,parent_Node_id,child_Node_id,branch_id) VALUES("+argument_id+","+parentId+","+childId+","+branch_id+")");
 	}
 
-	int[] GetArgumentIdList() {
-		ResultSet r = this.con.query("SELECT id FROM Argument");
-		int[] retVal = [];
+	Json GetArgumentIdList() {
+		ResultSet r = this.con.query("SELECT id,description FROM Argument");
+		Json retVal = Json.parse("[]");
 		while(r.next()){
-			retVal.add(r.getInt("id"));
+			Json json = new Json();
+			json.setString("argument_id",r.getInt("id").toString());
+			json.setString("description",r.getString("description"));
+			retVal.add(json);
 		}
 		return retVal;
 	}
@@ -857,12 +863,17 @@ class API {
 		content.setString("description",description);
 		content.setString("type","Goal");
 
-		Argument argument = this.db.CreateArgument();
+		Argument argument = this.db.CreateArgument(description);
 		this.arguments.set(""+argument.argument_id, argument);
 
 		Goal g = this.CreateDBNode(argument.argument_id,content) as Goal;
 		argument.SetRoot(g);
 		this.db.SetRoot(argument.argument_id,g.node_id);
+
+		Json context_json = new Json();
+		context_json.setString("type","Context");
+		Context c = this.CreateDBNode(argument.argument_id,context_json) as Context;
+		this.InsertLink(argument.argument_id, g, c);
 		return argument;
 	}
 
@@ -877,7 +888,7 @@ class API {
 		}
 	}
 
-	@Public int[] GetArgumentIds() {
+	@Public Json GetArgumentIds() {
 		return this.db.GetArgumentIdList();
 	}
 
