@@ -33,7 +33,7 @@ Context makeContext(API repo, int argumentId, String description) {
 void main() {
 	API repo = new API("dcasedb","dcasedb");
 
-	Argument argument = repo.CreateArgument("Basic Syntax");
+	DCaseArgument argument = repo.CreateArgument("Basic Syntax");
 	int id = argument.argument_id;
 
 	DBNode root = repo.GetArgument(id).GetRoot();

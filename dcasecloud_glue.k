@@ -474,7 +474,7 @@ class Branch {
 	}
 }
 
-class Argument {
+class DCaseArgument {
 	int argument_id;
 	String name;
 	String description;
@@ -482,7 +482,7 @@ class Argument {
 	Map[Branch] branches;
 	Map[CommitLog] commits;
 
-	@Public Argument(int masterId, Branch branch) {
+	@Public DCaseArgument(int masterId, Branch branch) {
 		this.branches = new Map[Branch];
 		this.masterBranchId =masterId;
 		this.branches.set(masterId.toString(), branch);
@@ -545,11 +545,11 @@ class DBDriver {
 
 	Json GetContext(int id) {}
 
-	Argument GetArgument(int argument_id) {}
+	DCaseArgument GetArgument(int argument_id) {}
 
-	Argument CreateArgument() {}
+	DCaseArgument CreateArgument() {}
 
-	Argument CreateArgument(String description) {}
+	DCaseArgument CreateArgument(String description) {}
 
 	void SetRoot(int argument_id, int topGoalId) {}
 
@@ -700,7 +700,7 @@ class DriverMySQL extends DBDriver {
 		return this.GetLinks(nodes);
 	}
 
-	Argument GetArgument(int argument_id,int branch_id) {
+	DCaseArgument GetArgument(int argument_id,int branch_id) {
 		//TODO
 	}
 
@@ -711,7 +711,7 @@ class DriverMySQL extends DBDriver {
 		return r.getInt("id");
 	}
 
-	Argument GetArgument(int argument_id) {
+	DCaseArgument GetArgument(int argument_id) {
 		ResultSet r = this.con.query("SELECT goal_id,master_branch_id FROM Argument WHERE id="+ argument_id +"");
 		r.next();
 		int goalId = r.getInt("goal_id");
@@ -720,7 +720,7 @@ class DriverMySQL extends DBDriver {
 		DBNode[] nodes = this.GetDBNodeList(argument_id,branch_id);
 		DBNode   root  = this.PrivateGetNode(nodes,goalId);
 		Branch branch = new Branch(nodes,root);
-		Argument argument = new Argument(branch_id,branch);
+		DCaseArgument argument = new DCaseArgument(branch_id,branch);
 		return argument;
 	}
 
@@ -740,19 +740,19 @@ class DriverMySQL extends DBDriver {
 		this.con.query("UPDATE Argument SET goal_id="+topGoalId+" WHERE id="+argument_id);
 	}
 
-	Argument CreateArgument() {
+	DCaseArgument CreateArgument() {
 		Branch branch = this.CreateBranch();
 		this.con.query("INSERT INTO Argument(master_branch_id) VALUES("+branch.branch_id+")");
-		Argument argument = new Argument(branch.branch_id, branch);
+		DCaseArgument argument = new Argument(branch.branch_id, branch);
 		argument.argument_id = this.con.getInsertId();
 		this.UpdateBranch(branch,argument.argument_id);
 		return argument;
 	}
 
-	Argument CreateArgument(String description) {
+	DCaseArgument CreateArgument(String description) {
 		Branch branch = this.CreateBranch();
 		this.con.query("INSERT INTO Argument(description,master_branch_id) VALUES('"+description+"',"+branch.branch_id+")");
-		Argument argument = new Argument(branch.branch_id, branch);
+		DCaseArgument argument = new DCaseArgument(branch.branch_id, branch);
 		argument.argument_id = this.con.getInsertId();
 		argument.description = description;
 		this.UpdateBranch(branch,argument.argument_id);
@@ -847,7 +847,7 @@ class DriverMySQL extends DBDriver {
 }
 
 class API {
-	Map[Argument] arguments;
+	Map[DCaseArgument] arguments;
 	DBDriver db;
 
 	@Public API() {
@@ -855,7 +855,7 @@ class API {
 	}
 
 	@Public API(String userName, String password) {
-		arguments = new Map[Argument];
+		arguments = new Map[DCaseArgument];
 		this.Connect(userName, password);
 	}
 
@@ -863,12 +863,12 @@ class API {
 		this.db = new DriverMySQL(userName, password);
 	}
 
-	@Public Argument CreateArgument(String description) {
+	@Public DCaseArgument CreateArgument(String description) {
 		Json content = new Json();
 		content.setString("description",description);
 		content.setString("type","Goal");
 
-		Argument argument = this.db.CreateArgument(description);
+		DCaseArgument argument = this.db.CreateArgument(description);
 		this.arguments.set(""+argument.argument_id, argument);
 
 		Goal g = this.CreateDBNode(argument.argument_id,content) as Goal;
@@ -882,12 +882,12 @@ class API {
 		return argument;
 	}
 
-	@Public Argument GetArgument(int argument_id) {
+	@Public DCaseArgument GetArgument(int argument_id) {
 		String argId = ""+argument_id;
 		if(this.arguments.has(argId)) {
 			return this.arguments.get(argId);
 		}else{
-			Argument argument = this.db.GetArgument(argument_id);
+			DCaseArgument argument = this.db.GetArgument(argument_id);
 			this.arguments.set(argId,argument);
 			return argument;
 		}

@@ -6,7 +6,7 @@ void main() {
 	API repo = new API("dcasedb","dcasedb");
 	Json Ids = repo.GetArgumentIds();
 	System.p(Ids);
-	Argument argument = repo.GetArgument(9);
+	DCaseArgument argument = repo.GetArgument(9);
 	System.p(argument.toJson());
 
 	Json json = new Json();
