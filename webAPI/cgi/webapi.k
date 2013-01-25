@@ -9,6 +9,7 @@ Import("JavaScript.String");
 Import("JavaScript.Array");
 Import("JavaScript.Regexp");
 Import("dscript.subproc");
+//Import("MiniKonoha.Syntax"); // for debug
 
 Load("utils.k");
 
@@ -297,7 +298,11 @@ boolean paramCheck_Run(Json j) {
 
 String run_Run(Json j) {
 	SubProc sp = new SubProc("/usr/local/bin/minikonoha");
-	sp.setArgumentList(["-DUSER=dcasedb", "-DPASSWORD=dcasedb", "home/tsunade/minikonoha/src/package-devel/Deos.DScript/sample/assure.k"]);
+	sp.setArgumentList(["-DUSER=dcasedb", "-DPASSWORD=dcasedb", "/home/tsunade/minikonoha/src/package-devel/Deos.DScript/sample/assure.k"]);
 	sp.bg();
-	return JsonRPC_fmt(j, "result", sp.communicate("")[0]);
+	Json j = new Json();
+	j.setString("result", sp.communicate("")[0]);
+	return JsonRPC_fmt(j, "result", j.toString());
 }
+
+//CompileAllDefinedMethod(); for debug
