@@ -6,13 +6,14 @@ Import("posix.process");
 Import("Type.File");
 
 boolean checkVersion(int version) {
-	boolean ret = false;
-	if (version == 1) {
-		ret = true;
-	}
-	else {
-	}
-	return ret;
+	//boolean ret = false;
+	//if (version == 1) {
+	//	ret = true;
+	//}
+	//else {
+	//}
+	//return ret;
+	return true;
 }
 
 boolean checkID(Json j) {
@@ -31,11 +32,11 @@ String getMsg() {
 		query = query + ln;
 	}
 	return query;
-	//return "{\"jsonrpc\": \"2.0\", \"version\": 1, \"method\": \"update\", \"param\": {\"argument_id\": \"10\", \"node_id\": \"46\", \"description\": \"mosh!\"}}";
-	//return "{\"jsonrpc\": \"2.0\", \"version\": 1, \"method\": \"create\", \"param\": {\"type\": \"Goal\", \"description\": \"hoge\"}}";
-	//return "{\"jsonrpc\": \"2.0\", \"version\": 1, \"method\": \"get\", \"param\": {\"filter\": [\"Argument\"] }}";
-	//return "{\"jsonrpc\": \"2.0\", \"version\": 1, \"method\": \"get\", \"param\": {\"argument_id\": \"0\" }}";
-	//return "{\"jsonrpc\": \"2.0\", \"version\": 1, \"method\": \"insert\", \"param\": {\"type\": \"Goal\", \"description\": \"hello, matz!!\", \"parent\": {\"argument_id\": \"0\", \"node_id\": \"7\"} }}";
+	//return "{\"jsonrpc\": \"2.0\", \"version\": 1, \"method\": \"update\", \"params\": {\"argument_id\": \"10\", \"node_id\": \"46\", \"description\": \"mosh!\"}}";
+	//return "{\"jsonrpc\": \"2.0\", \"version\": 1, \"method\": \"create\", \"params\": {\"type\": \"Goal\", \"description\": \"hoge\"}}";
+	//return "{\"jsonrpc\": \"2.0\", \"version\": 1, \"method\": \"get\", \"params\": {\"filter\": [\"Argument\"] }}";
+	//return "{\"jsonrpc\": \"2.0\", \"version\": 1, \"method\": \"get\", \"params\": {\"argument_id\": \"0\" }}";
+	//return "{\"jsonrpc\": \"2.0\", \"version\": 1, \"method\": \"insert\", \"params\": {\"type\": \"Goal\", \"description\": \"hello, matz!!\", \"parent\": {\"argument_id\": \"0\", \"node_id\": \"7\"} }}";
 }
 
 void flush(String str) {

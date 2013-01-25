@@ -14,10 +14,10 @@ void main() {
 	}
 	Func[boolean, Json] checkParam = api.paramCheck[j.getString("method")];
 	Func[String, Json] run = api.run[j.getString("method")];
-	if (!checkParam(j.get("param"))) {
+	if (!checkParam(j.get("params"))) {
 		// error handling
 	}
-	String result = run(j.get("param"));
+	String result = run(j.get("params"));
 	flush(result);
 }
 
