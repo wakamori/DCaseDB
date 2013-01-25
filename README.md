@@ -1,7 +1,8 @@
 ﻿# DCase DB
+---
 ##開発環境
 * Ubuntu 12.04(amd64)
-* minikonoha(stableブランチ) masterへ移行予定
+* minikonoha 0.3
 
 ##必要なライブラリ
 * OpenSSL
@@ -114,9 +115,9 @@
 
 ##Web API
 作成予定(JSON-RPCにする予定)
+wiki参照
 
 ## Usage
 test/ ディレクトリ参照<br>
-CGIサンプルとしてtree.k参照<br>
 misc/dcasedb.sql ... DCaseDBのテーブル作成用クエリ<br>
 misc/rm.sql      ... DBのデータ削除用クエリ
