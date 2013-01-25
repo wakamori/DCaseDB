@@ -31,6 +31,7 @@ String getMsg() {
 		query = query + ln;
 	}
 	return query;
+	//return "{\"jsonrpc\": \"2.0\", \"version\": 1, \"method\": \"update\", \"param\": {\"argument_id\": \"10\", \"node_id\": \"46\", \"description\": \"mosh!\"}}";
 	//return "{\"jsonrpc\": \"2.0\", \"version\": 1, \"method\": \"create\", \"param\": {\"type\": \"Goal\", \"description\": \"hoge\"}}";
 	//return "{\"jsonrpc\": \"2.0\", \"version\": 1, \"method\": \"get\", \"param\": {\"filter\": [\"Argument\"] }}";
 	//return "{\"jsonrpc\": \"2.0\", \"version\": 1, \"method\": \"get\", \"param\": {\"argument_id\": \"0\" }}";
@@ -41,6 +42,15 @@ void flush(String str) {
 	String result = "Content-Type: application/json; charset=utf-8\n\n";
 	result = result + str;
 	stdout.write(result);
+}
+
+String JsonRPC_fmt(Json j, String key, String value) {
+	if (j.hasKey("id")) {
+		return JsonRPC_formattingWithID(key, value, j.getInt("id"));
+	}
+	else {
+		return JsonRPC_formatting(key, value);
+	}
 }
 
 String JsonRPC_formatting(String key, String value) {
@@ -105,6 +115,12 @@ void throw_internalError(Json j) {
 	else {
 		result = result + JsonRPC_formatting("{\"code\": -32603, \"message\": \"Internal Error\", \"data\": \"Json-RPC's internal error.\"}");
 	}
+	stdout.write(result);
+}
+
+void throw_VersionMissMatch(Json j) {
+	String result = "Content-Type: application/json; charset=utf-8\n\n";
+	result = result + JsonRPC_fmt(j, "error", "{\"code\": -32604, \"message\": \"Version miss match\", \"data\": \"Json-RPC requires version 2.0.\"}");
 	stdout.write(result);
 }
 

@@ -6,7 +6,8 @@ void main() {
 	Json j = Json.parse(getMsg());
 	WebAPI api = new WebAPI();
 	if (!checkVersion(j.getInt("version"))) {
-		// error handling
+		throw_VersionMissMatch(j);
+		return;
 	}
 	if (!checkID(j)) {
 		// add id

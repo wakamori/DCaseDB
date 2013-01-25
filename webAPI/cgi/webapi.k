@@ -57,16 +57,19 @@ class WebAPI {
 /* Create */
 
 boolean paramCheck_Create(Json j) {
-	return true;
+	boolean ret = true;
+	if (!/Context/.test(j.getString("type"))) {
+		if (j.hasKey("properties")) {
+			ret = false;
+		}
+	}
+	return ret;
 }
 
 String run_Create(Json j) {
-	if (j.hasKey("id")) {
-		return JsonRPC_formattingWithID("result", "{ \"id\": \"G1\" }", j.getInt("id"));
-	}
-	else {
-		return JsonRPC_formatting("result", "{ \"id\": \"G1\" }");
-	}
+	// ERROR no argument_id
+	DBNode node = global.repo.CreateDBNode(argument_id, j);
+	return JsonRPC_fmt(j, "result", "{ \"id\": \"" + node.node_id.toString() + "\"}");
 }
 
 /* ----------------------------------------------------------------------- */
@@ -107,12 +110,7 @@ String run_Insert(Json j) {
 	Json ret = new Json();
 	ret.setString("argument_id", argument_id.toString());
 	ret.setString("node_id", node.node_id.toString());
-	if (j.hasKey("id")) {
-		return JsonRPC_formattingWithID("result", ret.toString(), j.getString("id").toint());
-	}
-	else {
-		return JsonRPC_formatting("result", ret.toString());
-	}
+	return JsonRPC_fmt(j, "result", ret.toString());
 }
 
 /* ----------------------------------------------------------------------- */
@@ -126,13 +124,8 @@ String run_Update(Json j) {
 	int argument_id = j.getString("argument_id").toint();
 	int node_id = j.getString("node_id").toint();
 	DBNode node = global.repo.GetArgument(argument_id).GetDBNode(node_id);
-	global.repo.UpdateDBNode(argument_id, node, j);
-	if (j.hasKey("id")) {
-		return JsonRPC_formattingWithID("result", "\"success\"", j.getInt("id"));
-	}
-	else {
-		return JsonRPC_formatting("result", "\"success\"");
-	}
+	System.p(global.repo.UpdateDBNode(argument_id, node, j));
+	return JsonRPC_fmt(j, "result", "\"success\"");
 }
 
 /* ----------------------------------------------------------------------- */
@@ -143,11 +136,15 @@ boolean paramCheck_Delete(Json j) {
 }
 
 String run_Delete(Json j) {
-	if (j.hasKey("id")) {
-		return JsonRPC_formattingWithID("result", "\"success\"", j.getInt("id"));
+	int argument_id = j.getString("argument_id").toint();
+	int node_id = j.getString("node_id").toint();
+	//boolean result = repo.DeleteDBNode(argument_id, node_id);
+	boolean result = true; // stab
+	if (result) {
+		return JsonRPC_fmt(j, "result", "\"success\"");
 	}
 	else {
-		return JsonRPC_formatting("result", "\"success\"");
+		return JsonRPC_fmt(j, "error", "{\"code\": -32004, \"Cannot delete node\", \"[webapi:Delete] cannot delete node\"}");
 	}
 }
 
@@ -165,7 +162,6 @@ String run_Get(Json j) {
 		ret = global.repo.getArgument(j.getString("argument_id").toint()).toJson().toString();
 	}
 	else {
-		System.p("hello");
 		if (f.getSize() == 0) {
 			throw_invalidParams(j);
 		}

@@ -591,8 +591,6 @@ class DBDriver {
 
 	void UpdateDBNode(DBNode node, boolean isEvidence) {}
 
-	void UpdateDBNodeName(DBNode node, String name) {}
-
 	Json GetArgumentIdList() {}
 
 	int GetArgumentIdByName(String name) {}
@@ -839,12 +837,8 @@ class DriverMySQL extends DBDriver {
 		node.branch_id   = branch_id;
 	}
 
-	void UpdateDBNodeName(DBNode node, String name) {
-		this.con.query("UPDATE DBNode SET name="+name+" WHERE id="+node.node_id);
-	}
-
 	void UpdateDBNode(DBNode node, String description) {
-		this.con.query("UPDATE DBNode SET description="+description+" WHERE id="+node.node_id);
+		this.con.query("UPDATE DBNode SET description='"+description+"' WHERE id="+node.node_id);
 	}
 
 	void UpdateDBNode(DBNode node, String description, boolean isEvidence) {
@@ -852,7 +846,7 @@ class DriverMySQL extends DBDriver {
 		if(isEvidence){
 			evidence = "TRUE";
 		}
-		this.con.query("UPDATE DBNode SET description="+description+", evidence_flag="+evidence +" WHERE id="+node.node_id);
+		this.con.query("UPDATE DBNode SET description='"+description+"', evidence_flag="+evidence +" WHERE id="+node.node_id);
 	}
 
 	void UpdateDBNode(DBNode node, boolean isEvidence) {
@@ -976,19 +970,22 @@ class API {
 
 	//FIXME return boolean
 	//FIXME Json contents
-	@Public void UpdateDBNode(int argument_id, DBNode node, Json contents) {
-		int masterId = this.GetArgument(id).masterBranchId;
-		this.UpdateDBNode(argument_id, masterId, node, contents);
+	@Public boolean UpdateDBNode(int argument_id, DBNode node, Json contents) {
+		int masterId = this.GetArgument(argument_id).masterBranchId;
+		return this.UpdateDBNode(argument_id, masterId, node, contents);
 	}
 
-	@Public void UpdateDBNode(String argument_id, String branch_id, DBNode node, Json contents) {
+	@Public boolean UpdateDBNode(int argument_id, int branch_id, DBNode node, Json contents) {// @yoan
+	//@Public void UpdateDBNode(String argument_id, String branch_id, DBNode node, Json contents) {
 		node.Update(contents);
-		if(contents.haskey("description")) {
-			this.db.UpdateDBNode(node.node_id, contents.getString("description"));
+		if(contents.hasKey("description")) {
+			// @yoan what UpdateDBNode method is called?
+			this.db.UpdateDBNode(node, contents.getString("description"));
 		}
-		if(contents.haskey("isEvidence")) {
-			this.db.UpdateDBNode(node.node_id, contents.getBoolean("isEvidence"));
+		if(contents.hasKey("isEvidence")) {
+			this.db.UpdateDBNode(node, contents.getBoolean("isEvidence"));
 		}
+		return true;
 		//TODO Commit Log
 	}
 
