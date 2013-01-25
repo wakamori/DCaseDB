@@ -60,13 +60,14 @@ class WebAPI {
 /* Create */
 
 boolean paramCheck_Create(Json j) {
-	boolean ret = true;
-	if (!(/Context/.test(j.getString("type")))) {
-		if (j.hasKey("properties")) {
-			ret = false;
-		}
-	}
-	return ret;
+	//boolean ret = true;
+	//if (!(/Context/.test(j.getString("type")))) {
+	//	if (j.hasKey("properties")) {
+	//		ret = false;
+	//	}
+	//}
+	//return ret;
+	return true;
 }
 
 String run_Create(Json j) {
@@ -127,7 +128,7 @@ String run_Update(Json j) {
 	int argument_id = j.getString("argument_id").toint();
 	int node_id = j.getString("node_id").toint();
 	DBNode node = global.repo.GetArgument(argument_id).GetDBNode(node_id);
-	System.p(global.repo.UpdateDBNode(argument_id, node, j));
+	global.repo.UpdateDBNode(argument_id, node, j);
 	return JsonRPC_fmt(j, "result", "\"success\"");
 }
 
@@ -165,13 +166,13 @@ String run_Get(Json j) {
 		ret = global.repo.getArgument(j.getString("argument_id").toint()).toJson().toString();
 	}
 	else {
-		if (f.getSize() == 0) {
-			throw_invalidParams(j);
-		}
+		//if (f.getSize() == 0) {
+		//	throw_invalidParams(j);
+		//}
 		int i = 0;
 		while (i < f.getSize()){
 			if (/Argument/.test(f[i].toString())) {
-				ret = "[\"0\"]";
+				//ret = "[\"0\"]";
 				ret = global.repo.GetArgumentIds().toString();
 			}
 			i = i + 1;
@@ -180,12 +181,7 @@ String run_Get(Json j) {
 	if (ret == "") {
 		ret = "[{ \"argument_id\": \"A1\", \"node_id\": \"G1\", \"type\": \"Goal\", \"description\": \"hello, world\" },{ \"argument_id\": \"A1\", \"node_id\": \"C1\", \"type\": \"Context\", \"description\": \"hello, world\", \"properties\": [\"foo\": \"bar\", \"hoge\": \"piyo\"] }]"
 	}
-	if (j.hasKey("id")) {
-		return JsonRPC_formattingWithID("result", ret, j.getInt("id"));
-	}
-	else {
-		return JsonRPC_formatting("result", ret);
-	}
+	return JsonRPC_fmt(j, "result", ret);
 }
 
 /* ----------------------------------------------------------------------- */
