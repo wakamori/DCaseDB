@@ -8,6 +8,7 @@ Import("Syntax.CStyleWhile");
 Import("JavaScript.String");
 Import("JavaScript.Array");
 Import("JavaScript.Regexp");
+Import("dscript.subproc");
 
 Load("utils.k");
 
@@ -37,6 +38,7 @@ class WebAPI {
 		paramCheck.set("log", paramCheck_Log);
 		paramCheck.set("search", paramCheck_Search);
 		paramCheck.set("traverse", paramCheck_Traverse);
+		paramCheck.set("run", paramCheck_Run);
 	}
 
 	void setRunMethod() {
@@ -51,6 +53,7 @@ class WebAPI {
 		run.set("log", run_Log);
 		run.set("search", run_Search);
 		run.set("traverse", run_Traverse);
+		run.set("run", run_Run);
 	}
 }
 /* ----------------------------------------------------------------------- */
@@ -58,7 +61,7 @@ class WebAPI {
 
 boolean paramCheck_Create(Json j) {
 	boolean ret = true;
-	if (!/Context/.test(j.getString("type"))) {
+	if (!(/Context/.test(j.getString("type")))) {
 		if (j.hasKey("properties")) {
 			ret = false;
 		}
@@ -289,3 +292,16 @@ String run_Traverse(Json j) {
 	}
 }
 
+/* ----------------------------------------------------------------------- */
+/* Run */
+
+boolean paramCheck_Run(Json j) {
+	return true;
+}
+
+String run_Run(Json j) {
+	SubProc sp = new SubProc("/usr/local/bin/minikonoha");
+	sp.setArgumentList(["-DUSER=dcasedb", "-DPASSWORD=dcasedb", "home/tsunade/minikonoha/src/package-devel/Deos.DScript/sample/assure.k"]);
+	sp.bg();
+	return JsonRPC_fmt(j, "result", sp.communicate("")[0]);
+}
