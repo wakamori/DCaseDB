@@ -62,7 +62,7 @@ void GenerateTree1(API repo) {
 	Goal g4_3 = makeGoal(repo, id, "対応スクリプトが正常に動作する");
 	repo.InsertLink(id, s3, g4_3);
 
-	Evidence e5_1 = makeEvidence(repo, id, "D-Script: 再起動が正常に動作する");
+	Evidence e5_1 = makeEvidence(repo, id, "D-Script:再起動が正常に動作する");
 	repo.InsertLink(id, g4_3, e5_1);
 
 	System.p(repo.GetArgument(id).toJson());
@@ -96,7 +96,7 @@ void GenerateTree2(API repo) {
 	Goal g2_2 = makeGoal(repo, id, "事後にWebサーバが正常に動作している");
 	repo.InsertLink(id, s1, g2_2);
 
-	Evidence e3_1 = makeEvidence(repo, id, "D-Script: Webサーバが正常に動作している");
+	Evidence e3_1 = makeEvidence(repo, id, "D-Script:Webサーバが正常に動作している");
 	repo.InsertLink(id, g2_1, e3_1);
 	repo.InsertLink(id, g2_2, e3_1);
 

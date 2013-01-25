@@ -9,7 +9,7 @@ Import("JavaScript.String");
 Import("JavaScript.Array");
 Import("JavaScript.Regexp");
 Import("dscript.subproc");
-//Import("MiniKonoha.Syntax"); // for debug
+Import("MiniKonoha.Syntax"); // for debug
 
 Load("utils.k");
 
@@ -262,7 +262,7 @@ String run_Search(Json j) {
 	int i = 0;
 	Json ret = Json.parse("[]");
 	while (i < f.getSize()) {
-		if (/Context/.test(f[i])) {
+		if (/Context/.test(f[i].toString())) {
 			ret.add(global.repo.SearchContext(keyword));
 		}
 		else {
@@ -270,12 +270,7 @@ String run_Search(Json j) {
 		}
 		i = i + 1;
 	}
-	if (j.hasKey("id")) {
-		return JsonRPC_formattingWithID("result", ret.toJson(), j.getInt("id"));
-	}
-	else {
-		return JsonRPC_formatting("result", ret.toJson());
-	}
+	return JsonRPC_fmt(j, "result", ret.toString());
 }
 
 /* ----------------------------------------------------------------------- */
@@ -308,4 +303,4 @@ String run_Run(Json j) {
 	return JsonRPC_fmt(j, "result", "\"" + sp.communicate("")[0].replace("\n", "\\n").replace("\"", "\\\"") + "\"");
 }
 
-//CompileAllDefinedMethod(); for debug
+CompileAllDefinedMethod(); //for debug
