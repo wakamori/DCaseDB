@@ -28,7 +28,7 @@ class DBNode {
 		this.description = description;
 		this.isEvidence  = isEvidence;
 		this.children    = [];
-		this.lazy_children = Json.parse("[]");
+		this.lazy_children = new Json([]);
 		this.argument_id = -1;
 	}
 
@@ -37,7 +37,7 @@ class DBNode {
 		this.description = description;
 		this.isEvidence  = false;
 		this.children    = [];
-		this.lazy_children = Json.parse("[]");
+		this.lazy_children = new Json([]);
 		this.argument_id = -1;
 	}
 
@@ -46,7 +46,7 @@ class DBNode {
 		this.description = "";
 		this.isEvidence  = false;
 		this.children    = [];
-		this.lazy_children = Json.parse("[]");
+		this.lazy_children = new Json([]);
 		this.argument_id = -1;
 	}
 
@@ -56,7 +56,7 @@ class DBNode {
 		this.isEvidence  = false;
 		this.children    = [];
 		this.PrivateUpdate(content);
-		this.lazy_children = Json.parse("[]");
+		this.lazy_children = new Json([]);
 	}
 
 	void AddChild(DBNode child) {
@@ -183,7 +183,7 @@ class Goal extends DBNode {
 	//FIXME validation
 	@Public Json GetContext() {
 		Json json = this.parent.GetContext();
-		Json context_array = Json.parse("[]");
+		Json context_array = new Json([]);
 		//for(int i = 0; i < this.children.getSize();i = i + 1) {
 		int i = 0;
 		while(i < this.children.getSize()) {
@@ -236,7 +236,7 @@ class Strategy extends DBNode {
 	//FIXME validation
 	@Public Json GetContext() {
 		Json json = this.parent.GetContext();
-		Json context_array = Json.parse("[]");
+		Json context_array = new Json([]);
 		//for(int i = 0; i < this.children.getSize();i = i + 1) {
 		int i = 0;
 		while(i < this.children.getSize()) {
@@ -358,7 +358,7 @@ class CommitLog {
 	}
 
 	Json toJson() {
-		Json json = Json.parse("[]");
+		Json json = new Json([]);
 		for(int i = 0;i < this.commits.getSize(); i = i + 1) {
 			json.add(this.commits[i].toJson());
 		}
@@ -399,7 +399,7 @@ class Branch {
 	}
 
 	Json DBNodeListToJson() {
-		Json json = Json.parse("[]");
+		Json json = new Json([]);
 		int max = this.nodes.getSize();
 		//for(int i = 0; i < max; i = i + 1) {
 		int i = 0;
@@ -413,7 +413,7 @@ class Branch {
 	Json PrivateArgumentTreeToJson(DBNode node) {
 		Json json = new Json();
 		json.setString("node_id",node.node_id.toString());
-		Json children = Json.parse("[]");
+		Json children = new Json([]);
 		//for(int i = 0; i < node.children.getSize(); i = i + 1) {
 		int i = 0;
 		int id = node.argument_id;
@@ -436,7 +436,7 @@ class Branch {
 	Json ArgumentTreeToJson() {
 		Json json = new Json();
 		json.setString("node_id",this.root.node_id.toString());
-		Json children = Json.parse("[]");
+		Json children = new Json([]);
 		//for(int i = 0; i < this.root.children.getSize(); i = i + 1) {
 		int i = 0;
 		int id = this.root.argument_id;
@@ -566,6 +566,8 @@ class DBDriver {
 
 	Json GetContext(int id) {}
 
+	Json SearchContext(String text) {}
+
 	DCaseArgument GetArgument(int argument_id) {}
 
 	DCaseArgument CreateArgument() {}
@@ -619,10 +621,22 @@ class DriverMySQL extends DBDriver {
 	}
 
 	Json SearchContext(String text) {
+		Json json = new Json([]);
+		ResultSet r = this.con.query("SELECT DBNode.id as node_id,argument_id,branch_id,context_key,value FROM DBNode,Context WHERE DBNode.id=Context.node_id AND value LIKE '%"+text+"%'");
+		while(r.next()) {
+			Json j = new Json();
+			j.setString("node_id",r.getInt("node_id").toString());
+			j.setString("argument_id",r.getInt("argument_id").toString());
+			j.setString("branch_id",r.getInt("branch_id").toString());
+			j.setString("key",r.getString("context_key"));
+			j.setString("value",r.getString("value"));
+			json.add(j);
+		}
+		return json;
 	}
 
 	Json Search(String text, String nodeType) {
-		Json json = Json.parse("[]");
+		Json json = new Json([]);
 		//FIXME
 		ResultSet r = this.con.query("SELECT DBNode.id,argument_id,branch_id,type_name,description FROM DBNode,NodeType WHERE nodeType_id=NodeType.id AND type_name='"+nodeType+"' AND description LIKE '%"+text+"%'");
 		while(r.next()) {
@@ -638,7 +652,7 @@ class DriverMySQL extends DBDriver {
 	}
 
 	Json Search(String text) {
-		Json json = Json.parse("[]");
+		Json json = new Json([]);
 		ResultSet r = this.con.query("SELECT DBNode.id,argument_id,branch_id,type_name,description FROM DBNode,NodeType WHERE nodeType_id=NodeType.id AND description LIKE '%"+text+"%'");
 		while(r.next()) {
 			Json j = new Json();
@@ -869,7 +883,7 @@ class DriverMySQL extends DBDriver {
 
 	Json GetArgumentIdList() {
 		ResultSet r = this.con.query("SELECT id,description FROM Argument");
-		Json retVal = Json.parse("[]");
+		Json retVal = new Json([]);
 		while(r.next()){
 			Json json = new Json();
 			json.setString("argument_id",r.getInt("id").toString());
@@ -919,7 +933,7 @@ class API {
 		content.setString("type","Goal");
 
 		DCaseArgument argument = this.db.CreateArgument(description);
-		this.arguments.set(""+argument.argument_id, argument);
+		this.arguments.set(argument.argument_id.toString(), argument);
 
 		Goal g = this.CreateDBNode(argument.argument_id,content) as Goal;
 		argument.SetRoot(g);
@@ -929,6 +943,7 @@ class API {
 		context_json.setString("type","Context");
 		Context c = this.CreateDBNode(argument.argument_id,context_json) as Context;
 		this.InsertLink(argument.argument_id, g, c);
+		this.db.UpdateDBNode(c,argument.argument_id,argument.masterBranchId);
 		return argument;
 	}
 
@@ -1047,5 +1062,9 @@ class API {
 
 	@Public Json Search(String text,String nodeType) {
 		return this.db.Search(text,nodeType);
+	}
+
+	@Public Json SearchContext(String text) {
+		return this.db.SearchContext(text);
 	}
 }
