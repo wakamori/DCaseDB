@@ -944,6 +944,7 @@ class API {
 		Context c = this.CreateDBNode(argument.argument_id,context_json) as Context;
 		this.InsertLink(argument.argument_id, g, c);
 		this.db.UpdateDBNode(c,argument.argument_id,argument.masterBranchId);
+		argument.GetBranch(argument.masterBranchId).nodes.add(c);
 		return argument;
 	}
 
