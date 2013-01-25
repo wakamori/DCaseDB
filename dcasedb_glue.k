@@ -1,3 +1,4 @@
+//FIXME This File is obsolete.
 //import("konoha.ns");
 //import("konoha.json");
 //import("openssl");

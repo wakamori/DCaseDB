@@ -888,6 +888,12 @@ class DriverMySQL extends DBDriver {
 			i = i + 1;
 		}
 	}
+
+	boolean RemoveNode(DBNode node) {
+		this.con.query("DELETE FROM NodeLink WHERE parent_Node_id="+node.node_id+" OR child_Node_id="+node.node_id);
+		this.con.query("DELETE FROM DBNode WHERE id="+node.node_id);
+		return true; //TODO
+	}
 }
 
 class API {
@@ -999,14 +1005,16 @@ class API {
 		node.AddChild(newChild);
 	}
 
-	@Public void DeleteDBNode(String argument_id, String node_id) {
-		this.DeleteDBNode(argument_id, "master", node_id);
+	@Public boolean DeleteDBNode(int argument_id, int node_id) {
+		int masterId = this.GetArgument(argument_id).masterBranchId;
+		return this.DeleteDBNode(argument_id, masterId, node_id);
 	}
 
-	@Public void DeleteDBNode(String argument_id, String branch_id, String node_id) {
+	@Public boolean DeleteDBNode(int argument_id, int branch_id, int node_id) {
 		Branch branch = this.GetArgument(argument_id).GetBranch(branch_id);
 		DBNode node = branch.GetDBNode(ndoeId);
 		branch.RemoveNode(node);
+		return this.db.RemoveNode(node);
 	}
 
 	@Public void DeleteLink(String argument_id, String parentId, String childId) {
