@@ -262,7 +262,12 @@ String run_Search(Json j) {
 	int i = 0;
 	Json ret = Json.parse("[]");
 	while (i < f.getSize()) {
-		ret.add(global.repo.Search(keyword, f[i].toString()));
+		if (/Context/.test(f[i])) {
+			ret.add(global.repo.SearchContext(keyword));
+		}
+		else {
+			ret.add(global.repo.Search(keyword, f[i].toString()));
+		}
 		i = i + 1;
 	}
 	if (j.hasKey("id")) {
