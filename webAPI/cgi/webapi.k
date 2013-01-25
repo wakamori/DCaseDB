@@ -300,9 +300,7 @@ String run_Run(Json j) {
 	SubProc sp = new SubProc("/usr/local/bin/minikonoha");
 	sp.setArgumentList(["-DUSER=dcasedb", "-DPASSWORD=dcasedb", "/home/tsunade/minikonoha/src/package-devel/Deos.DScript/sample/assure.k"]);
 	sp.bg();
-	Json j = new Json();
-	j.setString("result", sp.communicate("")[0]);
-	return JsonRPC_fmt(j, "result", j.toString());
+	return JsonRPC_fmt(j, "result", "\"" + sp.communicate("")[0].replace("\n", "\\n").replace("\"", "\\\"") + "\"");
 }
 
 //CompileAllDefinedMethod(); for debug
