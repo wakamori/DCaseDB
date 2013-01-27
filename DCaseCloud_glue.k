@@ -915,7 +915,7 @@ class API {
 	DBDriver db;
 
 	@Public API() {
-		arguments = new Map[Argument];
+		arguments = new Map[DCaseArgument];
 	}
 
 	@Public API(String userName, String password) {

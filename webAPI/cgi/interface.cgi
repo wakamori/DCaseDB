@@ -1,4 +1,4 @@
-#! /usr/local/bin/minikonoha -MFuelVM
+#! /usr/local/bin/minikonoha
 
 Load("webapi.k");
 
@@ -12,12 +12,11 @@ void main() {
 	if (!checkID(j)) {
 		// add id
 	}
-	Func[boolean, Json] checkParam = api.paramCheck[j.getString("method")];
-	Func[String, Json] run = api.run[j.getString("method")];
-	if (!checkParam(j.get("params"))) {
+	API_Method method = api.api[j.getString("method")];
+	if (!method.paramCheck(j.get("params"))) {
 		// error handling
 	}
-	String result = run(j.get("params"));
+	String result = method.run(j.get("params"));
 	flush(result);
 }
 

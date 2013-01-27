@@ -15,292 +15,297 @@ Load("utils.k");
 
 API repo = new API("dcasedb", "dcasedb");
 
+class API_Method {
+	API_Method(){}
+	boolean paramCheck(Json j) {}
+	String run(Json j) {}
+}
+
 class WebAPI {
 
-	Map[Func[boolean, Json]] paramCheck;
-	Map[Func[String, Json]] run;
+	Map[API_Method] api;
 
 	WebAPI() {
-		paramCheck = new Map[Func[boolean, Json]];
-		run = new Map[Func[String, Json]];
-		setCheckParamMethod();
-		setRunMethod();
-	} 
-
-	void setCheckParamMethod() {
-		paramCheck.set("create", paramCheck_Create);
-		paramCheck.set("insert", paramCheck_Insert);
-		paramCheck.set("update", paramCheck_Update);
-		paramCheck.set("delete", paramCheck_Delete);
-		paramCheck.set("get", paramCheck_Get);
-		paramCheck.set("commit", paramCheck_Commit);
-		paramCheck.set("revert", paramCheck_Revert);
-		paramCheck.set("diff", paramCheck_Diff);
-		paramCheck.set("log", paramCheck_Log);
-		paramCheck.set("search", paramCheck_Search);
-		paramCheck.set("traverse", paramCheck_Traverse);
-		paramCheck.set("run", paramCheck_Run);
+		this.api = new Map[API_Method];
+		this.setCheckAPIMethod();
 	}
 
-	void setRunMethod() {
-		run.set("create", run_Create);
-		run.set("insert", run_Insert);
-		run.set("update", run_Update);
-		run.set("delete", run_Delete);
-		run.set("get", run_Get);
-		run.set("commit", run_Commit);
-		run.set("revert", run_Revert);
-		run.set("diff", run_Diff);
-		run.set("log", run_Log);
-		run.set("search", run_Search);
-		run.set("traverse", run_Traverse);
-		run.set("run", run_Run);
+	void setCheckAPIMethod() {
+		api.set("create",   new API_Create());
+		api.set("insert",   new API_Insert());
+		api.set("update",   new API_Update());
+		api.set("delete",   new API_Delete());
+		api.set("get",      new API_Get());
+		api.set("commit",   new API_Commit());
+		api.set("revert",   new API_Revert());
+		api.set("diff",     new API_Diff());
+		api.set("log",      new API_Log());
+		api.set("search",   new API_Search());
+		api.set("traverse", new API_Traverse());
+		api.set("run",      new API_Run());
 	}
 }
 /* ----------------------------------------------------------------------- */
 /* Create */
 
-boolean paramCheck_Create(Json j) {
-	//boolean ret = true;
-	//if (!(/Context/.test(j.getString("type")))) {
-	//	if (j.hasKey("properties")) {
-	//		ret = false;
-	//	}
-	//}
-	//return ret;
-	return true;
-}
+class API_Create extends API_Method {
+	boolean paramCheck(Json j) {
+		//boolean ret = true;
+		//if (!(/Context/.test(j.getString("type")))) {
+		//	if (j.hasKey("properties")) {
+		//		ret = false;
+		//	}
+		//}
+		//return ret;
+		return true;
+	}
 
-String run_Create(Json j) {
-	// ERROR no argument_id
-	DBNode node = global.repo.CreateDBNode(argument_id, j);
-	return JsonRPC_fmt(j, "result", "{ \"id\": \"" + node.node_id.toString() + "\"}");
+	String run(Json j) {
+		// ERROR no argument_id
+		DBNode node = global.repo.CreateDBNode(argument_id, j);
+		return JsonRPC_fmt(j, "result", "{ \"id\": \"" + node.node_id.toString() + "\"}");
+	}
 }
 
 /* ----------------------------------------------------------------------- */
 /* Insert */
 
-boolean paramCheck_Insert(Json j) {
-	return true;
+class API_Insert extends API_Method {
+	boolean paramCheck(Json j) {
+		return true;
+	}
+
+	String run(Json j) {
+		Json jnode = new Json();
+		DBNode node;
+		DBNode dist_node;
+		int argument_id = j.getString("argument_id").toint();
+		if (j.hasKey("new")) {
+			jnode = j.get("new");
+			node = global.repo.CreateDBNode(argument_id, jnode);
+		}
+		else {
+			int node_id = j.getString("node_id").toint();
+			node = global.repo.GetArgument(argument_id).GetDBNode(node_id);
+		}
+
+		if (j.hasKey("parent")) {
+			Json p = j.get("parent");
+			int dist_args_id = p.getString("argument_id").toint();
+			int dist_node_id = p.getString("node_id").toint();
+			dist_node = global.repo.GetArgument(dist_args_id).GetDBNode(dist_node_id);
+			global.repo.InsertLink(argument_id, dist_node, node);
+		}
+		else if (j.hasKey("child")) {
+			Json p = j.get("child");
+			int dist_args_id = p.getString("argument_id").toint();
+			int dist_node_id = p.getString("node_id").toint();
+			dist_node = global.repo.GetArgument(dist_args_id).GetDBNode(dist_node_id);
+			global.repo.InsertLink(argument_id, node, dist_node);
+		}
+		Json ret = new Json();
+		ret.setString("argument_id", argument_id.toString());
+		ret.setString("node_id", node.node_id.toString());
+		return JsonRPC_fmt(j, "result", ret.toString());
+	}
 }
-
-String run_Insert(Json j) {
-	Json jnode = new Json();
-	DBNode node;
-	DBNode dist_node;
-	int argument_id = j.getString("argument_id").toint();
-	if (j.hasKey("new")) {
-		jnode = j.get("new");
-		node = global.repo.CreateDBNode(argument_id, jnode);
-	}
-	else {
-		int node_id = j.getString("node_id").toint();
-		node = global.repo.GetArgument(argument_id).GetDBNode(node_id);
-	}
-
-	if (j.hasKey("parent")) {
-		Json p = j.get("parent");
-		int dist_args_id = p.getString("argument_id").toint();
-		int dist_node_id = p.getString("node_id").toint();
-		dist_node = global.repo.GetArgument(dist_args_id).GetDBNode(dist_node_id);
-		global.repo.InsertLink(argument_id, dist_node, node);
-	}
-	else if (j.hasKey("child")) {
-		Json p = j.get("child");
-		int dist_args_id = p.getString("argument_id").toint();
-		int dist_node_id = p.getString("node_id").toint();
-		dist_node = global.repo.GetArgument(dist_args_id).GetDBNode(dist_node_id);
-		global.repo.InsertLink(argument_id, node, dist_node);
-	}
-	Json ret = new Json();
-	ret.setString("argument_id", argument_id.toString());
-	ret.setString("node_id", node.node_id.toString());
-	return JsonRPC_fmt(j, "result", ret.toString());
-}
-
 /* ----------------------------------------------------------------------- */
 /* Update */
 
-boolean paramCheck_Update(Json j) {
-	return true;
-}
+class API_Update extends API_Method {
+	boolean paramCheck(Json j) {
+		return true;
+	}
 
-String run_Update(Json j) {
-	int argument_id = j.getString("argument_id").toint();
-	int node_id = j.getString("node_id").toint();
-	DBNode node = global.repo.GetArgument(argument_id).GetDBNode(node_id);
-	global.repo.UpdateDBNode(argument_id, node, j);
-	return JsonRPC_fmt(j, "result", "\"success\"");
+	String run(Json j) {
+		int argument_id = j.getString("argument_id").toint();
+		int node_id = j.getString("node_id").toint();
+		DBNode node = global.repo.GetArgument(argument_id).GetDBNode(node_id);
+		global.repo.UpdateDBNode(argument_id, node, j);
+		return JsonRPC_fmt(j, "result", "\"success\"");
+	}
 }
 
 /* ----------------------------------------------------------------------- */
 /* Delete */
 
-boolean paramCheck_Delete(Json j) {
-	return true;
-}
-
-String run_Delete(Json j) {
-	int argument_id = j.getString("argument_id").toint();
-	int node_id = j.getString("node_id").toint();
-	//boolean result = repo.DeleteDBNode(argument_id, node_id);
-	boolean result = true; // stab
-	if (result) {
-		return JsonRPC_fmt(j, "result", "\"success\"");
+class API_Delete extends API_Method {
+	boolean paramCheck(Json j) {
+		return true;
 	}
-	else {
-		return JsonRPC_fmt(j, "error", "{\"code\": -32004, \"Cannot delete node\", \"[webapi:Delete] cannot delete node\"}");
+
+	String run(Json j) {
+		int argument_id = j.getString("argument_id").toint();
+		int node_id = j.getString("node_id").toint();
+		//boolean result = repo.DeleteDBNode(argument_id, node_id);
+		boolean result = true; // stab
+		if (result) {
+			return JsonRPC_fmt(j, "result", "\"success\"");
+		}
+		else {
+			return JsonRPC_fmt(j, "error", "{\"code\": -32004, \"Cannot delete node\", \"[webapi:Delete] cannot delete node\"}");
+		}
 	}
 }
-
 /* ----------------------------------------------------------------------- */
 /* Get */
 
-boolean paramCheck_Get(Json j) {
-	return true;
-}
-
-String run_Get(Json j) {
-	Json f = j.get("filter");
-	String ret;
-	if (j.hasKey("argument_id")) {
-		ret = global.repo.getArgument(j.getString("argument_id").toint()).toJson().toString();
+class API_Get extends API_Method {
+	boolean paramCheck(Json j) {
+		return true;
 	}
-	else {
-		//if (f.getSize() == 0) {
-		//	throw_invalidParams(j);
-		//}
-		int i = 0;
-		while (i < f.getSize()){
-			if (/Argument/.test(f[i].toString())) {
-				//ret = "[\"0\"]";
-				ret = global.repo.GetArgumentIds().toString();
-			}
-			i = i + 1;
+
+	String run(Json j) {
+		Json f = j.get("filter");
+		String ret;
+		if (j.hasKey("argument_id")) {
+			System.p(f.getSize())
+				ret = global.repo.getArgument(j.getString("argument_id").toint()).toJson().toString();
 		}
+		else {
+			//if (f.getSize() == 0) {
+			//	throw_invalidParams(j);
+			//}
+			int i = 0;
+			while (i < f.getSize()){
+				if (/Argument/.test(f[i].toString())) {
+					//ret = "[\"0\"]";
+					ret = global.repo.GetArgumentIds().toString();
+				}
+				i = i + 1;
+			}
+		}
+		if (ret == "") {
+			ret = "[{ \"argument_id\": \"A1\", \"node_id\": \"G1\", \"type\": \"Goal\", \"description\": \"hello, world\" },{ \"argument_id\": \"A1\", \"node_id\": \"C1\", \"type\": \"Context\", \"description\": \"hello, world\", \"properties\": [\"foo\": \"bar\", \"hoge\": \"piyo\"] }]"
+		}
+		return JsonRPC_fmt(j, "result", ret);
 	}
-	if (ret == "") {
-		ret = "[{ \"argument_id\": \"A1\", \"node_id\": \"G1\", \"type\": \"Goal\", \"description\": \"hello, world\" },{ \"argument_id\": \"A1\", \"node_id\": \"C1\", \"type\": \"Context\", \"description\": \"hello, world\", \"properties\": [\"foo\": \"bar\", \"hoge\": \"piyo\"] }]"
-	}
-	return JsonRPC_fmt(j, "result", ret);
 }
-
 /* ----------------------------------------------------------------------- */
 /* Commit */
 
-boolean paramCheck_Commit(Json j) {
-	return true;
-}
-
-String run_Commit(Json j) {
-	if (j.hasKey("id")) {
-		return JsonRPC_formattingWithID("result", "\"success\"", j.getInt("id"));
+class API_Commit extends API_Method {
+	boolean paramCheck(Json j) {
+		return true;
 	}
-	else {
-		return JsonRPC_formatting("result", "\"success\"");
+
+	String run(Json j) {
+		if (j.hasKey("id")) {
+			return JsonRPC_formattingWithID("result", "\"success\"", j.getInt("id"));
+		}
+		else {
+			return JsonRPC_formatting("result", "\"success\"");
+		}
 	}
 }
-
 /* ----------------------------------------------------------------------- */
 /* Revert */
 
-boolean paramCheck_Revert(Json j) {
-	return true;
-}
-
-String run_Revert(Json j) {
-	if (j.hasKey("id")) {
-		return JsonRPC_formattingWithID("result", "\"success\"", j.getInt("id"));
+class API_Revert extends API_Method {
+	boolean paramCheck(Json j) {
+		return true;
 	}
-	else {
-		return JsonRPC_formatting("result", "\"success\"");
+
+	String run(Json j) {
+		if (j.hasKey("id")) {
+			return JsonRPC_formattingWithID("result", "\"success\"", j.getInt("id"));
+		}
+		else {
+			return JsonRPC_formatting("result", "\"success\"");
+		}
 	}
 }
-
 /* ----------------------------------------------------------------------- */
 /* Diff */
 
-boolean paramCheck_Diff(Json j) {
-	return true;
-}
-
-String run_Diff(Json j) {
-	if (j.hasKey("id")) {
-		return JsonRPC_formattingWithID("result", "{ \"TODO\": \"nikuuchi\" }", j.getInt("id"));
+class API_Diff extends API_Method {
+	boolean paramCheck(Json j) {
+		return true;
 	}
-	else {
-		return JsonRPC_formatting("result", "{ \"TODO\": \"nikuuchi\" }");
+
+	String run(Json j) {
+		if (j.hasKey("id")) {
+			return JsonRPC_formattingWithID("result", "{ \"TODO\": \"nikuuchi\" }", j.getInt("id"));
+		}
+		else {
+			return JsonRPC_formatting("result", "{ \"TODO\": \"nikuuchi\" }");
+		}
 	}
 }
 
 /* ----------------------------------------------------------------------- */
 /* Log */
 
-boolean paramCheck_Log(Json j) {
-	return true;
-}
-
-String run_Log(Json j) {
-	if (j.hasKey("id")) {
-		return JsonRPC_formattingWithID("result", "[{ \"log\": \"xxxxxx\", \"comment\": \"2nd commit\" },{ \"log\": \"yyyyyy\", \"comment\": \"1st commit\" }]", j.getInt("id"));
+class API_Log extends API_Method {
+	boolean paramCheck(Json j) {
+		return true;
 	}
-	else {
-		return JsonRPC_formatting("result", "[{ \"log\": \"xxxxxx\", \"comment\": \"2nd commit\" },{ \"log\": \"yyyyyy\", \"comment\": \"1st commit\" }]");
+
+	String run(Json j) {
+		if (j.hasKey("id")) {
+			return JsonRPC_formattingWithID("result", "[{ \"log\": \"xxxxxx\", \"comment\": \"2nd commit\" },{ \"log\": \"yyyyyy\", \"comment\": \"1st commit\" }]", j.getInt("id"));
+		}
+		else {
+			return JsonRPC_formatting("result", "[{ \"log\": \"xxxxxx\", \"comment\": \"2nd commit\" },{ \"log\": \"yyyyyy\", \"comment\": \"1st commit\" }]");
+		}
 	}
 }
-
 /* ----------------------------------------------------------------------- */
 /* Search */
 
-boolean paramCheck_Search(Json j) {
-	return true;
-}
-
-String run_Search(Json j) {
-	String keyword = j.getString("keyword");
-	Json f = j.get("filter");
-	int i = 0;
-	Json ret = Json.parse("[]");
-	while (i < f.getSize()) {
-		if (/Context/.test(f[i].toString())) {
-			ret.add(global.repo.SearchContext(keyword));
-		}
-		else {
-			ret.add(global.repo.Search(keyword, f[i].toString()));
-		}
-		i = i + 1;
+class API_Search extends API_Method {
+	boolean paramCheck(Json j) {
+		return true;
 	}
-	return JsonRPC_fmt(j, "result", ret.toString());
+
+	String run(Json j) {
+		String keyword = j.getString("keyword");
+		Json f = j.get("filter");
+		int i = 0;
+		Json ret = Json.parse("[]");
+		while (i < f.getSize()) {
+			if (/Context/.test(f[i].toString())) {
+				ret.add(global.repo.SearchContext(keyword));
+			}
+			else {
+				ret.add(global.repo.Search(keyword, f[i].toString()));
+			}
+			i = i + 1;
+		}
+		return JsonRPC_fmt(j, "result", ret.toString());
+	}
 }
 
 /* ----------------------------------------------------------------------- */
 /* Traverse */
 
-boolean paramCheck_Traverse(Json j) {
-	return true;
-}
-
-String run_Traverse(Json j) {
-	if (j.hasKey("id")) {
-		return JsonRPC_formattingWithID("result", "[{ \"argument_id\": \"A1\", \"node_id\": \"G1\", \"type\": \"Goal\", \"description\": \"hello, world\" },{ \"argument_id\": \"A1\", \"node_id\": \"C1\", \"type\": \"Context\", \"description\": \"hello, world\", \"properties\": [\"foo\": \"bar\", \"hoge\": \"piyo\"] }]", j.getInt("id"));
+class API_Traverse extends API_Method {
+	boolean paramCheck(Json j) {
+		return true;
 	}
-	else {
-		return JsonRPC_formatting("result", "[{ \"argument_id\": \"A1\", \"node_id\": \"G1\", \"type\": \"Goal\", \"description\": \"hello, world\" },{ \"argument_id\": \"A1\", \"node_id\": \"C1\", \"type\": \"Context\", \"description\": \"hello, world\", \"properties\": [\"foo\": \"bar\", \"hoge\": \"piyo\"] }]");
+
+	String run(Json j) {
+		if (j.hasKey("id")) {
+			return JsonRPC_formattingWithID("result", "[{ \"argument_id\": \"A1\", \"node_id\": \"G1\", \"type\": \"Goal\", \"description\": \"hello, world\" },{ \"argument_id\": \"A1\", \"node_id\": \"C1\", \"type\": \"Context\", \"description\": \"hello, world\", \"properties\": [\"foo\": \"bar\", \"hoge\": \"piyo\"] }]", j.getInt("id"));
+		}
+		else {
+			return JsonRPC_formatting("result", "[{ \"argument_id\": \"A1\", \"node_id\": \"G1\", \"type\": \"Goal\", \"description\": \"hello, world\" },{ \"argument_id\": \"A1\", \"node_id\": \"C1\", \"type\": \"Context\", \"description\": \"hello, world\", \"properties\": [\"foo\": \"bar\", \"hoge\": \"piyo\"] }]");
+		}
 	}
 }
-
 /* ----------------------------------------------------------------------- */
 /* Run */
 
-boolean paramCheck_Run(Json j) {
-	return true;
-}
+class API_Run extends API_Method {
+	boolean paramCheck(Json j) {
+		return true;
+	}
 
-String run_Run(Json j) {
-	SubProc sp = new SubProc("/usr/local/bin/minikonoha");
-	sp.setArgumentList(["-DUSER=dcasedb", "-DPASSWORD=dcasedb", "/home/tsunade/minikonoha/src/package-devel/Deos.DScript/sample/assure.k"]);
-	sp.bg();
-	return JsonRPC_fmt(j, "result", "\"" + sp.communicate("")[0].replace("\n", "\\n").replace("\"", "\\\"") + "\"");
+	String run(Json j) {
+		SubProc sp = new SubProc("/usr/local/bin/minikonoha");
+		sp.setArgumentList(["-DUSER=dcasedb", "-DPASSWORD=dcasedb", "/home/tsunade/minikonoha/src/package-devel/Deos.DScript/sample/assure.k"]);
+		sp.bg();
+		return JsonRPC_fmt(j, "result", "\"" + sp.communicate("")[0].replace("\n", "\\n").replace("\"", "\\\"") + "\"");
+	}
 }
-
 CompileAllDefinedMethod(); //for debug
