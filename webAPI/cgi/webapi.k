@@ -1,11 +1,13 @@
 Import("Deos.DCaseCloud");
 Import("Type.Json");
 Import("Type.File");
+Import("Type.Bytes");
 Import("posix.fd");
 Import("MiniKonoha.Map");
 Import("Syntax.Null");
 Import("Syntax.GlobalVariable");
 Import("Syntax.CStyleWhile");
+Import("JavaStyle.Object");
 Import("JavaScript.String");
 Import("JavaScript.Array");
 Import("JavaScript.Regexp");
@@ -17,18 +19,24 @@ Load("utils.k");
 API repo = new API("dcasedb", "dcasedb");
 
 class API_Method {
-	File lockFile;
+	File file;
 	API_Method(){}
 	boolean paramCheck(Json j) {}
 	String run(Json j) {}
 
 	boolean lock() {
-		this.lockFile = new FILE("./lock","a+");
-		return System.flock(this.lockFile.getfileno(),LOCK_EX);
+		this.file = new FILE("./lock","a+");
+		return System.flock(this.file.getfileno(),LOCK_EX);
+	}
+
+	void write(Json j, String method) {
+		j.setString("method",method);
+		this.file.write(j.toString().toBytes());
+		this.file.write("\n".toBytes());
 	}
 
 	void unlock() {
-		System.flock(this.lockFile.getfileno(),LOCK_UN);
+		System.flock(this.file.getfileno(),LOCK_UN);
 	}
 }
 
@@ -71,8 +79,7 @@ class API_Create extends API_Method {
 	}
 
 	String run(Json j) {
-		// ERROR no argument_id
-		DBNode node = global.repo.CreateDBNode(argument_id, j);
+		DBNode node = global.repo.CreateDBNode(j);
 		return JsonRPC_fmt(j, "result", "{ \"id\": \"" + node.node_id.toString() + "\"}");
 	}
 }
@@ -86,13 +93,14 @@ class API_Insert extends API_Method {
 	}
 
 	String run(Json j) {
+		this.write(j,"Insert");
 		Json jnode = new Json();
 		DBNode node;
 		DBNode dist_node;
 		int argument_id = j.getString("argument_id").toint();
 		if (j.hasKey("new")) {
 			jnode = j.get("new");
-			node = global.repo.CreateDBNode(argument_id, jnode);
+			node = global.repo.CreateDBNode(jnode);
 		}
 		else {
 			int node_id = j.getString("node_id").toint();
@@ -128,6 +136,7 @@ class API_Update extends API_Method {
 	}
 
 	String run(Json j) {
+		this.write(j,"Update");
 		int argument_id = j.getString("argument_id").toint();
 		int node_id = j.getString("node_id").toint();
 		DBNode node = global.repo.GetArgument(argument_id).GetDBNode(node_id);
@@ -145,6 +154,7 @@ class API_Delete extends API_Method {
 	}
 
 	String run(Json j) {
+		this.write(j,"Delete");
 		int argument_id = j.getString("argument_id").toint();
 		int node_id = j.getString("node_id").toint();
 		//boolean result = repo.DeleteDBNode(argument_id, node_id);
@@ -217,6 +227,7 @@ class API_Revert extends API_Method {
 	}
 
 	String run(Json j) {
+		this.write(j,"Revert");
 		if (j.hasKey("id")) {
 			return JsonRPC_formattingWithID("result", "\"success\"", j.getInt("id"));
 		}
