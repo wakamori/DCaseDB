@@ -997,18 +997,15 @@ class API {
 		return this.UpdateDBNode(argument_id, masterId, node, contents);
 	}
 
-	@Public boolean UpdateDBNode(int argument_id, int branch_id, DBNode node, Json contents) {// @yoan
-	//@Public void UpdateDBNode(String argument_id, String branch_id, DBNode node, Json contents) {
+	@Public boolean UpdateDBNode(int argument_id, int branch_id, DBNode node, Json contents) {
 		node.Update(contents);
 		if(contents.hasKey("description")) {
-			// @yoan what UpdateDBNode method is called?
 			this.db.UpdateDBNode(node, contents.getString("description"));
 		}
 		if(contents.hasKey("isEvidence")) {
 			this.db.UpdateDBNode(node, contents.getBoolean("isEvidence"));
 		}
 		return true;
-		//TODO Commit Log
 	}
 
 	@Public void UpdateParentLink(DBNode oldParent, DBNode newParent, DBNode node) {

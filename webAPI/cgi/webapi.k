@@ -1,4 +1,3 @@
-
 Import("Deos.DCaseCloud");
 Import("Type.Json");
 Import("MiniKonoha.Map");
