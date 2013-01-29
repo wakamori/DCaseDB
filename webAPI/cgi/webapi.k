@@ -1,5 +1,7 @@
 Import("Deos.DCaseCloud");
 Import("Type.Json");
+Import("Type.File");
+Import("posix.fd");
 Import("MiniKonoha.Map");
 Import("Syntax.Null");
 Import("Syntax.GlobalVariable");
@@ -15,13 +17,22 @@ Load("utils.k");
 API repo = new API("dcasedb", "dcasedb");
 
 class API_Method {
+	File lockFile;
 	API_Method(){}
 	boolean paramCheck(Json j) {}
 	String run(Json j) {}
+
+	boolean lock() {
+		this.lockFile = new FILE("./lock","a+");
+		return System.flock(this.lockFile.getfileno(),LOCK_EX);
+	}
+
+	void unlock() {
+		System.flock(this.lockFile.getfileno(),LOCK_UN);
+	}
 }
 
 class WebAPI {
-
 	Map[API_Method] api;
 
 	WebAPI() {
