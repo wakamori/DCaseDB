@@ -599,6 +599,7 @@ class DBDriver {
 
 	Json Search(String text) {}
 	Json Search(String text,String nodeType) {}
+	boolean RemoveNode(DBNode node) {}
 }
 
 class DriverMySQL extends DBDriver {
@@ -1025,7 +1026,7 @@ class API {
 
 	@Public boolean DeleteDBNode(int argument_id, int branch_id, int node_id) {
 		Branch branch = this.GetArgument(argument_id).GetBranch(branch_id);
-		DBNode node = branch.GetDBNode(ndoeId);
+		DBNode node = branch.GetDBNode(node_id);
 		branch.RemoveNode(node);
 		return this.db.RemoveNode(node);
 	}

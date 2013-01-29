@@ -157,8 +157,8 @@ class API_Delete extends API_Method {
 		this.write(j,"Delete");
 		int argument_id = j.getString("argument_id").toint();
 		int node_id = j.getString("node_id").toint();
-		//boolean result = repo.DeleteDBNode(argument_id, node_id);
-		boolean result = true; // stab
+		boolean result = global.repo.DeleteDBNode(argument_id, node_id);
+		//boolean result = true; // stab
 		if (result) {
 			return JsonRPC_fmt(j, "result", "\"success\"");
 		}

@@ -33,6 +33,7 @@ String getMsg() {
 	}
 	return query;
 	//return "{\"jsonrpc\": \"2.0\", \"version\": 1, \"method\": \"update\", \"params\": {\"argument_id\": \"10\", \"node_id\": \"46\", \"description\": \"mosh!\"}}";
+	//return "{\"jsonrpc\": \"2.0\", \"version\": 1, \"method\": \"delete\", \"params\": {\"argument_id\": \"10\", \"node_id\": \"46\"}}";
 	//return "{\"jsonrpc\": \"2.0\", \"version\": 1, \"method\": \"create\", \"params\": {\"type\": \"Goal\", \"description\": \"hoge\"}}";
 	//return "{\"jsonrpc\": \"2.0\", \"version\": 1, \"method\": \"get\", \"params\": {\"filter\": [\"Argument\"] }}";
 	//return "{\"jsonrpc\": \"2.0\", \"version\": 1, \"method\": \"get\", \"params\": {\"argument_id\": \"0\" }}";
